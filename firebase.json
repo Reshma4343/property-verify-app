@@ -1,0 +1,9 @@
+{
+  "hosting": {
+    "public": "Property Analyzer",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "/api/**", "function": "api" }]
+  },
+  "functions": [{ "source": "functions" }]
+}
+

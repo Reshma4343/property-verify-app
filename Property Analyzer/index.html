@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropVerify Hyderabad | AI Property Intelligence</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="container nav-inner">
+            <button class="brand" type="button" onclick="location.reload()">
+                <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                <span class="brand-text">Prop<span class="accent">Verify</span></span>
+            </button>
+
+            <div class="nav-actions">
+                <button class="nav-link" type="button" id="btnSampleReport">
+                    <i class="fa-solid fa-file-lines"></i>
+                    Sample Report
+                </button>
+                <button class="nav-link" type="button" onclick="openTracker()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Track Audit
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main">
+        <!-- STEP 1 -->
+        <section id="step-1" class="section fade-in">
+            <div class="ad-banner">Advertisement</div>
+            <div class="step1-header">
+                <div class="pill pill-primary">
+                    <i class="fa-solid fa-bolt"></i>
+                    Real-time Hyderabad Market Intelligence
+                </div>
+
+                <h1 class="hero-title">
+                    Locality Market Profile Intelligence
+                </h1>
+            </div>
+
+            <div class="card glass-card">
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label class="label">Your Name</label>
+                        <input type="text" id="userName" placeholder="Ex: Ahmed Khan" class="input-field">
+                    </div>
+                    <div class="field">
+                        <label class="label">WhatsApp Mobile</label>
+                        <input type="tel" id="userPhone" placeholder="+91" class="input-field">
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label class="label">Email ID</label>
+                        <input type="email" id="userEmail" placeholder="ahmed@example.com" class="input-field">
+                    </div>
+                    <div class="field">
+                        <label class="label">Approx Budget</label>
+                        <input type="text" id="userBudget" placeholder="Ex: 50L - 1Cr" class="input-field">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Target Locality in Hyderabad</label>
+                    <input type="text" id="userLocality" placeholder="Ex: Tellapur, Adibatla, Mokila" class="input-field">
+                </div>
+
+                <button class="btn btn-primary btn-wide" type="button" onclick="startAnalysis()">
+                    <span id="btnText">Analyze Locality</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section id="step-2" class="section hidden fade-in">
+            <div class="step2-wrapper">
+            <div class="step2-content">
+            <div class="card glass-card">
+                <div class="results-head">
+                    <div class="results-left">
+                        <div class="pills">
+                            <span class="pill"><i class="fa-solid fa-map-pin"></i> <span id="resName">Locality</span></span>
+                            <span class="pill pill-success"><i class="fa-solid fa-check-circle"></i> AI Verified</span>
+                            <span class="pill pill-muted" id="resBudgetPill">Budget: Loading...</span>
+                        </div>
+                        <h2 class="results-title" id="resAnalysisTitle">Locality Market Profile</h2>
+                        <p class="results-sub">Market insights generated for your investment profile.</p>
+                    </div>
+
+                    <div class="audit-cta-header">
+                        <button class="btn btn-primary btn-audit-header" type="button" onclick="initAuditFlow()">
+                            <i class="fa-solid fa-shield-check"></i>
+                            <span>Order Full Digital Property Audit (₹999 + GST)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-4 stats">
+                    <div class="grid-item">
+                        <p class="meta">Appreciation (3Y)</p>
+                        <p class="stat stat-good" id="resApp">0%</p>
+                    </div>
+                    <div class="grid-item">
+                        <p class="meta">GO111 Status</p>
+                        <p class="stat" id="resGoStatus">CHECKING...</p>
+                    </div>
+                    <div class="grid-item">
+                        <p class="meta">Master Plan Zone</p>
+                        <p class="stat stat-accent" id="resZone">Loading...</p>
+                    </div>
+                    <div class="grid-item">
+                        <p class="meta">Metro Connectivity</p>
+                        <p class="stat" id="resMetro">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <i class="fa-solid fa-city"></i>
+                    <h3>Social Infrastructure & Amenities</h3>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="grid-item bordered-left bordered-red">
+                        <div class="card-head">
+                            <span class="icon icon-red"><i class="fa-solid fa-hospital"></i></span>
+                            <h4 class="head-title">Key Hospitals</h4>
+                        </div>
+                        <div id="resHospitals" class="list-skeleton"></div>
+                    </div>
+                    <div class="grid-item bordered-left bordered-green">
+                        <div class="card-head">
+                            <span class="icon icon-green"><i class="fa-solid fa-graduation-cap"></i></span>
+                            <h4 class="head-title">Top Schools</h4>
+                        </div>
+                        <div id="resSchools" class="list-skeleton"></div>
+                    </div>
+                    <div class="grid-item bordered-left bordered-blue">
+                        <div class="card-head">
+                            <span class="icon icon-blue"><i class="fa-solid fa-bag-shopping"></i></span>
+                            <h4 class="head-title">Malls & Shopping</h4>
+                        </div>
+                        <div id="resMalls" class="list-skeleton"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-3 transport">
+                    <div class="transport-item">
+                        <span class="icon icon-orange"><i class="fa-solid fa-road"></i></span>
+                        <div>
+                            <p class="meta">ORR & Highway</p>
+                            <p class="transport-value" id="resORR">Checking...</p>
+                        </div>
+                    </div>
+                    <div class="transport-item">
+                        <span class="icon icon-blue"><i class="fa-solid fa-train-subway"></i></span>
+                        <div>
+                            <p class="meta">Railway / MMTS</p>
+                            <p class="transport-value" id="resTrain">Checking...</p>
+                        </div>
+                    </div>
+                    <div class="transport-item">
+                        <span class="icon icon-purple"><i class="fa-solid fa-bus"></i></span>
+                        <div>
+                            <p class="meta">Public Transit</p>
+                            <p class="transport-value" id="resLocalTrans">Checking...</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            </div>
+            <div class="ad-sidebar">Advertisement</div>
+            </div>
+        </section>
+
+        <!-- TRACKER -->
+        <section id="tracker-view" class="section hidden fade-in">
+            <div class="card glass-card tracker">
+                <div class="tracker-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
+                <h2 class="tracker-title">Track Your Audit</h2>
+
+                <div class="field">
+                    <label class="label">Track ID or Mobile</label>
+                    <input type="text" id="trackInput" class="input-field" placeholder="Ex: PV-8271 or 9848XXXXXX">
+                </div>
+
+                <button class="btn btn-primary btn-wide" type="button" onclick="handleTrack()">Check Status</button>
+                <button class="btn btn-ghost btn-wide" type="button" onclick="location.reload()">Go Back</button>
+
+                <div id="trackResult" class="track-result hidden">
+                    Audit Status: Under Verification (Report in 24h)
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL -->
+    <div id="modal-container" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Audit flow">
+        <div class="modal card glass-card">
+            <!-- OTP -->
+            <div id="modal-otp" class="modal-stage">
+                <div class="modal-head">
+                    <h3>Verify Mobile</h3>
+                    <p>Enter the 4-digit code</p>
+                </div>
+                <div class="otp">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                    <input type="text" maxlength="1" class="otp-box">
+                </div>
+                <button class="btn btn-primary btn-wide" type="button" onclick="verifyOTP()">Verify & Continue</button>
+            </div>
+
+            <!-- PAYMENT -->
+            <div id="modal-payment" class="modal-stage hidden">
+                <div class="modal-head">
+                    <h3>Secure Checkout</h3>
+                    <div class="checkout">
+                        <div class="checkout-left">
+                            <p class="meta">Total Amount</p>
+                            <p class="checkout-total">₹1,178.82</p>
+                        </div>
+                        <div class="checkout-right">
+                            <p>Base: ₹999</p>
+                            <p>GST (18%): ₹179.82</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pay-grid">
+                    <button class="pay-btn" type="button" onclick="processPayment()">
+                        <span>UPI / PhonePe / GPay</span>
+                        <i class="fa-brands fa-google-pay"></i>
+                    </button>
+                    <button class="pay-btn" type="button" onclick="processPayment()">
+                        <span>Credit / Debit Card</span>
+                        <i class="fa-solid fa-credit-card"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DETAILS -->
+            <div id="modal-details" class="modal-stage hidden">
+                <div class="modal-head">
+                    <h3>Property Information</h3>
+                </div>
+                <div class="grid grid-2">
+                    <div class="field">
+                        <input type="text" id="propRera" placeholder="RERA Number" class="input-field">
+                    </div>
+                    <div class="field">
+                        <input type="text" id="propSurvey" placeholder="Survey Number (Required)" class="input-field">
+                    </div>
+                </div>
+                <div class="grid grid-2">
+                    <div class="field">
+                        <input type="text" id="propVillage" placeholder="Village" class="input-field">
+                    </div>
+                    <div class="field">
+                        <input type="text" id="propMandal" placeholder="Mandal" class="input-field">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-wide" type="button" onclick="submitAudit()">Submit Audit Order</button>
+            </div>
+
+            <!-- SUCCESS -->
+            <div id="modal-success" class="modal-stage hidden">
+                <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+                <div class="modal-head">
+                    <h3>Order Successful!</h3>
+                    <p>Report will be ready in 24 hours.</p>
+                </div>
+                <div class="trackbox">
+                    <p class="meta">Your Track ID</p>
+                    <p class="track-id" id="finalTrackId">PV-8271</p>
+                </div>
+                <button class="btn btn-primary btn-wide" type="button" onclick="closeModalAndTrack()">Track Progress</button>
+            </div>
+
+            <button class="modal-close" type="button" onclick="closeModal()" aria-label="Close">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- (Optional) reCAPTCHA container (unused for email auth) -->
+    <div id="recaptcha-container" class="hidden" aria-hidden="true"></div>
+
+    <!-- Firebase SDKs (Compat builds so `script.js` can use `window.firebase.*`) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
