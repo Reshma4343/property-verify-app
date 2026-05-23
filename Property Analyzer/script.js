@@ -3,7 +3,7 @@
 // Put your Gemini API key here. Keep this empty for repo safety.
 // For production, do NOT expose keys in client-side JS.
 
-const apiKey = "";
+const apiKey = "AIzaSyC4gEdE1yChSeqGo2IbQaTa0YiCuQ9y6M4";
 const model = "gemini-2.5-flash";
 
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
@@ -58,6 +58,41 @@ document.addEventListener("DOMContentLoaded", () => {
     wireOtpInputs();
 });
 
+/* ── Prestige Loader helpers ── */
+function showLoader(label = "Analyzing locality…") {
+    let loader = document.getElementById("prestige-loader");
+    if (!loader) {
+        loader = document.createElement("div");
+        loader.id = "prestige-loader";
+        loader.innerHTML = `
+          <div class="svg-stage">
+            <div class="ring-track"></div>
+            <div class="spin-ring"></div>
+            <div class="spin-ring-inner"></div>
+            <svg class="buildings-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path class="bld-path bld-main"   d="M30 60V30h20v30"/>
+              <path class="bld-path bld-left"   d="M18 60V40h12v20"/>
+              <path class="bld-path bld-right"  d="M50 60V40h12v20"/>
+              <path class="bld-path bld-accent" d="M35 30V20h10v10"/>
+              <path class="bld-path bld-windows"d="M33 36h4m6 0h4M33 43h4m6 0h4M33 50h4m6 0h4"/>
+              <path class="bld-path pin-path"   d="M40 14a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0 0v6"/>
+            </svg>
+          </div>
+          <p class="loader-label" id="loader-label-text">${label}</p>`;
+        document.body.appendChild(loader);
+    } else {
+        const lbl = loader.querySelector("#loader-label-text");
+        if (lbl) lbl.textContent = label;
+    }
+    requestAnimationFrame(() => loader.classList.add("loader-visible"));
+}
+
+function hideLoader() {
+    const loader = document.getElementById("prestige-loader");
+    if (!loader) return;
+    loader.classList.remove("loader-visible");
+}
+
 async function startAnalysis() {
     const name = document.getElementById("userName").value.trim();
     const phone = document.getElementById("userPhone").value.trim();
@@ -94,6 +129,8 @@ async function startAnalysis() {
     document.getElementById("resAnalysisTitle").innerText = `${loc} Locality Profile`;
     document.getElementById("resBudgetPill").innerText = userData.budget ? `Budget: ${userData.budget}` : "Budget: Flexible";
 
+    showLoader("Analyzing locality…");
+
     try {
         if (!apiKey) {
             alert('Missing API key. Open `script.js` and set `const apiKey = "AIza..."`.');
@@ -105,6 +142,7 @@ async function startAnalysis() {
         try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
         showStep(2);
     } finally {
+        hideLoader();
         if (btnText) btnText.innerText = originalBtnText;
     }
 }

@@ -35,7 +35,9 @@
     <main class="container main">
         <!-- STEP 1 -->
         <section id="step-1" class="section fade-in">
-            <div class="ad-banner">Advertisement</div>
+            <div class="ad-banner">
+                <img src="assets/ad-banner-blue.jpeg" alt="PropVerify – Pay ₹999, Invest with Confidence" class="ad-banner-img">
+            </div>
             <div class="step1-header">
                 <div class="pill pill-primary">
                     <i class="fa-solid fa-bolt"></i>
@@ -101,7 +103,7 @@
                     <div class="audit-cta-header">
                         <button class="btn btn-primary btn-audit-header" type="button" onclick="initAuditFlow()">
                             <i class="fa-solid fa-shield-check"></i>
-                            <span>Order Full Digital Property Audit (₹999 + GST)</span>
+                            <span>Order Full Digital<br>Property Audit (₹999 + GST)</span>
                         </button>
                     </div>
                 </div>
@@ -181,7 +183,9 @@
 
             </div>
             </div>
-            <div class="ad-sidebar">Advertisement</div>
+            <div class="ad-sidebar">
+                <img src="assets/ad-banner-white.jpeg" alt="Every Property. Every Detail. Verified." class="ad-sidebar-img">
+            </div>
             </div>
         </section>
 
@@ -272,6 +276,27 @@
                         <input type="text" id="propMandal" placeholder="Mandal" class="input-field">
                     </div>
                 </div>
+
+                <!-- FILE UPLOAD -->
+                <div class="field">
+                    <label class="label">Upload Documents <span class="label-hint">(PDF, images, Word — any format)</span></label>
+                    <div class="dropzone" id="dropzone" onclick="document.getElementById('propFiles').click()">
+                        <input type="file" id="propFiles" multiple accept="*/*" style="display:none" onchange="handleFileSelect(this.files)">
+                        <div class="dropzone-inner" id="dropzone-inner">
+                            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                            <p class="dropzone-text">Drag & drop files here or <span class="dropzone-link">browse</span></p>
+                            <p class="dropzone-sub">Supports all file types · Max 10MB per file</p>
+                        </div>
+                        <ul class="file-list" id="fileList"></ul>
+                    </div>
+                </div>
+
+                <!-- NOTES -->
+                <div class="field">
+                    <label class="label">Additional Notes <span class="label-hint">(optional)</span></label>
+                    <textarea id="propNotes" class="input-field input-textarea" placeholder="E.g. Property is near a lake, adjacent plot dispute, any concerns you want verified..."></textarea>
+                </div>
+
                 <button class="btn btn-primary btn-wide" type="button" onclick="submitAudit()">Submit Audit Order</button>
             </div>
 
@@ -302,6 +327,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
 
     <script src="script.js" defer></script>
