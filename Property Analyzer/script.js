@@ -1,11 +1,5 @@
 // script.js
 
-// Put your Gemini API key here. Keep this empty for repo safety.
-// For production, do NOT expose keys in client-side JS.
-
-const apiKey = "AIzaSyC4gEdE1yChSeqGo2IbQaTa0YiCuQ9y6M4";
-const model = "gemini-2.5-flash";
-
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
 let lastAuditPayment = null;
@@ -132,10 +126,6 @@ async function startAnalysis() {
     showLoader("Analyzing locality…");
 
     try {
-        if (!apiKey) {
-            alert('Missing API key. Open `script.js` and set `const apiKey = "AIza..."`.');
-            return;
-        }
         await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
@@ -175,30 +165,20 @@ Return ONLY a valid JSON with these keys:
 }
 
 async function fetchAI(loc, budget) {
-    const prompt = buildPrompt(loc, budget);
-
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-            }),
-        }
-    );
+    const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locality: loc, budget }),
+    });
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const message = result?.error?.message || `HTTP ${response.status}`;
+        const message = result?.error || `HTTP ${response.status}`;
         throw new Error(message);
     }
 
-    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) throw new Error("Empty model response.");
-
-    const cleanText = String(rawText).replace(/```json/gi, "").replace(/```/g, "").trim();
-    const data = JSON.parse(cleanText);
+    const data = result?.data;
+    if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
     showStep(2);
@@ -214,6 +194,13 @@ function updateUI(data) {
     goEl.innerText = goVal;
     goEl.classList.toggle("stat-good", goVal === "SAFE");
     goEl.classList.toggle("stat-bad", goVal !== "SAFE");
+    const goDetailsEl = document.getElementById("resGoDetails");
+    if (goDetailsEl) {
+        const details = data.go111_details;
+        goDetailsEl.innerText = details
+            ? `${details.name} • Village ${details.villageNo} • ${details.mandal}`
+            : "";
+    }
 
     document.getElementById("resZone").innerText = data.zoning || "Loading...";
     document.getElementById("resMetro").innerText = data.metro || "Checking Connectivity...";

@@ -305,6 +305,7 @@ body {
 .stat-good { color: #10b981; }
 .stat-bad { color: #ef4444; }
 .stat-accent { color: var(--primary); }
+.go111-detail { margin: 6px 0 0; font-size: 11px; line-height: 1.35; font-weight: 800; color: var(--text-muted); }
 
 .section-title {
     display: flex;
