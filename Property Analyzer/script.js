@@ -3,6 +3,7 @@
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
 let lastAuditPayment = null;
+let selectedAuditFiles = [];
 let fakeOtp = null;
 const USE_FAKE_OTP = true;
 
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     wireOtpInputs();
+    wireDocumentUpload();
 });
 
 /* ── Prestige Loader helpers ── */
@@ -266,6 +268,8 @@ function initAuditFlow() {
         alert("Please enter your mobile number first, then click Analyze Locality.");
         return;
     }
+    selectedAuditFiles = [];
+    renderSelectedFiles();
     document.getElementById("modal-container").classList.remove("hidden");
     generateAndSendOtp(userData.phone);
     showModalStage("otp");
@@ -409,14 +413,42 @@ function getFirestore() {
     return window.firebase.firestore();
 }
 
-async function saveAuditOrderToFirestore(trackId, property) {
+async function uploadAuditDocuments(trackId) {
+    if (!selectedAuditFiles.length) return [];
+
+    try {
+        return await Promise.all(
+            selectedAuditFiles.map(async (file, index) => {
+                const response = await fetch(`/api/upload-document/${encodeURIComponent(trackId)}?i=${index + 1}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/octet-stream",
+                        "x-file-name": encodeURIComponent(file.name || `Document ${index + 1}`),
+                        "x-file-type": file.type || "application/octet-stream",
+                    },
+                    body: file,
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data?.error || `Document upload failed (HTTP ${response.status}).`);
+                }
+                return data;
+            })
+        );
+    } catch (error) {
+        throw new Error(error?.message || "Document upload failed. Please try again.");
+    }
+}
+
+async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     const db = getFirestore();
     const FieldValue = window.firebase.firestore.FieldValue;
 
     const payload = {
         trackId,
         createdAt: FieldValue.serverTimestamp(),
-        status: "submitted",
+        status: "New Lead",
         user: { ...userData },
         property: {
             rera: property?.rera || "",
@@ -424,6 +456,8 @@ async function saveAuditOrderToFirestore(trackId, property) {
             village: property?.village || "",
             mandal: property?.mandal || "",
         },
+        notes: notes || "",
+        documents: documents || [],
         payment: lastAuditPayment ? { ...lastAuditPayment } : null,
         client: {
             userAgent: navigator.userAgent,
@@ -462,6 +496,7 @@ async function submitAudit() {
     if (!survey) { alert("Survey Number is required for verification"); return; }
 
     const btn = document.querySelector("#modal-details button");
+    if (btn?.disabled) return;
     const original = btn?.innerHTML;
     if (btn) {
         btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...`;
@@ -475,9 +510,11 @@ async function submitAudit() {
         village: document.getElementById("propVillage").value.trim(),
         mandal: document.getElementById("propMandal").value.trim(),
     };
+    const notes = document.getElementById("propNotes")?.value.trim() || "";
 
     try {
-        await saveAuditOrderToFirestore(trackId, property);
+        const documents = await uploadAuditDocuments(trackId);
+        await saveAuditOrderToFirestore(trackId, property, notes, documents);
         document.getElementById("finalTrackId").innerText = trackId;
         showModalStage("success");
     } catch (e) {
@@ -489,6 +526,84 @@ async function submitAudit() {
             btn.disabled = false;
         }
     }
+}
+
+function renderSelectedFiles() {
+    const fileList = document.getElementById("fileList");
+    const dropzoneInner = document.getElementById("dropzone-inner");
+    if (!fileList) return;
+
+    fileList.innerHTML = selectedAuditFiles
+        .map((file, index) => {
+            const sizeMb = file.size ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : "";
+            return `
+                <li class="file-item">
+                    <i class="fa-solid fa-file-lines file-icon"></i>
+                    <span class="file-name">${escapeHtml(file.name || `Document ${index + 1}`)}</span>
+                    <span class="file-size">${escapeHtml(sizeMb)}</span>
+                    <button class="file-remove" type="button" onclick="event.stopPropagation(); removeSelectedFile(${index})" aria-label="Remove file">&times;</button>
+                </li>
+            `;
+        })
+        .join("");
+
+    if (dropzoneInner) {
+        dropzoneInner.classList.toggle("hidden", selectedAuditFiles.length > 0);
+    }
+}
+
+function removeSelectedFile(index) {
+    selectedAuditFiles.splice(index, 1);
+    renderSelectedFiles();
+}
+
+function handleFileSelect(files) {
+    const incoming = Array.from(files || []);
+    const maxBytes = 10 * 1024 * 1024;
+    const accepted = [];
+    const rejected = [];
+
+    incoming.forEach((file) => {
+        if (file.size > maxBytes) {
+            rejected.push(file.name || "Unnamed file");
+        } else {
+            accepted.push(file);
+        }
+    });
+
+    selectedAuditFiles = accepted;
+    renderSelectedFiles();
+
+    if (rejected.length) {
+        alert(`These files are above 10MB and were not added: ${rejected.join(", ")}`);
+    }
+}
+
+function wireDocumentUpload() {
+    const dropzone = document.getElementById("dropzone");
+    const input = document.getElementById("propFiles");
+    if (!dropzone || !input) return;
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.add("dropzone-over");
+        });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.remove("dropzone-over");
+        });
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+        handleFileSelect(event.dataTransfer?.files);
+        input.value = "";
+    });
 }
 
 function closeModal() { document.getElementById("modal-container").classList.add("hidden"); }
