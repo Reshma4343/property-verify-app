@@ -312,7 +312,7 @@ function verifyOTP() {
             btn.innerHTML = original;
             btn.disabled = false;
             // In dev mode (self OTP), skip payment so you can test Firestore save/admin dashboard quickly.
-            showModalStage(USE_FAKE_OTP ? "details" : "payment");
+            showModalStage("payment");
         })
         .catch((err) => {
             console.error("OTP verify error:", err);
@@ -607,6 +607,40 @@ function wireDocumentUpload() {
 }
 
 function closeModal() { document.getElementById("modal-container").classList.add("hidden"); }
+
+function showStatPopup(type) {
+    let title, value, desc;
+
+    if (type === "appreciation") {
+        const appVal = document.getElementById("resApp")?.innerText || "N/A";
+        title = "Appreciation (3Y)";
+        value = appVal;
+        desc = `This is the estimated 3-year price appreciation for the <strong>${document.getElementById("resName")?.innerText || "selected"}</strong> locality in Hyderabad. It reflects overall market growth based on historical transaction data and current demand trends. Positive appreciation indicates strong investment potential.`;
+    } else if (type === "go111") {
+        const goVal = document.getElementById("resGoStatus")?.innerText || "N/A";
+        const goDetails = document.getElementById("resGoDetails")?.innerText || "";
+        title = "GO111 Status";
+        value = goVal;
+        const isSafe = goVal === "SAFE";
+        desc = isSafe
+            ? `This locality is <strong>NOT affected</strong> by GO Ms. No. 111 of 1996, which restricts construction within 10km of Osman Sagar and Himayat Sagar catchment areas. You can proceed with property purchase without GO111-related legal concerns.${goDetails ? `<br><br><em>${goDetails}</em>` : ""}`
+            : `This locality <strong>may fall within the GO Ms. No. 111 catchment zone</strong> — a Telangana government order restricting construction near Osman Sagar and Himayat Sagar reservoirs. Always verify with HMDA/DTCP before purchasing.${goDetails ? `<br><br><em>${goDetails}</em>` : ""}`;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "stat-popup-overlay";
+    overlay.innerHTML = `
+        <div class="stat-popup">
+            <p class="stat-popup-title">${title}</p>
+            <p class="stat-popup-value">${value}</p>
+            <p class="stat-popup-desc">${desc}</p>
+            <button class="stat-popup-close" onclick="this.closest('.stat-popup-overlay').remove()" aria-label="Close">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+        </div>`;
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+}
 function closeModalAndTrack() { closeModal(); openTracker(); }
 function openTracker() { showStep(3); }
 function handleTrack() {
