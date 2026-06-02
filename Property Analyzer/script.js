@@ -4,6 +4,7 @@ let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
 let lastAuditPayment = null;
 let selectedAuditFiles = [];
+let currentAuditTrackId = null;
 let fakeOtp = null;
 const USE_FAKE_OTP = true;
 
@@ -131,8 +132,7 @@ async function startAnalysis() {
         await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
-        try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
-        showStep(2);
+        alert(e?.message || "Market analysis is temporarily unavailable. Please try again.");
     } finally {
         hideLoader();
         if (btnText) btnText.innerText = originalBtnText;
@@ -183,19 +183,53 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
+    await saveFreeInsightToFirestore(data);
     showStep(2);
 }
 
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
+}
+
+function setHtml(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = value;
+}
+
+function firstValue(...values) {
+    return values.find((value) => {
+        if (Array.isArray(value)) return value.length > 0;
+        return value !== undefined && value !== null && value !== "";
+    });
+}
+
+function normalizeList(value) {
+    if (Array.isArray(value)) return value;
+    if (!value) return [];
+    if (typeof value === "string") {
+        return value
+            .split(/\n|;|,(?=\s*[A-Z0-9])/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+    }
+    if (typeof value === "object") return Object.values(value).flat();
+    return [String(value)];
+}
+
 function updateUI(data) {
+    console.log("[analyze] AI data", data);
     const priceEl = document.getElementById("resPrice");
     if (priceEl) priceEl.innerText = data.price || "₹ Market Rate";
-    document.getElementById("resApp").innerText = data.appreciation || "0%";
+    setText("resApp", data.appreciation || "0%");
 
     const goEl = document.getElementById("resGoStatus");
     const goVal = data.go111 || "VERIFYING";
-    goEl.innerText = goVal;
-    goEl.classList.toggle("stat-good", goVal === "SAFE");
-    goEl.classList.toggle("stat-bad", goVal !== "SAFE");
+    if (goEl) {
+        goEl.innerText = goVal;
+        goEl.classList.toggle("stat-good", goVal === "SAFE");
+        goEl.classList.toggle("stat-bad", goVal !== "SAFE");
+    }
     const goDetailsEl = document.getElementById("resGoDetails");
     if (goDetailsEl) {
         const details = data.go111_details;
@@ -204,18 +238,21 @@ function updateUI(data) {
             : "";
     }
 
-    document.getElementById("resZone").innerText = data.zoning || "Loading...";
-    document.getElementById("resMetro").innerText = data.metro || "Checking Connectivity...";
+    const infra = data.infrastructure || data.social_infrastructure || data.amenities || {};
+
+    setText("resZone", firstValue(data.zoning, data.zone, data.master_plan_zone) || "Loading...");
+    setText("resMetro", firstValue(data.metro, data.metro_connectivity, data.nearest_metro) || "Checking Connectivity...");
 
     const renderInfra = (id, list) => {
         const container = document.getElementById(id);
+        if (!container) return;
         if (list && list.length > 0) {
             const toText = (item) => {
                 if (item == null) return "";
                 if (typeof item === "string") return item;
                 if (typeof item === "number" || typeof item === "boolean") return String(item);
                 if (typeof item === "object") {
-                    const name = item.name ?? item.title ?? item.hospital ?? item.school ?? item.mall ?? "";
+                    const name = item.name ?? item.title ?? item.hospital ?? item.school ?? item.mall ?? item.place ?? "";
                     const distance = item.distance ?? item.dist ?? item.km ?? "";
                     const extra = item.address ?? item.area ?? "";
                     const parts = [name, distance && `(${distance})`, extra].filter(Boolean);
@@ -231,15 +268,56 @@ function updateUI(data) {
         }
     };
 
-    renderInfra("resHospitals", data.hospitals_list);
-    renderInfra("resSchools", data.schools_list);
-    renderInfra("resMalls", data.malls_list);
+    renderInfra("resHospitals", normalizeList(firstValue(
+        data.hospitals_list,
+        data.hospitals,
+        data.nearby_hospitals,
+        data.top_hospitals,
+        infra.hospitals,
+        infra.hospitals_list
+    )));
+    renderInfra("resSchools", normalizeList(firstValue(
+        data.schools_list,
+        data.schools,
+        data.nearby_schools,
+        data.top_schools,
+        infra.schools,
+        infra.schools_list
+    )));
+    renderInfra("resMalls", normalizeList(firstValue(
+        data.malls_list,
+        data.malls,
+        data.nearby_malls,
+        data.shopping_malls,
+        data.markets,
+        infra.malls,
+        infra.malls_list,
+        infra.markets
+    )));
 
-    const orr = data.orr_access || "Checking...";
-    const highway = data.highway || "";
-    document.getElementById("resORR").innerHTML = `${escapeHtml(orr)}${highway ? `<br><span class="subnote">${escapeHtml(highway)}</span>` : ""}`;
-    document.getElementById("resTrain").innerText = data.rail_access || "Checking Stations...";
-    document.getElementById("resLocalTrans").innerText = data.local_transport || "Checking Connectivity...";
+    const orr = firstValue(data.orr_access, data.orr, data.orr_connectivity, data.outer_ring_road) || "Checking...";
+    const highway = firstValue(data.highway, data.highway_connectivity, data.nearest_highway) || "";
+    setHtml("resORR", `${escapeHtml(orr)}${highway ? `<br><span class="subnote">${escapeHtml(highway)}</span>` : ""}`);
+    setText("resTrain", firstValue(data.rail_access, data.railway, data.mmts, data.nearest_railway) || "Checking Stations...");
+    setText("resLocalTrans", firstValue(data.local_transport, data.public_transport, data.bus_connectivity) || "Checking Connectivity...");
+}
+
+async function saveFreeInsightToFirestore(aiInsights) {
+    try {
+        const db = getFirestore();
+        const FieldValue = window.firebase.firestore.FieldValue;
+        await db.collection("freeInsights").add({
+            name: userData.name || "",
+            phone: userData.phone || "",
+            email: userData.email || "",
+            locality: userData.locality || "",
+            budget: userData.budget || "",
+            aiInsights: aiInsights || {},
+            createdAt: FieldValue.serverTimestamp(),
+        });
+    } catch (err) {
+        console.error("[freeInsights] save failed", err);
+    }
 }
 
 function escapeHtml(input) {
@@ -269,6 +347,7 @@ function initAuditFlow() {
         return;
     }
     selectedAuditFiles = [];
+    currentAuditTrackId = "PV-" + Math.floor(1000 + Math.random() * 9000);
     renderSelectedFiles();
     document.getElementById("modal-container").classList.remove("hidden");
     generateAndSendOtp(userData.phone);
@@ -341,11 +420,13 @@ async function startRazorpayCheckout() {
 
     let order;
     try {
+        if (!currentAuditTrackId) currentAuditTrackId = "PV-" + Math.floor(1000 + Math.random() * 9000);
         order = await createRazorpayOrder({
             amount: AUDIT_TOTAL_PAISE,
             currency: "INR",
-            receipt: `PV_AUDIT_${Date.now()}`,
+            receipt: currentAuditTrackId,
             notes: {
+                trackId: currentAuditTrackId,
                 name: userData.name || "",
                 phone: userData.phone || "",
                 email: userData.email || "",
@@ -384,6 +465,7 @@ async function startRazorpayCheckout() {
                     currency: order.currency,
                     verifiedAt: new Date().toISOString(),
                 };
+                await savePaidLeadToFirestore(currentAuditTrackId);
                 showModalStage("details");
             } catch (e) {
                 console.error(e);
@@ -449,6 +531,7 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
         trackId,
         createdAt: FieldValue.serverTimestamp(),
         status: "New Lead",
+        paymentStatus: lastAuditPayment ? "paid" : "pending",
         user: { ...userData },
         property: {
             rera: property?.rera || "",
@@ -465,9 +548,50 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
         },
     };
 
+    if (lastAuditPayment?.amount_paise) {
+        payload.amountPaid = lastAuditPayment.amount_paise / 100;
+        payload.revenue = payload.amountPaid;
+        payload.paidAt = FieldValue.serverTimestamp();
+        payload.paymentTimestamp = FieldValue.serverTimestamp();
+    }
+
     console.log("[auditOrders] saving", trackId, payload);
     await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
     console.log("[auditOrders] saved", trackId);
+}
+
+async function savePaidLeadToFirestore(trackId) {
+    const db = getFirestore();
+    const FieldValue = window.firebase.firestore.FieldValue;
+    const amountPaid = lastAuditPayment?.amount_paise ? lastAuditPayment.amount_paise / 100 : null;
+
+    const payload = {
+        trackId,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        status: "New Lead",
+        paymentStatus: lastAuditPayment ? "paid" : "pending",
+        user: { ...userData },
+        property: {},
+        documents: [],
+        notes: "",
+        payment: lastAuditPayment ? { ...lastAuditPayment } : null,
+        client: {
+            userAgent: navigator.userAgent,
+            locale: navigator.language,
+        },
+    };
+
+    if (amountPaid !== null) {
+        payload.amountPaid = amountPaid;
+        payload.revenue = amountPaid;
+        payload.paidAt = FieldValue.serverTimestamp();
+        payload.paymentTimestamp = FieldValue.serverTimestamp();
+    }
+
+    console.log("[auditOrders] saving paid lead", trackId, payload);
+    await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
+    console.log("[auditOrders] paid lead saved", trackId);
 }
 
 async function createRazorpayOrder(payload) {
@@ -503,7 +627,7 @@ async function submitAudit() {
         btn.disabled = true;
     }
 
-    const trackId = "PV-" + Math.floor(1000 + Math.random() * 9000);
+    const trackId = currentAuditTrackId || "PV-" + Math.floor(1000 + Math.random() * 9000);
     const property = {
         rera: document.getElementById("propRera").value.trim(),
         survey,
