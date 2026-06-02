@@ -253,10 +253,12 @@ function escapeHtml(input) {
 
 function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
+    document.getElementById("step-1-continued").classList.add("hidden");
+    document.getElementById("how-propverify-works").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) document.getElementById("step-1").classList.remove("hidden");
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -271,12 +273,11 @@ function initAuditFlow() {
     selectedAuditFiles = [];
     renderSelectedFiles();
     document.getElementById("modal-container").classList.remove("hidden");
-    generateAndSendOtp(userData.phone);
-    showModalStage("otp");
+    showModalStage("payment");
 }
 
 function showModalStage(stage) {
-    ["otp", "payment", "details", "success"].forEach((s) => {
+    ["payment", "details", "success"].forEach((s) => {
         document.getElementById("modal-" + s).classList.add("hidden");
     });
     document.getElementById("modal-" + stage).classList.remove("hidden");
@@ -312,7 +313,7 @@ function verifyOTP() {
             btn.innerHTML = original;
             btn.disabled = false;
             // In dev mode (self OTP), skip payment so you can test Firestore save/admin dashboard quickly.
-            showModalStage("payment");
+            showModalStage(USE_FAKE_OTP ? "details" : "payment");
         })
         .catch((err) => {
             console.error("OTP verify error:", err);
@@ -357,13 +358,39 @@ async function startRazorpayCheckout() {
         payButtons.forEach((b) => (b.disabled = false));
     }
 
+    // Support multiple backend response shapes:
+    // - Some backends return { keyId, orderId }
+    // - Razorpay APIs commonly return { key_id, id }
+    const keyId =
+        order?.keyId ??
+        order?.key_id ??
+        order?.razorpayKeyId ??
+        order?.razorpay_key_id ??
+        "";
+
+    const orderId =
+        order?.orderId ??
+        order?.order_id ??
+        order?.id ??
+        "";
+
+    const amount = Number(order?.amount ?? AUDIT_TOTAL_PAISE);
+    const currency = String(order?.currency ?? "INR");
+
+    if (!keyId) {
+        throw new Error("Payment config missing: key id not returned by /api/order.");
+    }
+    if (!orderId) {
+        throw new Error("Payment config missing: order id not returned by /api/order.");
+    }
+
     const options = {
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency,
+        key: keyId,
+        amount,
+        currency,
         name: "PropVerify Hyderabad",
         description: "Full Digital Property Audit",
-        order_id: order.orderId,
+        order_id: orderId,
         prefill: {
             name: userData.name || "",
             email: userData.email || "",
@@ -380,8 +407,8 @@ async function startRazorpayCheckout() {
                 if (!ok) throw new Error("Payment verification failed.");
                 lastAuditPayment = {
                     ...response,
-                    amount_paise: order.amount,
-                    currency: order.currency,
+                    amount_paise: amount,
+                    currency,
                     verifiedAt: new Date().toISOString(),
                 };
                 showModalStage("details");
@@ -476,8 +503,26 @@ async function createRazorpayOrder(payload) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.error || `Order create failed (HTTP ${res.status}).`);
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+        ? await res.json().catch(() => ({}))
+        : { raw: await res.text().catch(() => "") };
+
+    if (!res.ok) {
+        const hint =
+            res.status === 404
+                ? "Endpoint not found. Is your backend actually serving /api/order on this same domain?"
+                : res.status === 0
+                    ? "Network error. Are you opening the site via file:// instead of http(s):// ?"
+                    : "";
+        console.error("[/api/order] failed", { status: res.status, data });
+        throw new Error(
+            data?.error ||
+            `Order create failed (HTTP ${res.status}). ${hint}`.trim()
+        );
+    }
+
     return data;
 }
 
@@ -607,40 +652,6 @@ function wireDocumentUpload() {
 }
 
 function closeModal() { document.getElementById("modal-container").classList.add("hidden"); }
-
-function showStatPopup(type) {
-    let title, value, desc;
-
-    if (type === "appreciation") {
-        const appVal = document.getElementById("resApp")?.innerText || "N/A";
-        title = "Appreciation (3Y)";
-        value = appVal;
-        desc = `This is the estimated 3-year price appreciation for the <strong>${document.getElementById("resName")?.innerText || "selected"}</strong> locality in Hyderabad. It reflects overall market growth based on historical transaction data and current demand trends. Positive appreciation indicates strong investment potential.`;
-    } else if (type === "go111") {
-        const goVal = document.getElementById("resGoStatus")?.innerText || "N/A";
-        const goDetails = document.getElementById("resGoDetails")?.innerText || "";
-        title = "GO111 Status";
-        value = goVal;
-        const isSafe = goVal === "SAFE";
-        desc = isSafe
-            ? `This locality is <strong>NOT affected</strong> by GO Ms. No. 111 of 1996, which restricts construction within 10km of Osman Sagar and Himayat Sagar catchment areas. You can proceed with property purchase without GO111-related legal concerns.${goDetails ? `<br><br><em>${goDetails}</em>` : ""}`
-            : `This locality <strong>may fall within the GO Ms. No. 111 catchment zone</strong> — a Telangana government order restricting construction near Osman Sagar and Himayat Sagar reservoirs. Always verify with HMDA/DTCP before purchasing.${goDetails ? `<br><br><em>${goDetails}</em>` : ""}`;
-    }
-
-    const overlay = document.createElement("div");
-    overlay.className = "stat-popup-overlay";
-    overlay.innerHTML = `
-        <div class="stat-popup">
-            <p class="stat-popup-title">${title}</p>
-            <p class="stat-popup-value">${value}</p>
-            <p class="stat-popup-desc">${desc}</p>
-            <button class="stat-popup-close" onclick="this.closest('.stat-popup-overlay').remove()" aria-label="Close">
-                <i class="fa-solid fa-circle-xmark"></i>
-            </button>
-        </div>`;
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
-    document.body.appendChild(overlay);
-}
 function closeModalAndTrack() { closeModal(); openTracker(); }
 function openTracker() { showStep(3); }
 function handleTrack() {
