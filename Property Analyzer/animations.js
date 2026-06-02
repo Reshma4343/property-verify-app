@@ -159,9 +159,16 @@
       { sel: '.footer-main',       cls: '' },
     ];
 
-    /* Add base classes */
+    /* Elements inside step-1 vs those in other sections */
+    const step1Only = new Set([
+      '.gov-integrations-wrap .section-label-wrap',
+      '.gov-integrations-wrap .section-heading',
+    ]);
+
+    /* Add base classes — gov items scoped to step1, everything else document-wide */
     targets.forEach(({ sel, cls, delay }) => {
-      const el = $(sel, step1 ? step1 : document);
+      const ctx = (step1 && step1Only.has(sel)) ? step1 : document;
+      const el = $(sel, ctx);
       if (!el) return;
       if (cls) el.classList.add(cls);
       if (delay) el.style.transitionDelay = delay;
@@ -566,6 +573,7 @@
     initLiveBadges();
     initPillHover();
     initHeadingUnderlines();
+    /* NOTE: hpwGoToStep is owned by the inline <script> in index.html — do not redefine here */
 
     /* Small perf: remove will-change after animations settle */
     setTimeout(() => {
