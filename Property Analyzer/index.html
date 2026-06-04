@@ -8,7 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Firebase compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
     <!-- NAV -->
@@ -82,6 +87,616 @@
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
+
+
+        </section>
+
+        <!-- HOW PROPVERIFY WORKS -->
+        <section class="hpw-section" id="how-propverify-works" aria-label="How PropVerify Works">
+
+          <div class="hpw-divider-top" aria-hidden="true">
+            <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M0 56 C240 0 480 56 720 28 C960 0 1200 56 1440 28 L1440 56 Z" fill="#fafafa"/>
+            </svg>
+          </div>
+
+          <div class="hpw-inner">
+
+            <!-- HEADER -->
+            <div class="hpw-header hpw-reveal">
+              <div class="hpw-header-pill">
+                <span class="hpw-pill-dot"></span>
+                How PropVerify Works
+              </div>
+              <h2 class="hpw-title">How <span class="hpw-title-accent">PropVerify</span> Works</h2>
+              <p class="hpw-subtitle">From Property Search to Verified Property Intelligence in Minutes</p>
+            </div>
+
+            <!-- MAIN LAYOUT -->
+            <div class="hpw-layout" data-hpw-autoplay="true">
+
+              <!-- Sidebar nav -->
+              <aside class="hpw-nav" aria-label="Progress navigation">
+                <div class="hpw-nav-track" aria-hidden="true">
+                  <div class="hpw-nav-line" id="hpwNavLine"></div>
+                </div>
+                <ol class="hpw-nav-list" aria-label="Walkthrough steps">
+                  <li class="hpw-nav-item hpw-nav-active" data-step="0">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(0)" aria-label="Step 01 Search Property">
+                      <span class="hpw-nav-num">01</span>
+                      <span class="hpw-nav-label">Search Property</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                  <li class="hpw-nav-item" data-step="1">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Step 02 Analyze Location">
+                      <span class="hpw-nav-num">02</span>
+                      <span class="hpw-nav-label">Analyze Location</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                  <li class="hpw-nav-item" data-step="2">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Step 03 RERA &amp; Survey Verification">
+                      <span class="hpw-nav-num">03</span>
+                      <span class="hpw-nav-label">RERA &amp; Survey Verification</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                  <li class="hpw-nav-item" data-step="3">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Step 04 Secure Payment">
+                      <span class="hpw-nav-num">04</span>
+                      <span class="hpw-nav-label">Secure Payment</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                  <li class="hpw-nav-item" data-step="4">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Step 05 Track Audit">
+                      <span class="hpw-nav-num">05</span>
+                      <span class="hpw-nav-label">Track Audit</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                  <li class="hpw-nav-item" data-step="5">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Step 06 Receive Audit Report in 15 Minutes">
+                      <span class="hpw-nav-num">06</span>
+                      <span class="hpw-nav-label">Receive Audit Report</span>
+                      <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                      <span class="hpw-nav-progress" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                </ol>
+              </aside>
+
+              <!-- Panels -->
+              <div class="hpw-panels" id="hpwPanels" aria-live="polite">
+
+                <!-- STEP 1 -->
+                <article class="hpw-panel hpw-panel-active" data-panel="0" aria-label="Step 01 Search Property">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 01</span></div>
+                    <h3 class="hpw-step-title">Search Property</h3>
+                    <p class="hpw-step-desc">Enter a property location, survey number, or area to begin verification.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Smart suggestions as you type</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Survey + locality lookup</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Official source matching</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-search">
+                          <div class="hpw-ss-nav">
+                            <div class="hpw-ss-brand"><span class="hpw-ss-shield">&#9646;</span> Prop<strong>Verify</strong></div>
+                            <div class="hpw-ss-nav-btns"><div class="hpw-ss-nav-btn"></div><div class="hpw-ss-nav-btn"></div></div>
+                          </div>
+                          <div class="hpw-ss-pill"><span class="hpw-ss-pill-dot"></span> Real-time Property Intelligence</div>
+                          <div class="hpw-ss-hero-title">Search + Verify in Minutes</div>
+                          <div class="hpw-ss-card hpw-search-highlight">
+                            <div class="hpw-ss-fields">
+                              <div class="hpw-ss-row">
+                                <div class="hpw-ss-field"><div class="hpw-ss-label">Location</div><div class="hpw-ss-input hpw-input-active">Tellapur, Hyderabad<span class="hpw-cursor-blink">|</span></div></div>
+                                <div class="hpw-ss-field"><div class="hpw-ss-label">Survey / Plot</div><div class="hpw-ss-input">Sy.No 142/A</div></div>
+                              </div>
+                              <div class="hpw-ss-field hpw-ss-field-full hpw-field-glow">
+                                <div class="hpw-ss-label">Match Results</div>
+                                <div class="hpw-ss-input">Government records found · Ready to analyze</div>
+                              </div>
+                            </div>
+                            <div class="hpw-ss-btn">Start Verification <span>→</span></div>
+                          </div>
+                          <div class="hpw-animated-cursor" id="hpwCursor1" aria-hidden="true">
+                            <svg width="22" height="28" viewBox="0 0 22 28" fill="none"><path d="M2 2l16 10-7 1-4 8L2 2z" fill="#141E3A" stroke="#fff" stroke-width="1.5"/></svg>
+                          </div>
+                          <div class="hpw-zoom-glow" aria-hidden="true"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i><span>Search Interface</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-bolt"></i><span>Instant Match</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 2 -->
+                <article class="hpw-panel" data-panel="1" aria-label="Step 02 Analyze Location">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 02</span></div>
+                    <h3 class="hpw-step-title">Analyze Location</h3>
+                    <p class="hpw-step-desc">Review connectivity, infrastructure, schools, hospitals, highways, metro access, growth corridors, and nearby developments.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Connectivity highlights</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Nearby amenities mapping</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Growth corridor signals</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/analysis</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-map">
+                          <div class="hpw-map-bg">
+                            <div class="hpw-map-grid"></div>
+                            <div class="hpw-road hpw-road-h" style="top:38%"></div>
+                            <div class="hpw-road hpw-road-h" style="top:62%"></div>
+                            <div class="hpw-road hpw-road-v" style="left:40%"></div>
+                            <div class="hpw-road hpw-road-v" style="left:68%"></div>
+                            <div class="hpw-marker hpw-marker-main" style="left:52%;top:44%">
+                              <div class="hpw-marker-pulse"></div>
+                              <div class="hpw-marker-dot"></div>
+                              <div class="hpw-marker-label">Tellapur</div>
+                            </div>
+                            <div class="hpw-marker hpw-marker-sm hpw-marker-blue" style="left:30%;top:28%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">School</div></div>
+                            <div class="hpw-marker hpw-marker-sm hpw-marker-green" style="left:70%;top:32%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Hospital</div></div>
+                            <div class="hpw-marker hpw-marker-sm hpw-marker-orange" style="left:26%;top:60%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Metro</div></div>
+                            <div class="hpw-marker hpw-marker-sm hpw-marker-purple" style="left:74%;top:68%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Highway</div></div>
+                            <div class="hpw-radius-ring" style="left:52%;top:44%"></div>
+                            <div class="hpw-map-stats">
+                              <div class="hpw-map-stat"><span class="hpw-map-stat-val">8.4</span><span class="hpw-map-stat-lbl">Location Score</span></div>
+                              <div class="hpw-map-stat"><span class="hpw-map-stat-val hpw-stat-green">High</span><span class="hpw-map-stat-lbl">Growth</span></div>
+                              <div class="hpw-map-stat"><span class="hpw-map-stat-val">12 min</span><span class="hpw-map-stat-lbl">To ORR</span></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i><span>Markers + Insights</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-chart-line"></i><span>Connectivity</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 3 -->
+                <article class="hpw-panel" data-panel="2" aria-label="Step 03 RERA &amp; Survey Verification">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 03</span></div>
+                    <h3 class="hpw-step-title">RERA &amp; Survey Verification</h3>
+                    <p class="hpw-step-desc">Verify survey details, ownership information, legal approvals, and builder registration status.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Survey &amp; ownership validation</li>
+                      <li><i class="fa-solid fa-circle-check"></i> RERA registration checks</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Government verification indicators</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/verification</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-legal">
+                          <div class="hpw-legiscore-wrap">
+                            <div class="hpw-legiscore">
+                              <svg class="hpw-ls-ring" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="34" stroke="rgba(20,30,58,0.08)" stroke-width="6" fill="none"/>
+                                <circle class="hpw-ls-progress" cx="40" cy="40" r="34" stroke="#10b981" stroke-width="6" fill="none" stroke-dasharray="213.6" stroke-dashoffset="43" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                              </svg>
+                              <div class="hpw-ls-inner"><div class="hpw-ls-val">8.2</div><div class="hpw-ls-lbl">Verified</div></div>
+                            </div>
+                            <div class="hpw-ls-status">
+                              <div class="hpw-verify-check hpw-check-animate"><i class="fa-solid fa-circle-check"></i> Government Match</div>
+                            </div>
+                          </div>
+                          <div class="hpw-legal-rows">
+                            <div class="hpw-legal-row hpw-lr-pass">
+                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-lr-info"><div class="hpw-lr-title">RERA Registration</div><div class="hpw-lr-sub">Active · Verified</div></div>
+                              <div class="hpw-lr-badge hpw-badge-green">OK</div>
+                            </div>
+                            <div class="hpw-legal-row hpw-lr-pass">
+                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-lr-info"><div class="hpw-lr-title">Survey Record</div><div class="hpw-lr-sub">Sy.No 142/A · Matched</div></div>
+                              <div class="hpw-lr-badge hpw-badge-green">Match</div>
+                            </div>
+                            <div class="hpw-legal-row hpw-lr-pass">
+                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-lr-info"><div class="hpw-lr-title">Legal Approvals</div><div class="hpw-lr-sub">Scanned across portals</div></div>
+                              <div class="hpw-lr-badge hpw-badge-blue">Verified</div>
+                            </div>
+                            <div class="hpw-legal-row hpw-lr-pass">
+                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-lr-info"><div class="hpw-lr-title">Ownership Indicators</div><div class="hpw-lr-sub">Consistency check passed</div></div>
+                              <div class="hpw-lr-badge hpw-badge-green">Clear</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i><span>Verified Signals</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-file-shield"></i><span>RERA + Survey</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 4 -->
+                <article class="hpw-panel" data-panel="3" aria-label="Step 04 Secure Payment">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 04</span></div>
+                    <h3 class="hpw-step-title">Secure Payment</h3>
+                    <p class="hpw-step-desc">Purchase a detailed property audit report through a secure checkout experience.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Secure transaction indicators</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Trust badges + encryption</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Confirmation animation</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/checkout</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-payment">
+                          <div class="hpw-pay-card">
+                            <div class="hpw-pay-header">
+                              <div class="hpw-pay-logo"><i class="fa-solid fa-shield-halved"></i> PropVerify</div>
+                              <div class="hpw-pay-secure"><i class="fa-solid fa-lock"></i> Secure Checkout</div>
+                            </div>
+                            <div class="hpw-pay-title">Property Audit Report</div>
+                            <div class="hpw-pay-desc">Tellapur, Hyderabad — Full Due Diligence</div>
+                            <div class="hpw-pay-breakdown">
+                              <div class="hpw-pay-row"><span>Audit Fee</span><span>₹999.00</span></div>
+                              <div class="hpw-pay-row"><span>GST (18%)</span><span>₹179.82</span></div>
+                              <div class="hpw-pay-row hpw-pay-total"><span>Total</span><span>₹1,178.82</span></div>
+                            </div>
+                            <div class="hpw-pay-badges">
+                              <span class="hpw-pay-badge"><i class="fa-solid fa-lock"></i> 256-bit SSL</span>
+                              <span class="hpw-pay-badge"><i class="fa-solid fa-shield-check"></i> PCI-DSS</span>
+                              <span class="hpw-pay-badge"><i class="fa-solid fa-certificate"></i> Trust Badges</span>
+                            </div>
+                            <div class="hpw-pay-btn hpw-pay-btn-animate"><i class="fa-solid fa-lock"></i> Pay Securely</div>
+                            <div class="hpw-pay-success" id="hpwPaySuccess" aria-hidden="true">
+                              <div class="hpw-success-ring"></div>
+                              <i class="fa-solid fa-circle-check hpw-success-icon"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-lock"></i><span>Secure</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-shield-check"></i><span>Trusted Checkout</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 5 -->
+                <article class="hpw-panel" data-panel="4" aria-label="Step 05 Track Audit">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 05</span></div>
+                    <h3 class="hpw-step-title">Track Audit</h3>
+                    <p class="hpw-step-desc">Monitor audit progress and receive real-time verification updates.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Progress tracker + status indicators</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Timeline updates</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Real-time signals</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/track</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-track">
+                          <div class="hpw-track-header">
+                            <div class="hpw-track-id-wrap">
+                              <div class="hpw-track-label">Audit ID</div>
+                              <div class="hpw-track-id">PV-2026-08471</div>
+                            </div>
+                            <div class="hpw-track-status"><span class="hpw-status-dot"></span> Live Updates</div>
+                          </div>
+                          <div class="hpw-track-steps">
+                            <div class="hpw-ts-item hpw-ts-done">
+                              <div class="hpw-ts-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-ts-info"><div class="hpw-ts-name">Payment Confirmed</div><div class="hpw-ts-time">Just now</div></div>
+                              <div class="hpw-ts-badge hpw-badge-green">Done</div>
+                            </div>
+                            <div class="hpw-ts-line hpw-ts-line-done"></div>
+                            <div class="hpw-ts-item hpw-ts-done">
+                              <div class="hpw-ts-icon"><i class="fa-solid fa-check"></i></div>
+                              <div class="hpw-ts-info"><div class="hpw-ts-name">Data Collection</div><div class="hpw-ts-time">Portals scanned</div></div>
+                              <div class="hpw-ts-badge hpw-badge-green">Done</div>
+                            </div>
+                            <div class="hpw-ts-line hpw-ts-line-active"></div>
+                            <div class="hpw-ts-item hpw-ts-active">
+                              <div class="hpw-ts-icon hpw-ts-spin"><i class="fa-solid fa-rotate"></i></div>
+                              <div class="hpw-ts-info"><div class="hpw-ts-name">Expert Verification</div><div class="hpw-ts-time">In progress…</div></div>
+                              <div class="hpw-ts-badge hpw-badge-orange">Active</div>
+                            </div>
+                            <div class="hpw-ts-line"></div>
+                            <div class="hpw-ts-item hpw-ts-pending">
+                              <div class="hpw-ts-icon hpw-ts-icon-pending"><i class="fa-solid fa-file-pdf"></i></div>
+                              <div class="hpw-ts-info"><div class="hpw-ts-name">Report Delivery</div><div class="hpw-ts-time">Preparing…</div></div>
+                              <div class="hpw-ts-badge">Next</div>
+                            </div>
+                          </div>
+                          <div class="hpw-download-row hpw-download-highlight">
+                            <i class="fa-solid fa-bell"></i>
+                            <span>Real-time verification updates</span>
+                            <span class="hpw-dl-soon">Live</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-chart-gantt"></i><span>Status</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-bell"></i><span>Updates</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 6 -->
+                <article class="hpw-panel" data-panel="5" aria-label="Step 06 Receive Audit Report in 15 Minutes">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta">
+                      <span class="hpw-step-badge">Step 06</span>
+                      <span class="hpw-delivered-badge"><i class="fa-solid fa-stopwatch"></i> Delivered in 15 Minutes</span>
+                    </div>
+                    <h3 class="hpw-step-title">Receive Audit Report in 15 Minutes</h3>
+                    <p class="hpw-step-desc">Our experts verify the information and deliver a comprehensive property audit report within approximately 15 minutes.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Verification score + key insights</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Premium PDF report preview</li>
+                      <li><i class="fa-solid fa-circle-check"></i> One-tap download</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser hpw-browser-reward">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/report</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-report">
+                          <div class="hpw-report-top">
+                            <div class="hpw-report-chip"><i class="fa-solid fa-circle-check"></i> Verified</div>
+                            <div class="hpw-report-score">
+                              <div class="hpw-report-score-ring" aria-hidden="true"></div>
+                              <div class="hpw-report-score-val">92</div>
+                              <div class="hpw-report-score-lbl">Verification Score</div>
+                            </div>
+                          </div>
+
+                          <div class="hpw-report-card">
+                            <div class="hpw-report-card-head">
+                              <div>
+                                <div class="hpw-report-title">Property Audit Report</div>
+                                <div class="hpw-report-sub">Tellapur, Hyderabad · Sy.No 142/A</div>
+                              </div>
+                              <div class="hpw-report-pill">PDF</div>
+                            </div>
+                            <div class="hpw-report-preview">
+                              <div class="hpw-report-page hpw-rp-1"></div>
+                              <div class="hpw-report-page hpw-rp-2"></div>
+                              <div class="hpw-report-page hpw-rp-3"></div>
+                            </div>
+                            <div class="hpw-report-insights">
+                              <div class="hpw-insight">
+                                <div class="hpw-insight-k">Ownership</div>
+                                <div class="hpw-insight-v hpw-good">Verified</div>
+                              </div>
+                              <div class="hpw-insight">
+                                <div class="hpw-insight-k">Legal</div>
+                                <div class="hpw-insight-v hpw-good">Clear</div>
+                              </div>
+                              <div class="hpw-insight">
+                                <div class="hpw-insight-k">Approvals</div>
+                                <div class="hpw-insight-v hpw-warn">Review</div>
+                              </div>
+                            </div>
+                            <div class="hpw-report-actions">
+                              <div class="hpw-report-download" id="hpwReportDownload"><i class="fa-solid fa-file-arrow-down"></i> Download Report</div>
+                              <div class="hpw-report-success" id="hpwReportSuccess" aria-hidden="true">
+                                <div class="hpw-success-ring"></div>
+                                <i class="fa-solid fa-circle-check hpw-success-icon"></i>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="hpw-report-glow" aria-hidden="true"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-file-shield"></i><span>Premium Report</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i><span>15 Minutes</span></div>
+                  </div>
+                </article>
+
+              </div><!-- /hpw-panels -->
+
+              <!-- Mobile dots -->
+              <div class="hpw-mobile-dots" aria-label="Mobile step navigation">
+                <button class="hpw-dot-btn hpw-dot-btn-active" type="button" onclick="hpwGoToStep(0)" aria-label="Go to step 1"></button>
+                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Go to step 2"></button>
+                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Go to step 3"></button>
+                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Go to step 4"></button>
+                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Go to step 5"></button>
+                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Go to step 6"></button>
+              </div>
+
+            </div><!-- /hpw-layout -->
+
+            <!-- CTA strip -->
+            <div class="hpw-cta-strip hpw-reveal">
+              <p class="hpw-cta-text">Ready to verify your property?</p>
+              <button class="btn btn-primary" type="button" onclick="initAuditFlow()">
+                Start Verification <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+          </div><!-- /hpw-inner -->
+
+          <div class="hpw-divider-bot" aria-hidden="true">
+            <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M0 0 C240 56 480 0 720 28 C960 56 1200 0 1440 28 L1440 0 Z" fill="#fafafa"/>
+            </svg>
+          </div>
+        </section>
+
+        <!-- GOVERNMENT INTEGRATIONS (Variation B — navy bento panel) -->
+        <section id="gov-integrations" class="section fade-in">
+            <div class="gov-integrations-wrap gov-v2">
+                <div class="gov-integrations-panel">
+                    <div class="gov-panel-shine" aria-hidden="true"></div>
+                    <div class="gov-integrations-inner">
+                        <div class="section-label-wrap">
+                            <span class="pill gov-pill"><i class="fa-solid fa-circle" style="font-size:8px"></i> Government Integrations</span>
+                        </div>
+                        <h2 class="section-heading gov-section-heading">Real-Time Access to Official Records</h2>
+                        <p class="gov-section-sub">Verified data pulled from official Hyderabad property and land registries.</p>
+                        <div class="gov-grid">
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-file-contract"></i></span>
+                                <span class="gov-title">Ownership &amp; Loan Records</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
+                                <span class="gov-title">Court Case Search</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                <span class="gov-title">Restricted Land Check</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-receipt"></i></span>
+                                <span class="gov-title">Property Tax Records</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-building"></i></span>
+                                <span class="gov-title">Builder Registration (RERA)</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
+                                <span class="gov-title">Government Land Records</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span>
+                                <span class="gov-title">Appreciation (3Y)</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                            <div class="gov-card">
+                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+                                <span class="gov-title">GO111 Status</span>
+                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="step-1-continued" class="section">
+            <!-- COMPARISON -->
+            <div class="comparison-wrap">
+                <h2 class="section-heading">Days of Waiting vs. <span class="accent-orange">15 Minutes to Clarity</span></h2>
+                <div class="compare-wrap">
+                    <div class="compare-card compare-without">
+                        <p class="compare-label">WITHOUT PROPVERIFY</p>
+                        <ul class="compare-list">
+                            <li><i class="fa-solid fa-circle-xmark compare-x"></i><div class="compare-text-block"><strong class="compare-title">Dharani &amp; Court Case Blindspots</strong><span class="compare-desc">Risk signing deeds with active land ownership disputes, registration locks, or partition suits pending in civil courts.</span></div></li>
+                            <li><i class="fa-solid fa-circle-xmark compare-x"></i><div class="compare-text-block"><strong class="compare-title">Illegal Layout &amp; Non-RERA Hazards</strong><span class="compare-desc">Relying on broker word; high risk of buying unapproved Gram Panchayat layouts that face strict demolition orders and zero bank-loan eligibility.</span></div></li>
+                            <li><i class="fa-solid fa-circle-xmark compare-x"></i><div class="compare-text-block"><strong class="compare-title">GO 111 Ecological Violations</strong><span class="compare-desc">Endless confusion over green/bio-conservation boundaries with no clear way to verify if construction is legally banned on your survey number.</span></div></li>
+                            <li><i class="fa-solid fa-circle-xmark compare-x"></i><div class="compare-text-block"><strong class="compare-title">Exhaustive Sub-Registrar Visits</strong><span class="compare-desc">Wasting weeks standing in SRO offices to trace a complex 30-year Encumbrance Certificate (EC) title history chain.</span></div></li>
+                            <li><i class="fa-solid fa-circle-xmark compare-x"></i><div class="compare-text-block"><strong class="compare-title">Agent Pricing &amp; Growth Hype</strong><span class="compare-desc">Overpaying by lakhs because builders inflate local appreciation trends without any actual government registry transaction benchmarks.</span></div></li>
+                        </ul>
+                    </div>
+                    <div class="compare-card compare-with">
+                        <p class="compare-label">WITH PROPVERIFY</p>
+                        <ul class="compare-list">
+                            <li><i class="fa-solid fa-circle-check compare-check"></i><div class="compare-text-block"><strong class="compare-title">Deep AI Litigation &amp; Dharani Sweep</strong><span class="compare-desc">Instantly scans High Court databases, civil court logs, and land locks to secure your hard-earned life savings from toxic legal battles.</span></div></li>
+                            <li><i class="fa-solid fa-circle-check compare-check"></i><div class="compare-text-block"><strong class="compare-title">HMDA, DTCP &amp; RERA Master Plan Mapping</strong><span class="compare-desc">Cross-verifies coordinates with official state master plans to ensure the land layout is 100% legal, safe, and easily loanable.</span></div></li>
+                            <li><i class="fa-solid fa-circle-check compare-check"></i><div class="compare-text-block"><strong class="compare-title">Instant Satellite-Mapped GO 111 Check</strong><span class="compare-desc">Matches exact survey number coordinates to confirm environmental zoning, keeping your building completely free of regulatory fines.</span></div></li>
+                            <li><i class="fa-solid fa-circle-check compare-check"></i><div class="compare-text-block"><strong class="compare-title">1-Click 30-Year Digital EC Check</strong><span class="compare-desc">Pulls complete, clean, and chronologically verified chain documents of previous owners online in under 15 minutes.</span></div></li>
+                            <li><i class="fa-solid fa-circle-check compare-check"></i><div class="compare-text-block"><strong class="compare-title">True Registered Registry Rates</strong><span class="compare-desc">Get genuine market trends and historical pricing data to instantly spot broker markup, potentially saving you lakhs on purchase.</span></div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TESTIMONIALS -->
+            <div class="testimonials-wrap">
+                <div class="section-label-wrap">
+                    <span class="pill pill-primary"><i class="fa-solid fa-star"></i> Trusted by Buyers</span>
+                </div>
+                <h2 class="section-heading">What Our Customers Say</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"PropVerify saved me from buying a disputed property in Tellapur. The audit revealed an encumbrance I had no clue about. Worth every rupee."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">AK</div>
+                            <div>
+                                <p class="testimonial-name">Ahmed Khan</p>
+                                <p class="testimonial-meta">Buyer, Tellapur · ₹82L plot</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Got my full report in under 24 hours. The GO111 check and court case scan gave me the confidence to go ahead with the deal in Mokila."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">SR</div>
+                            <div>
+                                <p class="testimonial-name">Sunita Reddy</p>
+                                <p class="testimonial-meta">Investor, Mokila · ₹1.2Cr villa</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"The locality market profile for Adibatla was spot on — IT corridor growth, metro proximity, everything laid out clearly. Made my decision easy."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">RP</div>
+                            <div>
+                                <p class="testimonial-name">Rajesh Pillai</p>
+                                <p class="testimonial-meta">First-time buyer, Adibatla · ₹55L flat</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <!-- STEP 2 -->
@@ -109,15 +724,19 @@
                 </div>
 
                 <div class="grid grid-4 stats">
-                    <div class="grid-item">
+                    <!-- Appreciation (3Y) card hidden from UI
+                    <div class="grid-item stat-card-clickable" onclick="showStatPopup('appreciation')">
                         <p class="meta">Appreciation (3Y)</p>
                         <p class="stat stat-good" id="resApp">0%</p>
                     </div>
-                    <div class="grid-item">
+                    -->
+                    <!-- GO111 Status card hidden from UI
+                    <div class="grid-item stat-card-clickable" onclick="showStatPopup('go111')">
                         <p class="meta">GO111 Status</p>
                         <p class="stat" id="resGoStatus">CHECKING...</p>
                         <p class="go111-detail" id="resGoDetails"></p>
                     </div>
+                    -->
                     <div class="grid-item">
                         <p class="meta">Master Plan Zone</p>
                         <p class="stat stat-accent" id="resZone">Loading...</p>
@@ -205,7 +824,7 @@
                 <button class="btn btn-ghost btn-wide" type="button" onclick="location.reload()">Go Back</button>
 
                 <div id="trackResult" class="track-result hidden">
-                    Audit Status: Under Verification (Report in 24h)
+                    Audit Status: Under Verification (Report in 15Min)
                 </div>
             </div>
         </section>
@@ -214,20 +833,7 @@
     <!-- MODAL -->
     <div id="modal-container" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Audit flow">
         <div class="modal card glass-card">
-            <!-- OTP -->
-            <div id="modal-otp" class="modal-stage">
-                <div class="modal-head">
-                    <h3>Verify Mobile</h3>
-                    <p>Enter the 4-digit code</p>
-                </div>
-                <div class="otp">
-                    <input type="text" maxlength="1" class="otp-box">
-                    <input type="text" maxlength="1" class="otp-box">
-                    <input type="text" maxlength="1" class="otp-box">
-                    <input type="text" maxlength="1" class="otp-box">
-                </div>
-                <button class="btn btn-primary btn-wide" type="button" onclick="verifyOTP()">Verify & Continue</button>
-            </div>
+
 
             <!-- PAYMENT -->
             <div id="modal-payment" class="modal-stage hidden">
@@ -280,7 +886,7 @@
 
                 <!-- FILE UPLOAD -->
                 <div class="field">
-                    <label class="label">Upload Documents <span class="label-hint">(PDF, images, Word — any format)</span></label>
+                    <label class="label label-upload">Upload Documents (optional- PDF,images,Word- any format)</label>
                     <div class="dropzone" id="dropzone" onclick="document.getElementById('propFiles').click()">
                         <input type="file" id="propFiles" multiple accept="*/*" style="display:none" onchange="handleFileSelect(this.files)">
                         <div class="dropzone-inner" id="dropzone-inner">
@@ -332,5 +938,474 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
 
     <script src="script.js" defer></script>
+    <script src="animations.js" defer></script>
+    <script>
+(function () {
+  'use strict';
+
+  const TOTAL_STEPS = 6;
+  const STEP_VISIBLE_MS = 2500;
+  const STEP_TRANSITION_MS = 500;
+  const STEP_TOTAL_MS = STEP_VISIBLE_MS + STEP_TRANSITION_MS; // 3000ms
+
+  let currentStep = 0;
+  let locked = false;
+
+  let section, layout, navItems, navLine, panels, dotBtns, navProgressEls;
+  let autoplayEnabled = true;
+  let isPaused = false;
+  let autoplayTimer = null;
+  let rafId = null;
+  let stepStartTs = 0;
+  let pausedElapsedMs = 0;
+  let paySuccessTimer = null;
+  let reportSuccessTimer = null;
+
+  function clamp(n, min, max) { return Math.max(min, Math.min(n, max)); }
+
+  function init() {
+    section = document.getElementById('how-propverify-works');
+    if (!section) return;
+
+    /* Prevent any first-paint jump/lag */
+    section.classList.add('hpw-no-anim');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => section.classList.remove('hpw-no-anim'));
+    });
+
+    layout = section.querySelector('.hpw-layout');
+    navItems = Array.from(section.querySelectorAll('.hpw-nav-item'));
+    navLine = section.querySelector('#hpwNavLine');
+    panels = Array.from(section.querySelectorAll('.hpw-panel'));
+    dotBtns = Array.from(section.querySelectorAll('.hpw-dot-btn'));
+    navProgressEls = Array.from(section.querySelectorAll('.hpw-nav-progress'));
+
+    autoplayEnabled = !!(layout && layout.dataset.hpwAutoplay === 'true') &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    initScrollReveal();
+    initParallax();
+    initInteraction();
+
+    goToStep(0, true);
+    if (autoplayEnabled) startAutoplay();
+  }
+
+  function initInteraction() {
+    if (!section) return;
+
+    /* hover-pause disabled — autoplay runs uninterrupted on mouse enter/leave */
+
+    /* Keyboard navigation when section is in viewport */
+    document.addEventListener('keydown', (e) => {
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      if (rect.top >= window.innerHeight || rect.bottom <= 0) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToStep(currentStep + 1);
+        bumpAutoplay();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToStep(currentStep - 1);
+        bumpAutoplay();
+      }
+    });
+
+    /* Touch / swipe */
+    let touchStartX = 0, touchStartY = 0;
+    function handleTouchStart(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }
+    function handleTouchEnd(e) {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      const dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      goToStep(dx < 0 ? currentStep + 1 : currentStep - 1);
+      bumpAutoplay();
+    }
+    section.addEventListener('touchstart', handleTouchStart, { passive: true });
+    section.addEventListener('touchend', handleTouchEnd, { passive: true });
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    isPaused = false;
+    stepStartTs = performance.now();
+    pausedElapsedMs = 0;
+
+    autoplayTimer = setInterval(() => {
+      if (isPaused) return;
+      goToStep((currentStep + 1) % TOTAL_STEPS);
+    }, STEP_TOTAL_MS);
+
+    tickProgress();
+  }
+
+  function stopAutoplay() {
+    if (autoplayTimer) clearInterval(autoplayTimer);
+    autoplayTimer = null;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  function pauseAutoplay(shouldPause) {
+    if (!autoplayEnabled) return;
+    const next = !!shouldPause;
+    if (next === isPaused) return;
+
+    if (next) {
+      pausedElapsedMs = clamp(performance.now() - stepStartTs, 0, STEP_TOTAL_MS);
+    } else {
+      stepStartTs = performance.now() - pausedElapsedMs;
+    }
+
+    isPaused = next;
+    section.classList.toggle('hpw-paused', isPaused);
+  }
+
+  function bumpAutoplay() {
+    if (!autoplayEnabled) return;
+    stepStartTs = performance.now();
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = setInterval(() => {
+        if (isPaused) return;
+        goToStep((currentStep + 1) % TOTAL_STEPS);
+      }, STEP_TOTAL_MS);
+    }
+  }
+
+  function tickProgress() {
+    if (!autoplayEnabled) return;
+    const now = performance.now();
+    const elapsed = isPaused ? pausedElapsedMs : (now - stepStartTs);
+    const p = clamp(elapsed / STEP_TOTAL_MS, 0, 1);
+    updateProgress(currentStep, p);
+    rafId = requestAnimationFrame(tickProgress);
+  }
+
+  function updateProgress(activeIndex, p01) {
+    if (navLine) {
+      const frac = (activeIndex + p01) / (TOTAL_STEPS - 1);
+      navLine.style.height = (frac * 100).toFixed(3) + '%';
+    }
+
+    navProgressEls.forEach((el, i) => {
+      if (!el) return;
+      const w = i < activeIndex ? 100 : (i === activeIndex ? p01 * 100 : 0);
+      el.style.setProperty('--hpw-progress', w.toFixed(2) + '%');
+    });
+  }
+
+  function goToStep(index, immediate) {
+    if (!section) return;
+    index = clamp(index, 0, TOTAL_STEPS - 1);
+    if (index === currentStep && !immediate) return;
+    if (locked && !immediate) return;
+
+    locked = true;
+    setTimeout(() => { locked = false; }, 110);
+
+    const prev = currentStep;
+    currentStep = index;
+    stepStartTs = performance.now();
+    pausedElapsedMs = 0;
+
+    panels.forEach((panel, i) => {
+      panel.classList.remove('hpw-panel-active', 'hpw-panel-exit');
+
+      if (i === index) {
+        panel.classList.add('hpw-panel-active');
+        panel.setAttribute('aria-hidden', 'false');
+      } else if (i === prev && !immediate) {
+        panel.classList.add('hpw-panel-exit');
+        const cleanup = () => panel.classList.remove('hpw-panel-exit');
+        setTimeout(cleanup, STEP_TRANSITION_MS + 60);
+        panel.addEventListener('animationend', cleanup, { once: true });
+        panel.setAttribute('aria-hidden', 'true');
+      } else {
+        panel.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    navItems.forEach((item, i) => {
+      item.classList.remove('hpw-nav-active', 'hpw-nav-done');
+      if (i < index) item.classList.add('hpw-nav-done');
+      if (i === index) item.classList.add('hpw-nav-active');
+    });
+
+    dotBtns.forEach((btn, i) => btn.classList.toggle('hpw-dot-btn-active', i === index));
+    updateProgress(index, 0);
+
+    runPanelDemo(index);
+  }
+
+  function runPanelDemo(index) {
+    clearTimeout(paySuccessTimer);
+    clearTimeout(reportSuccessTimer);
+
+    if (!section) return;
+
+    if (index === 0) {
+      const cursor = section.querySelector('#hpwCursor1');
+      if (cursor) {
+        cursor.style.animation = 'none';
+        void cursor.offsetWidth;
+        cursor.style.animation = '';
+      }
+    }
+
+    if (index === 1) {
+      const mapScreen = section.querySelector('.hpw-screen-map');
+      if (mapScreen) {
+        mapScreen.querySelectorAll('.hpw-marker').forEach(m => {
+          m.style.animation = 'none';
+          void m.offsetWidth;
+          m.style.animation = '';
+        });
+      }
+    }
+
+    if (index === 3) {
+      const overlay = section.querySelector('#hpwPaySuccess');
+      if (overlay) {
+        overlay.classList.remove('hpw-success-show');
+        paySuccessTimer = setTimeout(() => {
+          overlay.classList.add('hpw-success-show');
+          setTimeout(() => overlay.classList.remove('hpw-success-show'), 1200);
+        }, 950);
+      }
+    }
+
+    if (index === 5) {
+      const download = section.querySelector('#hpwReportDownload');
+      const success = section.querySelector('#hpwReportSuccess');
+      if (download && success) {
+        download.classList.remove('hpw-report-download-pressed');
+        success.classList.remove('hpw-success-show');
+        reportSuccessTimer = setTimeout(() => {
+          download.classList.add('hpw-report-download-pressed');
+          success.classList.add('hpw-success-show');
+          setTimeout(() => {
+            success.classList.remove('hpw-success-show');
+            download.classList.remove('hpw-report-download-pressed');
+          }, 1200);
+        }, 1100);
+      }
+    }
+  }
+
+  function initScrollReveal() {
+    const reveals = section ? section.querySelectorAll('.hpw-reveal') : [];
+    if (!reveals.length) return;
+    if (!('IntersectionObserver' in window)) {
+      reveals.forEach(el => el.classList.add('hpw-visible'));
+      return;
+    }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('hpw-visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => obs.observe(el));
+  }
+
+  function initParallax() {
+    if (!section) return;
+    if (window.matchMedia('(max-width: 960px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    section.addEventListener('mousemove', (e) => {
+      const rect = section.getBoundingClientRect();
+      const cx = (e.clientX - rect.left) / rect.width - 0.5;
+      const cy = (e.clientY - rect.top) / rect.height - 0.5;
+      section.style.setProperty('--hpw-mx', (cx * 6).toFixed(2) + 'px');
+      section.style.setProperty('--hpw-my', (cy * 6).toFixed(2) + 'px');
+    });
+  }
+
+  window.hpwGoToStep = function (index) {
+    goToStep(index);
+    bumpAutoplay();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+    </script>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+
+        <!-- TRUST BAR -->
+        <div class="footer-trust-bar">
+            <div class="container footer-trust-inner">
+                <div class="trust-item">
+                    <span class="trust-icon"><i class="fa-solid fa-database"></i></span>
+                    <div>
+                        <p class="trust-title">Verified Data Sources</p>
+                        <p class="trust-sub">15+ government portals</p>
+                    </div>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-item">
+                    <span class="trust-icon"><i class="fa-solid fa-location-dot"></i></span>
+                    <div>
+                        <p class="trust-title">Real-Time Location Intelligence</p>
+                        <p class="trust-sub">Live market data</p>
+                    </div>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-item">
+                    <span class="trust-icon"><i class="fa-solid fa-scale-balanced"></i></span>
+                    <div>
+                        <p class="trust-title">Legal &amp; Compliance Checks</p>
+                        <p class="trust-sub">Court &amp; RERA verified</p>
+                    </div>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-item">
+                    <span class="trust-icon"><i class="fa-solid fa-chart-line"></i></span>
+                    <div>
+                        <p class="trust-title">Investment Potential Analysis</p>
+                        <p class="trust-sub">AI-powered insights</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- NEWSLETTER
+        <div class="footer-newsletter">
+            <div class="container footer-newsletter-inner">
+                <div class="newsletter-text">
+                    <h3 class="newsletter-heading">Stay Ahead of Real Estate Opportunities</h3>
+                    <p class="newsletter-sub">Get market insights, location growth updates, and investment intelligence directly to your inbox.</p>
+                </div> -->
+                <!-- <div class="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="Enter your email address">
+                    <button class="newsletter-btn" type="button">
+                        Subscribe
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div> --> -->
+
+        <!-- MAIN FOOTER -->
+        <div class="footer-main">
+            <div class="container footer-grid">
+
+                <!-- COL 1: BRAND -->
+                <div class="footer-col footer-brand-col">
+                    <div class="footer-logo">
+                        <span class="footer-logo-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="footer-logo-text">Prop<span class="footer-accent">Verify</span></span>
+                    </div>
+                    <p class="footer-tagline">Verify Before You Invest.</p>
+                    <p class="footer-desc">PropVerify helps investors and homebuyers make informed real-estate decisions through location intelligence, legal insights, infrastructure analysis, and investment verification.</p>
+                    <div class="footer-badges">
+                        <span class="footer-badge"><i class="fa-solid fa-shield-check"></i> Secure Platform</span>
+                        <span class="footer-badge"><i class="fa-solid fa-circle-check"></i> Verified Intelligence</span>
+                        <span class="footer-badge"><i class="fa-solid fa-lock"></i> Trusted Data</span>
+                    </div>
+                </div>
+
+                <!-- COL 2: QUICK LINKS -->
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Home</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>About Us</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Features</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Pricing</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Property Verification</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Location Insights</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- COL 3: SERVICES -->
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Property Verification</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>GO 111 Analysis</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>DTCP Verification</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>HMDA Verification</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>RERA Verification</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Infrastructure Insights</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Investment Potential Score</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Growth Analysis</a></li>
+                    </ul>
+                </div>
+
+                <!-- COL 4: RESOURCES -->
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Blog</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Market Reports</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Real Estate News</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Investment Guides</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>FAQs</a></li>
+                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Help Center</a></li>
+                    </ul>
+                </div>
+
+                <!-- COL 5: CONTACT & SOCIAL -->
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Contact Us</h4>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <span class="footer-contact-icon"><i class="fa-solid fa-envelope"></i></span>
+                            <a href="mailto:hello@propverify.in" class="footer-contact-text">hello@propverify.in</a>
+                        </li>
+                        <li>
+                            <span class="footer-contact-icon"><i class="fa-solid fa-phone"></i></span>
+                            <a href="tel:+919999999999" class="footer-contact-text">+91 99999 99999</a>
+                        </li>
+                        <li>
+                            <span class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></span>
+                            <span class="footer-contact-text">Hyderabad, Telangana, India</span>
+                        </li>
+                    </ul>
+                    <h4 class="footer-col-title" style="margin-top:28px">Follow Us</h4>
+                    <div class="footer-socials">
+                        <a href="#" class="social-btn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="social-btn" aria-label="X/Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="social-btn" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BOTTOM BAR -->
+        <div class="footer-bottom">
+            <div class="container footer-bottom-inner">
+                <p class="footer-copy">© 2026 PropVerify. All Rights Reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#" class="footer-bottom-link">Privacy Policy</a>
+                    <a href="#" class="footer-bottom-link">Terms &amp; Conditions</a>
+                    <a href="#" class="footer-bottom-link">Disclaimer</a>
+                    <a href="#" class="footer-bottom-link">Cookie Policy</a>
+                </div>
+                <p class="footer-powered">Powered by PropVerify</p>
+            </div>
+        </div>
+
+    </footer>
+
+    <script src="./script.js"></script>
 </body>
 </html>

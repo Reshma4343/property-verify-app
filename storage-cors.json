@@ -1,0 +1,21 @@
+[
+  {
+    "origin": [
+      "http://localhost:4242",
+      "https://property-1b194.web.app",
+      "https://property-1b194.firebaseapp.com"
+    ],
+    "method": ["GET", "POST", "PUT", "HEAD", "OPTIONS"],
+    "responseHeader": [
+      "Authorization",
+      "Content-Type",
+      "x-goog-resumable",
+      "x-goog-upload-command",
+      "x-goog-upload-header-content-length",
+      "x-goog-upload-header-content-type",
+      "x-goog-upload-protocol",
+      "x-goog-upload-url"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

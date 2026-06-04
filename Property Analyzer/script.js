@@ -3,6 +3,7 @@
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
 let lastAuditPayment = null;
+let selectedAuditFiles = [];
 let fakeOtp = null;
 const USE_FAKE_OTP = true;
 
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     wireOtpInputs();
+    wireDocumentUpload();
 });
 
 /* ── Prestige Loader helpers ── */
@@ -125,11 +127,14 @@ async function startAnalysis() {
 
     showLoader("Analyzing locality…");
 
+    let aiResult = null;
     try {
-        await fetchAI(loc, userData.budget);
+        aiResult = await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
-        try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
+        const fallback = { price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" };
+        try { updateUI(fallback); } catch (_) {}
+        saveFreeInsightToFirestore(fallback);
         showStep(2);
     } finally {
         hideLoader();
@@ -181,7 +186,9 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
+    saveFreeInsightToFirestore(data); // fire-and-forget, non-blocking
     showStep(2);
+    return data;
 }
 
 function updateUI(data) {
@@ -251,10 +258,13 @@ function escapeHtml(input) {
 
 function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
+    document.getElementById("step-1-continued").classList.add("hidden");
+    document.getElementById("how-propverify-works").classList.add("hidden");
+    document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) document.getElementById("step-1").classList.remove("hidden");
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -266,13 +276,14 @@ function initAuditFlow() {
         alert("Please enter your mobile number first, then click Analyze Locality.");
         return;
     }
+    selectedAuditFiles = [];
+    renderSelectedFiles();
     document.getElementById("modal-container").classList.remove("hidden");
-    generateAndSendOtp(userData.phone);
-    showModalStage("otp");
+    showModalStage("payment");
 }
 
 function showModalStage(stage) {
-    ["otp", "payment", "details", "success"].forEach((s) => {
+    ["payment", "details", "success"].forEach((s) => {
         document.getElementById("modal-" + s).classList.add("hidden");
     });
     document.getElementById("modal-" + stage).classList.remove("hidden");
@@ -353,13 +364,39 @@ async function startRazorpayCheckout() {
         payButtons.forEach((b) => (b.disabled = false));
     }
 
+    // Support multiple backend response shapes:
+    // - Some backends return { keyId, orderId }
+    // - Razorpay APIs commonly return { key_id, id }
+    const keyId =
+        order?.keyId ??
+        order?.key_id ??
+        order?.razorpayKeyId ??
+        order?.razorpay_key_id ??
+        "";
+
+    const orderId =
+        order?.orderId ??
+        order?.order_id ??
+        order?.id ??
+        "";
+
+    const amount = Number(order?.amount ?? AUDIT_TOTAL_PAISE);
+    const currency = String(order?.currency ?? "INR");
+
+    if (!keyId) {
+        throw new Error("Payment config missing: key id not returned by /api/order.");
+    }
+    if (!orderId) {
+        throw new Error("Payment config missing: order id not returned by /api/order.");
+    }
+
     const options = {
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency,
+        key: keyId,
+        amount,
+        currency,
         name: "PropVerify Hyderabad",
         description: "Full Digital Property Audit",
-        order_id: order.orderId,
+        order_id: orderId,
         prefill: {
             name: userData.name || "",
             email: userData.email || "",
@@ -376,8 +413,8 @@ async function startRazorpayCheckout() {
                 if (!ok) throw new Error("Payment verification failed.");
                 lastAuditPayment = {
                     ...response,
-                    amount_paise: order.amount,
-                    currency: order.currency,
+                    amount_paise: amount,
+                    currency,
                     verifiedAt: new Date().toISOString(),
                 };
                 showModalStage("details");
@@ -409,14 +446,42 @@ function getFirestore() {
     return window.firebase.firestore();
 }
 
-async function saveAuditOrderToFirestore(trackId, property) {
+async function uploadAuditDocuments(trackId) {
+    if (!selectedAuditFiles.length) return [];
+
+    try {
+        return await Promise.all(
+            selectedAuditFiles.map(async (file, index) => {
+                const response = await fetch(`/api/upload-document/${encodeURIComponent(trackId)}?i=${index + 1}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/octet-stream",
+                        "x-file-name": encodeURIComponent(file.name || `Document ${index + 1}`),
+                        "x-file-type": file.type || "application/octet-stream",
+                    },
+                    body: file,
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data?.error || `Document upload failed (HTTP ${response.status}).`);
+                }
+                return data;
+            })
+        );
+    } catch (error) {
+        throw new Error(error?.message || "Document upload failed. Please try again.");
+    }
+}
+
+async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     const db = getFirestore();
     const FieldValue = window.firebase.firestore.FieldValue;
 
     const payload = {
         trackId,
         createdAt: FieldValue.serverTimestamp(),
-        status: "submitted",
+        status: "New Lead",
         user: { ...userData },
         property: {
             rera: property?.rera || "",
@@ -424,6 +489,8 @@ async function saveAuditOrderToFirestore(trackId, property) {
             village: property?.village || "",
             mandal: property?.mandal || "",
         },
+        notes: notes || "",
+        documents: documents || [],
         payment: lastAuditPayment ? { ...lastAuditPayment } : null,
         client: {
             userAgent: navigator.userAgent,
@@ -436,14 +503,64 @@ async function saveAuditOrderToFirestore(trackId, property) {
     console.log("[auditOrders] saved", trackId);
 }
 
+async function saveFreeInsightToFirestore(aiData) {
+    try {
+        const db = getFirestore();
+        const FieldValue = window.firebase.firestore.FieldValue;
+        const payload = {
+            createdAt: FieldValue.serverTimestamp(),
+            name: userData.name || "",
+            phone: userData.phone || "",
+            email: userData.email || "",
+            locality: userData.locality || "",
+            budget: userData.budget || "",
+            aiInsights: {
+                price: aiData.price || "",
+                appreciation: aiData.appreciation || "",
+                go111: aiData.go111 || "",
+                zoning: aiData.zoning || "",
+                metro: aiData.metro || "",
+                orr_access: aiData.orr_access || "",
+                rail_access: aiData.rail_access || "",
+                highway: aiData.highway || "",
+                local_transport: aiData.local_transport || "",
+            },
+        };
+        const docId = `FREE-${userData.phone.replace(/\D/g, "")}-${Date.now()}`;
+        await db.collection("freeInsights").doc(docId).set(payload);
+        console.log("[freeInsights] saved", docId);
+    } catch (err) {
+        // Silent fail — never block the user-facing flow
+        console.warn("[freeInsights] save failed (non-critical):", err?.message || err);
+    }
+}
+
 async function createRazorpayOrder(payload) {
     const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.error || `Order create failed (HTTP ${res.status}).`);
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+        ? await res.json().catch(() => ({}))
+        : { raw: await res.text().catch(() => "") };
+
+    if (!res.ok) {
+        const hint =
+            res.status === 404
+                ? "Endpoint not found. Is your backend actually serving /api/order on this same domain?"
+                : res.status === 0
+                    ? "Network error. Are you opening the site via file:// instead of http(s):// ?"
+                    : "";
+        console.error("[/api/order] failed", { status: res.status, data });
+        throw new Error(
+            data?.error ||
+            `Order create failed (HTTP ${res.status}). ${hint}`.trim()
+        );
+    }
+
     return data;
 }
 
@@ -462,6 +579,7 @@ async function submitAudit() {
     if (!survey) { alert("Survey Number is required for verification"); return; }
 
     const btn = document.querySelector("#modal-details button");
+    if (btn?.disabled) return;
     const original = btn?.innerHTML;
     if (btn) {
         btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...`;
@@ -475,9 +593,11 @@ async function submitAudit() {
         village: document.getElementById("propVillage").value.trim(),
         mandal: document.getElementById("propMandal").value.trim(),
     };
+    const notes = document.getElementById("propNotes")?.value.trim() || "";
 
     try {
-        await saveAuditOrderToFirestore(trackId, property);
+        const documents = await uploadAuditDocuments(trackId);
+        await saveAuditOrderToFirestore(trackId, property, notes, documents);
         document.getElementById("finalTrackId").innerText = trackId;
         showModalStage("success");
     } catch (e) {
@@ -489,6 +609,84 @@ async function submitAudit() {
             btn.disabled = false;
         }
     }
+}
+
+function renderSelectedFiles() {
+    const fileList = document.getElementById("fileList");
+    const dropzoneInner = document.getElementById("dropzone-inner");
+    if (!fileList) return;
+
+    fileList.innerHTML = selectedAuditFiles
+        .map((file, index) => {
+            const sizeMb = file.size ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : "";
+            return `
+                <li class="file-item">
+                    <i class="fa-solid fa-file-lines file-icon"></i>
+                    <span class="file-name">${escapeHtml(file.name || `Document ${index + 1}`)}</span>
+                    <span class="file-size">${escapeHtml(sizeMb)}</span>
+                    <button class="file-remove" type="button" onclick="event.stopPropagation(); removeSelectedFile(${index})" aria-label="Remove file">&times;</button>
+                </li>
+            `;
+        })
+        .join("");
+
+    if (dropzoneInner) {
+        dropzoneInner.classList.toggle("hidden", selectedAuditFiles.length > 0);
+    }
+}
+
+function removeSelectedFile(index) {
+    selectedAuditFiles.splice(index, 1);
+    renderSelectedFiles();
+}
+
+function handleFileSelect(files) {
+    const incoming = Array.from(files || []);
+    const maxBytes = 10 * 1024 * 1024;
+    const accepted = [];
+    const rejected = [];
+
+    incoming.forEach((file) => {
+        if (file.size > maxBytes) {
+            rejected.push(file.name || "Unnamed file");
+        } else {
+            accepted.push(file);
+        }
+    });
+
+    selectedAuditFiles = accepted;
+    renderSelectedFiles();
+
+    if (rejected.length) {
+        alert(`These files are above 10MB and were not added: ${rejected.join(", ")}`);
+    }
+}
+
+function wireDocumentUpload() {
+    const dropzone = document.getElementById("dropzone");
+    const input = document.getElementById("propFiles");
+    if (!dropzone || !input) return;
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.add("dropzone-over");
+        });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropzone.classList.remove("dropzone-over");
+        });
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+        handleFileSelect(event.dataTransfer?.files);
+        input.value = "";
+    });
 }
 
 function closeModal() { document.getElementById("modal-container").classList.add("hidden"); }

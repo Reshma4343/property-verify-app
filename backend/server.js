@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -29,15 +30,80 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 const frontendDir = path.join(repoRoot, "Property Analyzer");
+const uploadsDir = path.join(repoRoot, "uploads");
+const maxUploadBytes = 10 * 1024 * 1024;
 
 app.use(express.json({ limit: "1mb" }));
 
 // Serve the existing frontend so it runs on http://localhost:<PORT>/ (no CORS issues).
 app.use(express.static(frontendDir));
+app.use("/uploads", express.static(uploadsDir));
 
 app.get("/api/config", (_req, res) => {
   res.json({ razorpayKeyId: RAZORPAY_KEY_ID });
 });
+
+function safeFileName(fileName) {
+  const cleaned = String(fileName || "document")
+    .trim()
+    .replace(/[^\w.\-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return cleaned || "document";
+}
+
+function decodeHeaderValue(value, fallback) {
+  try {
+    return decodeURIComponent(String(value || fallback));
+  } catch {
+    return String(value || fallback);
+  }
+}
+
+function safeSegment(value) {
+  return String(value || "")
+    .trim()
+    .replace(/[^\w\-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+app.post(
+  "/api/upload-document/:trackId",
+  express.raw({ type: "application/octet-stream", limit: maxUploadBytes }),
+  async (req, res) => {
+    try {
+      const trackId = safeSegment(req.params.trackId);
+      if (!trackId) return res.status(400).json({ error: "Track ID is required." });
+      if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+        return res.status(400).json({ error: "File body is required." });
+      }
+
+      const originalName = decodeHeaderValue(req.header("x-file-name"), "document");
+      const contentType = String(req.header("x-file-type") || "application/octet-stream");
+      const fileName = `${Date.now()}_${safeFileName(originalName)}`;
+      const relativeDir = path.join("auditOrders", trackId, "documents");
+      const absoluteDir = path.join(uploadsDir, relativeDir);
+      await fs.mkdir(absoluteDir, { recursive: true });
+
+      const absolutePath = path.join(absoluteDir, fileName);
+      await fs.writeFile(absolutePath, req.body);
+
+      const publicPath = `/uploads/${relativeDir.replaceAll(path.sep, "/")}/${encodeURIComponent(fileName)}`;
+      res.json({
+        name: originalName,
+        url: `${req.protocol}://${req.get("host")}${publicPath}`,
+        type: contentType,
+        size: req.body.length,
+        storagePath: publicPath,
+      });
+    } catch (err) {
+      if (err?.type === "entity.too.large") {
+        return res.status(413).json({ error: "File is too large. Maximum allowed size is 10 MB." });
+      }
+      console.error("Upload failed:", err);
+      res.status(500).json({ error: "Failed to upload document." });
+    }
+  }
+);
 
 function buildPrompt(locality, budget) {
   return `Analyze market intelligence for the locality: ${locality}, Hyderabad. User Budget: ${budget}.
@@ -169,6 +235,13 @@ app.post("/api/verify", (req, res) => {
     console.error("Verify failed:", err);
     res.status(500).json({ ok: false, error: "Verification error." });
   }
+});
+
+app.use((err, _req, res, next) => {
+  if (err?.type === "entity.too.large") {
+    return res.status(413).json({ error: "File is too large. Maximum allowed size is 10 MB." });
+  }
+  return next(err);
 });
 
 app.listen(PORT, () => {
