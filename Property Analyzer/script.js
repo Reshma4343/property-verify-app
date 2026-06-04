@@ -127,11 +127,14 @@ async function startAnalysis() {
 
     showLoader("Analyzing locality…");
 
+    let aiResult = null;
     try {
-        await fetchAI(loc, userData.budget);
+        aiResult = await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
-        try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
+        const fallback = { price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" };
+        try { updateUI(fallback); } catch (_) {}
+        saveFreeInsightToFirestore(fallback);
         showStep(2);
     } finally {
         hideLoader();
@@ -183,7 +186,9 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
+    saveFreeInsightToFirestore(data); // fire-and-forget, non-blocking
     showStep(2);
+    return data;
 }
 
 function updateUI(data) {
@@ -255,10 +260,11 @@ function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-1-continued").classList.add("hidden");
     document.getElementById("how-propverify-works").classList.add("hidden");
+    document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); }
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -495,6 +501,38 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     console.log("[auditOrders] saving", trackId, payload);
     await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
     console.log("[auditOrders] saved", trackId);
+}
+
+async function saveFreeInsightToFirestore(aiData) {
+    try {
+        const db = getFirestore();
+        const FieldValue = window.firebase.firestore.FieldValue;
+        const payload = {
+            createdAt: FieldValue.serverTimestamp(),
+            name: userData.name || "",
+            phone: userData.phone || "",
+            email: userData.email || "",
+            locality: userData.locality || "",
+            budget: userData.budget || "",
+            aiInsights: {
+                price: aiData.price || "",
+                appreciation: aiData.appreciation || "",
+                go111: aiData.go111 || "",
+                zoning: aiData.zoning || "",
+                metro: aiData.metro || "",
+                orr_access: aiData.orr_access || "",
+                rail_access: aiData.rail_access || "",
+                highway: aiData.highway || "",
+                local_transport: aiData.local_transport || "",
+            },
+        };
+        const docId = `FREE-${userData.phone.replace(/\D/g, "")}-${Date.now()}`;
+        await db.collection("freeInsights").doc(docId).set(payload);
+        console.log("[freeInsights] saved", docId);
+    } catch (err) {
+        // Silent fail — never block the user-facing flow
+        console.warn("[freeInsights] save failed (non-critical):", err?.message || err);
+    }
 }
 
 async function createRazorpayOrder(payload) {
