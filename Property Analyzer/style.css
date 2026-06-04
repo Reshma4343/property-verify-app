@@ -168,6 +168,20 @@ body {
     margin: 0 0 8px 4px;
     line-height: 1;
 }
+.label-hint {
+    font-weight: 800;
+    color: var(--text-muted);
+}
+.label-upload {
+    white-space: nowrap;
+    letter-spacing: 0.08em;
+}
+@media (max-width: 520px) {
+    .label-upload {
+        font-size: 9px;
+        letter-spacing: 0.05em;
+    }
+}
 .field {
     width: 100%;
 }
@@ -891,16 +905,87 @@ body {
     font-family: inherit;
 }
 
-/* ── GOVERNMENT INTEGRATIONS ─────────────────────────── */
-.gov-integrations-wrap {
-    margin-top: 56px;
-}
-.comparison-wrap {
-    margin-top: 56px;
+/* ── GOVERNMENT INTEGRATIONS (Variation B) ───────────── */
+.gov-integrations-wrap.gov-v2 {
+    margin-top: 64px;
+    padding: 0;
+    width: 100%;
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 24px;
+}
+.gov-integrations-panel {
+    position: relative;
+    border-radius: 28px;
+    padding: 52px 44px 48px;
+    overflow: hidden;
+    background: linear-gradient(152deg, #0f1729 0%, #141e3a 42%, #1a2a4f 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 28px 70px rgba(20, 30, 58, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.gov-integrations-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, transparent 88%);
+    pointer-events: none;
+}
+.gov-panel-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 70% 45% at 50% -8%, rgba(59, 130, 246, 0.22), transparent 55%),
+        radial-gradient(ellipse 40% 30% at 92% 88%, rgba(16, 185, 129, 0.12), transparent 50%);
+}
+.gov-integrations-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    margin: 0 auto;
+}
+.gov-v2 .section-label-wrap {
+    margin-bottom: 18px;
+}
+.gov-v2 .gov-pill {
+    background: rgba(16, 185, 129, 0.14);
+    color: #6ee7b7;
+    border: 1px solid rgba(110, 231, 183, 0.28);
+}
+.gov-section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3.2vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+}
+.gov-v2 .gov-section-heading {
+    color: #ffffff;
+}
+.gov-section-sub {
+    text-align: center;
+    max-width: 540px;
+    margin: 0 auto 40px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.65;
+}
+.gov-v2 .gov-section-sub {
+    color: rgba(255, 255, 255, 0.62);
+}
+.comparison-wrap {
+    margin-top: 56px;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 16px;
+    width: min(1600px, calc(100% - 16px));
 }
 .testimonials-wrap {
     margin-top: 48px;
@@ -912,95 +997,366 @@ body {
 .section-label-wrap { text-align: center; margin-bottom: 14px; }
 .section-heading {
     text-align: center;
-    font-size: 26px;
+    font-size: clamp(22px, 3vw, 30px);
     font-weight: 900;
     color: var(--text);
-    margin: 0 0 32px;
-    line-height: 1.3;
+    margin: 0 0 36px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
 }
 .accent-orange { color: #f97316; }
 
 .gov-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
 }
 .gov-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 22px;
+    --gov-accent: #2563eb;
+    --gov-accent-rgb: 37, 99, 235;
+    position: relative;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    font-weight: 700;
-    font-size: 15px;
+    gap: 14px;
+    min-height: 0;
+    padding: 18px 18px 18px 22px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text);
-    transition: box-shadow 0.2s, border-color 0.2s;
+    cursor: default;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    transition:
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
 }
-.gov-card:hover { border-color: var(--border-hover); box-shadow: 0 4px 16px rgba(20,30,58,0.08); }
-.gov-title { font-weight: 700; font-size: 14px; }
-.gov-badge {
-    flex-shrink: 0;
-    font-size: 11px;
+.gov-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--gov-accent), rgba(var(--gov-accent-rgb), 0.45));
+    border-radius: 16px 0 0 16px;
+}
+.gov-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -30% -40% -30%;
+    height: 70%;
+    background: radial-gradient(ellipse at center bottom, rgba(var(--gov-accent-rgb), 0.08), transparent 68%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.gov-card:nth-child(1) { --gov-accent: #3b82f6; --gov-accent-rgb: 59, 130, 246; }
+.gov-card:nth-child(2) { --gov-accent: #06b6d4; --gov-accent-rgb: 6, 182, 212; }
+.gov-card:nth-child(3) { --gov-accent: #8b5cf6; --gov-accent-rgb: 139, 92, 246; }
+.gov-card:nth-child(4) { --gov-accent: #10b981; --gov-accent-rgb: 16, 185, 129; }
+.gov-card:nth-child(5) { --gov-accent: #f97316; --gov-accent-rgb: 249, 115, 22; }
+.gov-card:nth-child(6) { --gov-accent: #6366f1; --gov-accent-rgb: 99, 102, 241; }
+.gov-card:nth-child(7) { --gov-accent: #0ea5e9; --gov-accent-rgb: 14, 165, 233; }
+.gov-card:nth-child(8) { --gov-accent: #ec4899; --gov-accent-rgb: 236, 72, 153; }
+.gov-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 20px 44px rgba(0, 0, 0, 0.22),
+        0 0 0 1px rgba(var(--gov-accent-rgb), 0.35),
+        0 0 28px rgba(var(--gov-accent-rgb), 0.2);
+}
+.gov-card:hover::after {
+    opacity: 1;
+}
+.gov-card-icon {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    color: #fff;
+    background: linear-gradient(145deg, var(--gov-accent), rgba(var(--gov-accent-rgb), 0.72));
+    box-shadow: 0 8px 18px rgba(var(--gov-accent-rgb), 0.35);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+.gov-card:hover .gov-card-icon {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 12px 24px rgba(var(--gov-accent-rgb), 0.45);
+}
+.gov-title {
+    position: relative;
+    z-index: 1;
+    flex: 1;
     font-weight: 800;
-    border-radius: 20px;
-    padding: 4px 12px;
-    letter-spacing: 0.04em;
+    font-size: 13px;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
 }
-.gov-badge.live { background: #ecfdf5; color: #059669; }
-.gov-badge.soon { background: var(--surface-2); color: var(--text-muted); }
+.gov-badge {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0;
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 5px 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.gov-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 0 rgba(var(--gov-accent-rgb), 0.5);
+    animation: govLivePulse 2s ease-in-out infinite;
+}
+@keyframes govLivePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--gov-accent-rgb), 0.45); }
+    50% { box-shadow: 0 0 0 5px rgba(var(--gov-accent-rgb), 0); }
+}
+.gov-badge.live {
+    background: rgba(var(--gov-accent-rgb), 0.1);
+    color: var(--gov-accent);
+    border: 1px solid rgba(var(--gov-accent-rgb), 0.22);
+}
+.gov-badge.soon {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+@media (max-width: 1024px) {
+    .gov-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 720px) {
+    .gov-integrations-panel {
+        padding: 40px 22px 36px;
+        border-radius: 22px;
+    }
+    .gov-v2 .gov-section-sub {
+        margin-bottom: 28px;
+        font-size: 14px;
+    }
+}
+@media (max-width: 480px) {
+    .gov-grid {
+        grid-template-columns: 1fr;
+    }
+    .gov-card {
+        padding: 16px 14px 16px 18px;
+    }
+}
 
 /* ── COMPARISON ──────────────────────────────────────── */
 .compare-wrap {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    align-items: stretch;
 }
 .compare-card {
-    border-radius: 20px;
-    padding: 32px 36px;
+    border-radius: 24px;
+    padding: 26px 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 .compare-without {
     background: var(--surface);
     border: 1px solid var(--border);
+    box-shadow: 0 8px 40px rgba(20,30,58,0.06), 0 2px 8px rgba(20,30,58,0.04);
+}
+.compare-without::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(20,30,58,0.04) 0%, transparent 60%);
+    pointer-events: none;
 }
 .compare-with {
     background: var(--primary);
     color: #fff;
+    box-shadow: 0 20px 60px rgba(20,30,58,0.30), 0 4px 16px rgba(20,30,58,0.20);
+}
+.compare-with::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 55%);
+    pointer-events: none;
+}
+.compare-with::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
 }
 .compare-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.20em;
     text-transform: uppercase;
-    margin: 0 0 20px;
-    padding: 5px 14px;
+    margin: 0 0 18px;
+    padding: 6px 14px;
     border-radius: 20px;
     display: inline-block;
+    position: relative;
+    z-index: 1;
 }
-.compare-without .compare-label { background: var(--surface-2); color: var(--text); }
-.compare-with .compare-label { background: rgba(255,255,255,0.15); color: #fff; }
+.compare-without .compare-label {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+.compare-with .compare-label {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.18);
+}
 .compare-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0;
+    flex: 1;
+    position: relative;
+    z-index: 1;
 }
+/* Two-column: [icon] [text-block (title + desc stacked)] */
 .compare-list li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    align-items: start;
+    column-gap: 11px;
+    font-size: 13px;
     font-weight: 600;
+    line-height: 1.42;
+    padding: 7px 0;
+    border-bottom: 1px solid;
 }
-.compare-without .compare-list li { color: var(--text-muted); }
-.compare-with .compare-list li { color: rgba(255,255,255,0.92); }
-.compare-x { color: #ef4444; font-size: 16px; flex-shrink: 0; }
-.compare-check { color: #4ade80; font-size: 16px; flex-shrink: 0; }
+.compare-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.compare-list li:first-child {
+    padding-top: 0;
+}
+.compare-without .compare-list li {
+    color: var(--text-muted);
+    border-bottom-color: rgba(20,30,58,0.07);
+}
+.compare-with .compare-list li {
+    color: rgba(255,255,255,0.90);
+    border-bottom-color: rgba(255,255,255,0.10);
+}
+/* Text block: wraps title + desc so they stack naturally */
+.compare-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+/* Title — first line of the text block */
+.compare-title {
+    display: block;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    font-size: 13px;
+}
+.compare-without .compare-title { color: var(--text); }
+.compare-with .compare-title { color: #fff; }
+/* Description — second line, directly below title */
+.compare-desc {
+    display: block;
+    font-weight: 600;
+    line-height: 1.40;
+    font-size: 12px;
+}
+.compare-without .compare-desc { color: var(--text-muted); }
+.compare-with .compare-desc { color: rgba(255,255,255,0.78); }
+.compare-list li strong {
+    display: block;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.compare-without .compare-list li strong { color: var(--text); }
+.compare-with .compare-list li strong { color: #fff; }
+.compare-x {
+    color: #ef4444;
+    font-size: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.compare-check {
+    color: #4ade80;
+    font-size: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Responsive: comparison */
+@media (max-width: 1024px) {
+    .comparison-wrap {
+        padding: 0 12px;
+        width: calc(100% - 12px);
+    }
+    .compare-card {
+        padding: 24px 28px;
+    }
+}
+@media (max-width: 900px) {
+    .comparison-wrap {
+        padding: 0 10px;
+        width: calc(100% - 10px);
+    }
+    .compare-wrap {
+        gap: 12px;
+    }
+    .compare-card {
+        padding: 22px 22px;
+        border-radius: 20px;
+    }
+}
+@media (max-width: 640px) {
+    .compare-wrap {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .compare-card {
+        padding: 20px 18px;
+        border-radius: 18px;
+    }
+    .compare-list li {
+        grid-template-columns: 20px 1fr;
+        column-gap: 10px;
+        padding: 8px 0;
+    }
+    .compare-title {
+        font-size: 13px;
+    }
+    .compare-desc {
+        font-size: 12px;
+    }
+}
 
 /* ── TESTIMONIALS ────────────────────────────────────── */
 .testimonials-grid {
@@ -2573,6 +2929,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
   .hpw-report-score { width: 90px; height: 90px; border-radius: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .gov-live-dot { animation: none; }
   .hpw-browser, .hpw-float-card, .hpw-marker-pulse, .hpw-radius-ring,
   .hpw-animated-cursor, .hpw-section::after, .hpw-zoom-glow,
   .hpw-pill-dot, .hpw-ss-pill-dot, .hpw-cursor-blink,

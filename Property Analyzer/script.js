@@ -128,11 +128,13 @@ async function startAnalysis() {
 
     showLoader("Analyzing locality…");
 
+    let aiResult = null;
     try {
-        await fetchAI(loc, userData.budget);
+        aiResult = await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
-        alert(e?.message || "Market analysis is temporarily unavailable. Please try again.");
+        try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
+        showStep(2);
     } finally {
         hideLoader();
         if (btnText) btnText.innerText = originalBtnText;
@@ -183,8 +185,8 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
-    await saveFreeInsightToFirestore(data);
     showStep(2);
+    return data;
 }
 
 function setText(id, value) {
@@ -333,10 +335,11 @@ function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-1-continued").classList.add("hidden");
     document.getElementById("how-propverify-works").classList.add("hidden");
+    document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); }
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -585,40 +588,6 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     console.log("[auditOrders] saving", trackId, payload);
     await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
     console.log("[auditOrders] saved", trackId);
-}
-
-async function savePaidLeadToFirestore(trackId) {
-    const db = getFirestore();
-    const FieldValue = window.firebase.firestore.FieldValue;
-    const amountPaid = lastAuditPayment?.amount_paise ? lastAuditPayment.amount_paise / 100 : null;
-
-    const payload = {
-        trackId,
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-        status: "New Lead",
-        paymentStatus: lastAuditPayment ? "paid" : "pending",
-        user: { ...userData },
-        property: {},
-        documents: [],
-        notes: "",
-        payment: lastAuditPayment ? { ...lastAuditPayment } : null,
-        client: {
-            userAgent: navigator.userAgent,
-            locale: navigator.language,
-        },
-    };
-
-    if (amountPaid !== null) {
-        payload.amountPaid = amountPaid;
-        payload.revenue = amountPaid;
-        payload.paidAt = FieldValue.serverTimestamp();
-        payload.paymentTimestamp = FieldValue.serverTimestamp();
-    }
-
-    console.log("[auditOrders] saving paid lead", trackId, payload);
-    await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
-    console.log("[auditOrders] paid lead saved", trackId);
 }
 
 async function createRazorpayOrder(payload) {
