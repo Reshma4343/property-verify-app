@@ -7,6 +7,7 @@ let selectedAuditFiles = [];
 let currentAuditTrackId = null;
 let fakeOtp = null;
 const USE_FAKE_OTP = true;
+let lastFreeInsightDocId = null;
 
 // Payment (Razorpay) — amounts in paise to avoid floating-point issues.
 const AUDIT_BASE_PAISE = 99900;
@@ -185,6 +186,7 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
+    saveFreeInsightToFirestore(data);
     showStep(2);
     return data;
 }
@@ -304,21 +306,64 @@ function updateUI(data) {
     setText("resLocalTrans", firstValue(data.local_transport, data.public_transport, data.bus_connectivity) || "Checking Connectivity...");
 }
 
+function normalizeDocPart(value, fallback = "unknown") {
+    const normalized = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    return normalized || fallback;
+}
+
+function getFreeInsightDocId() {
+    const phone = normalizeDocPart(String(userData.phone || "").replace(/\D/g, ""), "no-phone");
+    const locality = normalizeDocPart(userData.locality, "no-locality");
+    return `FREE-${phone}-${locality}`;
+}
+
 async function saveFreeInsightToFirestore(aiInsights) {
     try {
         const db = getFirestore();
         const FieldValue = window.firebase.firestore.FieldValue;
-        await db.collection("freeInsights").add({
+        const docId = getFreeInsightDocId();
+
+        await db.collection("freeInsights").doc(docId).set({
             name: userData.name || "",
             phone: userData.phone || "",
             email: userData.email || "",
             locality: userData.locality || "",
             budget: userData.budget || "",
             aiInsights: aiInsights || {},
+            paymentStatus: "free",
+            convertedToPaid: false,
             createdAt: FieldValue.serverTimestamp(),
-        });
+            updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        lastFreeInsightDocId = docId;
+        console.log("[freeInsights] saved", docId);
     } catch (err) {
         console.error("[freeInsights] save failed", err);
+    }
+}
+
+async function markFreeInsightConverted(trackId) {
+    try {
+        const db = getFirestore();
+        const FieldValue = window.firebase.firestore.FieldValue;
+        const docId = lastFreeInsightDocId || getFreeInsightDocId();
+
+        await db.collection("freeInsights").doc(docId).set({
+            paymentStatus: "converted",
+            convertedToPaid: true,
+            convertedTrackId: trackId,
+            convertedAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        console.log("[freeInsights] marked converted", docId);
+    } catch (err) {
+        console.warn("[freeInsights] conversion update failed", err?.message || err);
     }
 }
 
@@ -588,6 +633,41 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     console.log("[auditOrders] saving", trackId, payload);
     await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
     console.log("[auditOrders] saved", trackId);
+}
+
+async function savePaidLeadToFirestore(trackId) {
+    const db = getFirestore();
+    const FieldValue = window.firebase.firestore.FieldValue;
+    const amountPaid = lastAuditPayment?.amount_paise ? lastAuditPayment.amount_paise / 100 : null;
+
+    const payload = {
+        trackId,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        status: "New Lead",
+        paymentStatus: lastAuditPayment ? "paid" : "pending",
+        user: { ...userData },
+        property: {},
+        documents: [],
+        notes: "",
+        payment: lastAuditPayment ? { ...lastAuditPayment } : null,
+        client: {
+            userAgent: navigator.userAgent,
+            locale: navigator.language,
+        },
+    };
+
+    if (amountPaid !== null) {
+        payload.amountPaid = amountPaid;
+        payload.revenue = amountPaid;
+        payload.paidAt = FieldValue.serverTimestamp();
+        payload.paymentTimestamp = FieldValue.serverTimestamp();
+    }
+
+    console.log("[auditOrders] saving paid lead", trackId, payload);
+    await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
+    await markFreeInsightConverted(trackId);
+    console.log("[auditOrders] paid lead saved", trackId);
 }
 
 async function createRazorpayOrder(payload) {
