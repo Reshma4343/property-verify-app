@@ -2436,24 +2436,24 @@ document.addEventListener('keydown', function(e) {
           <input type="hidden" name="_subject" value="New Contact Form Submission — PropVerify">
 
           <div class="contact-field">
-            <label class="contact-label">Full Name <span class="contact-req">*</span></label>
-            <input type="text" name="name" class="input-field contact-input" placeholder="Ex: Ahmed Khan" required autocomplete="name">
+            <label class="contact-label" for="contactName">Full Name <span class="contact-req">*</span></label>
+            <input type="text" id="contactName" name="name" class="input-field contact-input" placeholder="Ex: Ahmed Khan" required autocomplete="name">
           </div>
 
           <div class="contact-row-2">
             <div class="contact-field">
-              <label class="contact-label">Email Address <span class="contact-req">*</span></label>
-              <input type="email" name="email" class="input-field contact-input" placeholder="ahmed@example.com" required autocomplete="email">
+              <label class="contact-label" for="contactEmail">Email Address <span class="contact-req">*</span></label>
+              <input type="email" id="contactEmail" name="email" class="input-field contact-input" placeholder="ahmed@example.com" required autocomplete="email">
             </div>
             <div class="contact-field">
-              <label class="contact-label">Phone Number</label>
-              <input type="tel" name="phone" class="input-field contact-input" placeholder="+91 98765 43210" autocomplete="tel">
+              <label class="contact-label" for="contactPhone">Phone Number</label>
+              <input type="tel" id="contactPhone" name="phone" class="input-field contact-input" placeholder="+91 98765 43210" autocomplete="tel">
             </div>
           </div>
 
           <div class="contact-field">
-            <label class="contact-label">Subject <span class="contact-req">*</span></label>
-            <select name="subject" class="input-field contact-input contact-select" required>
+            <label class="contact-label" for="contactSubject">Subject <span class="contact-req">*</span></label>
+            <select id="contactSubject" name="subject" class="input-field contact-input contact-select" required>
               <option value="" disabled selected>Select a subject</option>
               <option>Property Verification Query</option>
               <option>Report Related Issue</option>
@@ -2465,8 +2465,8 @@ document.addEventListener('keydown', function(e) {
           </div>
 
           <div class="contact-field">
-            <label class="contact-label">Message <span class="contact-req">*</span></label>
-            <textarea name="message" class="input-field contact-input contact-textarea" placeholder="Tell us how we can help you..." required rows="4"></textarea>
+            <label class="contact-label" for="contactMessage">Message <span class="contact-req">*</span></label>
+            <textarea id="contactMessage" name="message" class="input-field contact-input contact-textarea" placeholder="Tell us how we can help you..." required rows="4"></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary btn-wide contact-submit" id="contactSubmitBtn">
@@ -2748,16 +2748,9 @@ async function handleContactSubmit(e) {
 
 <script>
 function showPaymentComingSoon() {
-  // Hide all modal stages
-  ["modal-payment","modal-otp","modal-details","modal-success","modal-coming-soon"]
-    .forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.classList.add("hidden");
-    });
-  // Show the coming-soon stage
-  var cs = document.getElementById("modal-coming-soon");
-  if (cs) cs.classList.remove("hidden");
-  // Make sure the modal container is visible
+  // Delegate to the unified showModalStage helper in script.js,
+  // then ensure the modal container itself is visible.
+  showModalStage("coming-soon");
   var mc = document.getElementById("modal-container");
   if (mc) mc.classList.remove("hidden");
 }
