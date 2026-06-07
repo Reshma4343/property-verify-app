@@ -15,6 +15,10 @@ const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || "gemini-2.0-flash,gemini-2.0-flash-lite")
+  .split(",")
+  .map((model) => model.trim())
+  .filter(Boolean);
 
 if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
   console.error("Missing Razorpay env vars. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.");
@@ -127,6 +131,40 @@ function parseGeminiJson(text) {
   return JSON.parse(cleanText);
 }
 
+function getGeminiModelCandidates() {
+  return [...new Set([GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS])];
+}
+
+async function callGeminiModel(model, locality, budget) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
+      }),
+    }
+  );
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!rawText) {
+    const error = new Error("Empty Gemini response.");
+    error.status = 502;
+    throw error;
+  }
+
+  return parseGeminiJson(rawText);
+}
+
 app.post("/api/analyze", async (req, res) => {
   try {
     if (!GEMINI_API_KEY) {
@@ -139,29 +177,26 @@ app.post("/api/analyze", async (req, res) => {
       return res.status(400).json({ error: "Locality is required." });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
-        }),
+    let data;
+    let lastError;
+    for (const model of getGeminiModelCandidates()) {
+      try {
+        data = await callGeminiModel(model, locality, budget);
+        console.log(`Analyze succeeded with Gemini model: ${model}`);
+        break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`Analyze failed with Gemini model ${model}:`, err?.message || err);
+        if (![429, 500, 502, 503, 504].includes(Number(err?.status))) break;
       }
-    );
-
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
-      return res.status(response.status).json({ error: message });
     }
 
-    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) {
-      return res.status(502).json({ error: "Empty Gemini response." });
+    if (!data) {
+      return res.status(lastError?.status || 500).json({
+        error: lastError?.message || "Failed to analyze locality.",
+      });
     }
 
-    const data = parseGeminiJson(rawText);
     const go111Match = findGo111Village(locality);
     data.go111 = go111Match ? "AFFECTED" : "SAFE";
     data.go111_details = go111Match
