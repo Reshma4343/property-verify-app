@@ -400,7 +400,7 @@ function initAuditFlow() {
 }
 
 function showModalStage(stage) {
-    ["payment", "details", "success"].forEach((s) => {
+    ["payment", "details", "success", "coming-soon"].forEach((s) => {
         document.getElementById("modal-" + s).classList.add("hidden");
     });
     document.getElementById("modal-" + stage).classList.remove("hidden");
