@@ -53,29 +53,29 @@
             <div class="card glass-card">
                 <div class="grid grid-2">
                     <div class="field">
-                        <label class="label">Your Name</label>
-                        <input type="text" id="userName" placeholder="Ex: Ahmed Khan" class="input-field">
+                        <label class="label" for="userName">Your Name</label>
+                        <input type="text" id="userName" placeholder="Ex: Ahmed Khan" class="input-field" autocomplete="name">
                     </div>
                     <div class="field">
-                        <label class="label">WhatsApp Mobile</label>
-                        <input type="tel" id="userPhone" placeholder="+91" class="input-field">
+                        <label class="label" for="userPhone">WhatsApp Mobile</label>
+                        <input type="tel" id="userPhone" placeholder="+91" class="input-field" autocomplete="tel">
                     </div>
                 </div>
 
                 <div class="grid grid-2">
                     <div class="field">
-                        <label class="label">Email ID</label>
-                        <input type="email" id="userEmail" placeholder="ahmed@example.com" class="input-field">
+                        <label class="label" for="userEmail">Email ID</label>
+                        <input type="email" id="userEmail" placeholder="ahmed@example.com" class="input-field" autocomplete="email">
                     </div>
                     <div class="field">
-                        <label class="label">Approx Budget</label>
-                        <input type="text" id="userBudget" placeholder="Ex: 50L - 1Cr" class="input-field">
+                        <label class="label" for="userBudget">Approx Budget</label>
+                        <input type="text" id="userBudget" placeholder="Ex: 50L - 1Cr" class="input-field" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="field">
-                    <label class="label">Target Locality in Hyderabad</label>
-                    <input type="text" id="userLocality" placeholder="Ex: Tellapur, Adibatla, Mokila" class="input-field">
+                    <label class="label" for="userLocality">Target Locality in Hyderabad</label>
+                    <input type="text" id="userLocality" placeholder="Ex: Tellapur, Adibatla, Mokila" class="input-field" autocomplete="off">
                 </div>
 
                 <button class="btn btn-primary btn-wide" type="button" onclick="startAnalysis()">
@@ -126,25 +126,25 @@
                     </button>
                   </li>
                   <li class="hpw-nav-item" data-step="1">
-                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Step 02 Analyze Location">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Step 02 Free Insights">
                       <span class="hpw-nav-num">02</span>
-                      <span class="hpw-nav-label">Analyze Location</span>
+                      <span class="hpw-nav-label">Free Insights</span>
                       <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                       <span class="hpw-nav-progress" aria-hidden="true"></span>
                     </button>
                   </li>
                   <li class="hpw-nav-item" data-step="2">
-                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Step 03 RERA &amp; Survey Verification">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Step 03 Secure Payment">
                       <span class="hpw-nav-num">03</span>
-                      <span class="hpw-nav-label">RERA &amp; Survey Verification</span>
+                      <span class="hpw-nav-label">Secure Payment</span>
                       <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                       <span class="hpw-nav-progress" aria-hidden="true"></span>
                     </button>
                   </li>
                   <li class="hpw-nav-item" data-step="3">
-                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Step 04 Secure Payment">
+                    <button class="hpw-nav-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Step 04 RERA &amp; Survey Verification">
                       <span class="hpw-nav-num">04</span>
-                      <span class="hpw-nav-label">Secure Payment</span>
+                      <span class="hpw-nav-label">RERA &amp; Survey Verification</span>
                       <span class="hpw-nav-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                       <span class="hpw-nav-progress" aria-hidden="true"></span>
                     </button>
@@ -176,11 +176,11 @@
                   <div class="hpw-panel-content">
                     <div class="hpw-step-meta"><span class="hpw-step-badge">Step 01</span></div>
                     <h3 class="hpw-step-title">Search Property</h3>
-                    <p class="hpw-step-desc">Enter a property location, survey number, or area to begin verification.</p>
+                    <p class="hpw-step-desc">Enter your name, WhatsApp number, email, budget, and target locality in Hyderabad to begin your locality intelligence report.</p>
                     <ul class="hpw-feature-list">
-                      <li><i class="fa-solid fa-circle-check"></i> Smart suggestions as you type</li>
-                      <li><i class="fa-solid fa-circle-check"></i> Survey + locality lookup</li>
-                      <li><i class="fa-solid fa-circle-check"></i> Official source matching</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Name, phone & email capture</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Budget range + locality input</li>
+                      <li><i class="fa-solid fa-circle-check"></i> One-click Analyze Locality</li>
                     </ul>
                   </div>
                   <div class="hpw-mockup-wrap">
@@ -190,154 +190,155 @@
                         <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in</div>
                       </div>
                       <div class="hpw-browser-body">
-                        <div class="hpw-screen hpw-screen-search">
-                          <div class="hpw-ss-nav">
-                            <div class="hpw-ss-brand"><span class="hpw-ss-shield">&#9646;</span> Prop<strong>Verify</strong></div>
-                            <div class="hpw-ss-nav-btns"><div class="hpw-ss-nav-btn"></div><div class="hpw-ss-nav-btn"></div></div>
+                        <div class="hpw-screen hpw-screen-search" style="background:#fafafa;padding:14px 16px;">
+                          <!-- Real nav replica -->
+                          <div class="hpw-ss-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(20,30,58,0.08);">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                              <div style="width:22px;height:22px;border-radius:7px;background:#141E3A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;"><i class="fa-solid fa-shield-halved"></i></div>
+                              <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;color:#141E3A;">Prop<span style="color:#141E3A;">Verify</span></span>
+                            </div>
+                            <div style="display:flex;gap:5px;">
+                              <div style="background:#141E3A;color:#fff;font-size:7px;font-weight:900;padding:4px 8px;border-radius:7px;letter-spacing:0.1em;text-transform:uppercase;">Sample Report</div>
+                              <div style="background:#141E3A;color:#fff;font-size:7px;font-weight:900;padding:4px 8px;border-radius:7px;letter-spacing:0.1em;text-transform:uppercase;">Track Audit</div>
+                            </div>
                           </div>
-                          <div class="hpw-ss-pill"><span class="hpw-ss-pill-dot"></span> Real-time Property Intelligence</div>
-                          <div class="hpw-ss-hero-title">Search + Verify in Minutes</div>
-                          <div class="hpw-ss-card hpw-search-highlight">
-                            <div class="hpw-ss-fields">
-                              <div class="hpw-ss-row">
-                                <div class="hpw-ss-field"><div class="hpw-ss-label">Location</div><div class="hpw-ss-input hpw-input-active">Tellapur, Hyderabad<span class="hpw-cursor-blink">|</span></div></div>
-                                <div class="hpw-ss-field"><div class="hpw-ss-label">Survey / Plot</div><div class="hpw-ss-input">Sy.No 142/A</div></div>
+                          <!-- Pill + hero -->
+                          <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(20,30,58,0.06);border:1px solid rgba(20,30,58,0.09);border-radius:9999px;padding:3px 9px;font-size:8px;font-weight:900;letter-spacing:0.13em;text-transform:uppercase;color:#141E3A;margin-bottom:7px;">
+                            <span style="width:5px;height:5px;background:#141E3A;border-radius:50%;display:inline-block;animation:hpwDotPulse 2s ease-in-out infinite;"></span>
+                            Real-time Hyderabad Market Intelligence
+                          </div>
+                          <div style="font-family:'Playfair Display',serif;font-size:12px;font-weight:900;color:#141E3A;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.2;">Locality Market Profile Intelligence</div>
+                          <!-- Real glass-card form replica -->
+                          <div class="hpw-ss-card hpw-search-highlight" style="padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(20,30,58,0.08);box-shadow:0 2px 12px rgba(20,30,58,0.07);">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                              <div style="display:flex;flex-direction:column;gap:3px;">
+                                <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Your Name</div>
+                                <div style="background:#e8e8e8;border:1px solid rgba(20,30,58,0.08);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:600;color:#888;">Ex: Ahmed Khan</div>
                               </div>
-                              <div class="hpw-ss-field hpw-ss-field-full hpw-field-glow">
-                                <div class="hpw-ss-label">Match Results</div>
-                                <div class="hpw-ss-input">Government records found · Ready to analyze</div>
+                              <div style="display:flex;flex-direction:column;gap:3px;">
+                                <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">WhatsApp Mobile</div>
+                                <div style="background:#e8e8e8;border:1px solid rgba(20,30,58,0.08);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:600;color:#888;">+91</div>
                               </div>
                             </div>
-                            <div class="hpw-ss-btn">Start Verification <span>→</span></div>
-                          </div>
-                          <div class="hpw-animated-cursor" id="hpwCursor1" aria-hidden="true">
-                            <svg width="22" height="28" viewBox="0 0 22 28" fill="none"><path d="M2 2l16 10-7 1-4 8L2 2z" fill="#141E3A" stroke="#fff" stroke-width="1.5"/></svg>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                              <div style="display:flex;flex-direction:column;gap:3px;">
+                                <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Email ID</div>
+                                <div style="background:#e8e8e8;border:1px solid rgba(20,30,58,0.08);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:600;color:#888;">ahmed@example.com</div>
+                              </div>
+                              <div style="display:flex;flex-direction:column;gap:3px;">
+                                <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Approx Budget</div>
+                                <div style="background:#e8e8e8;border:1px solid rgba(20,30,58,0.08);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:600;color:#888;">Ex: 50L - 1Cr</div>
+                              </div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:10px;">
+                              <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Target Locality in Hyderabad</div>
+                              <div class="hpw-input-active" style="background:#fff;border:1px solid rgba(20,30,58,0.35);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:600;color:#141E3A;box-shadow:0 0 0 3px rgba(20,30,58,0.06);">Tellapur, Hyderabad<span class="hpw-cursor-blink"></span></div>
+                            </div>
+                            <div style="background:#141E3A;color:#fff;border-radius:10px;padding:9px 14px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.02em;">
+                              Analyze Locality <i class="fa-solid fa-arrow-right" style="font-size:9px;"></i>
+                            </div>
                           </div>
                           <div class="hpw-zoom-glow" aria-hidden="true"></div>
                         </div>
                       </div>
                     </div>
-                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i><span>Search Interface</span></div>
-                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-bolt"></i><span>Instant Match</span></div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i><span>Lead Capture Form</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-bolt"></i><span>Instant Analysis</span></div>
                   </div>
                 </article>
 
-                <!-- STEP 2 -->
-                <article class="hpw-panel" data-panel="1" aria-label="Step 02 Analyze Location">
+                <!-- STEP 2 — Free Insights -->
+                <article class="hpw-panel" data-panel="1" aria-label="Step 02 Free Insights">
                   <div class="hpw-panel-content">
                     <div class="hpw-step-meta"><span class="hpw-step-badge">Step 02</span></div>
-                    <h3 class="hpw-step-title">Analyze Location</h3>
-                    <p class="hpw-step-desc">Review connectivity, infrastructure, schools, hospitals, highways, metro access, growth corridors, and nearby developments.</p>
+                    <h3 class="hpw-step-title">Free Insights</h3>
+                    <p class="hpw-step-desc">Receive instant AI-powered property insights — connectivity, infrastructure, growth corridors, and locality intelligence — before purchasing the full audit.</p>
                     <ul class="hpw-feature-list">
-                      <li><i class="fa-solid fa-circle-check"></i> Connectivity highlights</li>
-                      <li><i class="fa-solid fa-circle-check"></i> Nearby amenities mapping</li>
-                      <li><i class="fa-solid fa-circle-check"></i> Growth corridor signals</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Master Plan Zone + Metro Connectivity</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Hospitals, Schools &amp; Malls grid</li>
+                      <li><i class="fa-solid fa-circle-check"></i> ORR, Railway &amp; Public Transit data</li>
                     </ul>
                   </div>
                   <div class="hpw-mockup-wrap">
                     <div class="hpw-browser">
                       <div class="hpw-browser-chrome">
                         <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
-                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/analysis</div>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/free-insights</div>
                       </div>
                       <div class="hpw-browser-body">
-                        <div class="hpw-screen hpw-screen-map">
-                          <div class="hpw-map-bg">
-                            <div class="hpw-map-grid"></div>
-                            <div class="hpw-road hpw-road-h" style="top:38%"></div>
-                            <div class="hpw-road hpw-road-h" style="top:62%"></div>
-                            <div class="hpw-road hpw-road-v" style="left:40%"></div>
-                            <div class="hpw-road hpw-road-v" style="left:68%"></div>
-                            <div class="hpw-marker hpw-marker-main" style="left:52%;top:44%">
-                              <div class="hpw-marker-pulse"></div>
-                              <div class="hpw-marker-dot"></div>
-                              <div class="hpw-marker-label">Tellapur</div>
+                        <div class="hpw-screen" style="background:#fafafa;padding:14px;overflow:hidden;">
+                          <!-- Free Insights header -->
+                          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(20,30,58,0.08);">
+                            <div>
+                              <div style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#888;margin-bottom:2px;">Free Insights</div>
+                              <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:900;color:#141E3A;letter-spacing:-0.02em;">Tellapur, Hyderabad</div>
                             </div>
-                            <div class="hpw-marker hpw-marker-sm hpw-marker-blue" style="left:30%;top:28%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">School</div></div>
-                            <div class="hpw-marker hpw-marker-sm hpw-marker-green" style="left:70%;top:32%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Hospital</div></div>
-                            <div class="hpw-marker hpw-marker-sm hpw-marker-orange" style="left:26%;top:60%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Metro</div></div>
-                            <div class="hpw-marker hpw-marker-sm hpw-marker-purple" style="left:74%;top:68%"><div class="hpw-marker-dot"></div><div class="hpw-marker-label">Highway</div></div>
-                            <div class="hpw-radius-ring" style="left:52%;top:44%"></div>
-                            <div class="hpw-map-stats">
-                              <div class="hpw-map-stat"><span class="hpw-map-stat-val">8.4</span><span class="hpw-map-stat-lbl">Location Score</span></div>
-                              <div class="hpw-map-stat"><span class="hpw-map-stat-val hpw-stat-green">High</span><span class="hpw-map-stat-lbl">Growth</span></div>
-                              <div class="hpw-map-stat"><span class="hpw-map-stat-val">12 min</span><span class="hpw-map-stat-lbl">To ORR</span></div>
+                            <div style="background:#141E3A;color:#fff;font-size:8px;font-weight:900;padding:6px 12px;border-radius:10px;display:flex;align-items:center;gap:5px;">
+                              <i class="fa-solid fa-file-lines" style="font-size:7px;"></i> Order Full Audit ₹999
+                            </div>
+                          </div>
+                          <!-- Stats grid -->
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.08);border-radius:12px;padding:9px 10px;">
+                              <div style="font-size:7.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Master Plan Zone</div>
+                              <div style="font-size:13px;font-weight:900;color:#141E3A;letter-spacing:-0.02em;">R2 Residential</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.08);border-radius:12px;padding:9px 10px;">
+                              <div style="font-size:7.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Metro Connectivity</div>
+                              <div style="font-size:13px;font-weight:900;color:#141E3A;letter-spacing:-0.02em;">4.2 km</div>
+                            </div>
+                          </div>
+                          <!-- Infra cards -->
+                          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;">
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-left:3px solid #ef4444;border-radius:10px;padding:8px;">
+                              <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                                <div style="width:18px;height:18px;border-radius:6px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-hospital" style="font-size:8px;color:#ef4444;"></i></div>
+                                <div style="font-size:8px;font-weight:800;color:#141E3A;">Key Hospitals</div>
+                              </div>
+                              <div style="font-size:8.5px;color:#141E3A;font-weight:700;line-height:1.5;">Yashoda Hospital<br>KIMS Kondapur<br>Apollo Jubilee</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-left:3px solid #10b981;border-radius:10px;padding:8px;">
+                              <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                                <div style="width:18px;height:18px;border-radius:6px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-graduation-cap" style="font-size:8px;color:#10b981;"></i></div>
+                                <div style="font-size:8px;font-weight:800;color:#141E3A;">Top Schools</div>
+                              </div>
+                              <div style="font-size:8.5px;color:#141E3A;font-weight:700;line-height:1.5;">Delhi Public School<br>Oakridge International<br>Chirec Public</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-left:3px solid #3b82f6;border-radius:10px;padding:8px;">
+                              <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                                <div style="width:18px;height:18px;border-radius:6px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-bag-shopping" style="font-size:8px;color:#3b82f6;"></i></div>
+                                <div style="font-size:8px;font-weight:800;color:#141E3A;">Malls &amp; Shopping</div>
+                              </div>
+                              <div style="font-size:8.5px;color:#141E3A;font-weight:700;line-height:1.5;">Inorbit Mall<br>Sarath City Capital<br>Forum Sujana Mall</div>
+                            </div>
+                          </div>
+                          <!-- Transport row -->
+                          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;">
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-radius:10px;padding:7px 8px;display:flex;align-items:center;gap:6px;">
+                              <div style="width:18px;height:18px;border-radius:6px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-road" style="font-size:8px;color:#f97316;"></i></div>
+                              <div><div style="font-size:7px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">ORR &amp; Highway</div><div style="font-size:9px;font-weight:800;color:#141E3A;">12 min · Patancheru</div></div>
+                            </div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-radius:10px;padding:7px 8px;display:flex;align-items:center;gap:6px;">
+                              <div style="width:18px;height:18px;border-radius:6px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-train-subway" style="font-size:8px;color:#3b82f6;"></i></div>
+                              <div><div style="font-size:7px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Railway / MMTS</div><div style="font-size:9px;font-weight:800;color:#141E3A;">18 min · Lingampalli</div></div>
+                            </div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.07);border-radius:10px;padding:7px 8px;display:flex;align-items:center;gap:6px;">
+                              <div style="width:18px;height:18px;border-radius:6px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-bus" style="font-size:8px;color:#8b5cf6;"></i></div>
+                              <div><div style="font-size:7px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Public Transit</div><div style="font-size:9px;font-weight:800;color:#141E3A;">TSRTC Available</div></div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i><span>Markers + Insights</span></div>
-                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-chart-line"></i><span>Connectivity</span></div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-bolt"></i><span>Free Insights</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-chart-line"></i><span>AI-Powered</span></div>
                   </div>
                 </article>
 
-                <!-- STEP 3 -->
-                <article class="hpw-panel" data-panel="2" aria-label="Step 03 RERA &amp; Survey Verification">
+                <!-- STEP 3 — Secure Payment -->
+                <article class="hpw-panel" data-panel="2" aria-label="Step 03 Secure Payment">
                   <div class="hpw-panel-content">
                     <div class="hpw-step-meta"><span class="hpw-step-badge">Step 03</span></div>
-                    <h3 class="hpw-step-title">RERA &amp; Survey Verification</h3>
-                    <p class="hpw-step-desc">Verify survey details, ownership information, legal approvals, and builder registration status.</p>
-                    <ul class="hpw-feature-list">
-                      <li><i class="fa-solid fa-circle-check"></i> Survey &amp; ownership validation</li>
-                      <li><i class="fa-solid fa-circle-check"></i> RERA registration checks</li>
-                      <li><i class="fa-solid fa-circle-check"></i> Government verification indicators</li>
-                    </ul>
-                  </div>
-                  <div class="hpw-mockup-wrap">
-                    <div class="hpw-browser">
-                      <div class="hpw-browser-chrome">
-                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
-                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/verification</div>
-                      </div>
-                      <div class="hpw-browser-body">
-                        <div class="hpw-screen hpw-screen-legal">
-                          <div class="hpw-legiscore-wrap">
-                            <div class="hpw-legiscore">
-                              <svg class="hpw-ls-ring" viewBox="0 0 80 80">
-                                <circle cx="40" cy="40" r="34" stroke="rgba(20,30,58,0.08)" stroke-width="6" fill="none"/>
-                                <circle class="hpw-ls-progress" cx="40" cy="40" r="34" stroke="#10b981" stroke-width="6" fill="none" stroke-dasharray="213.6" stroke-dashoffset="43" stroke-linecap="round" transform="rotate(-90 40 40)"/>
-                              </svg>
-                              <div class="hpw-ls-inner"><div class="hpw-ls-val">8.2</div><div class="hpw-ls-lbl">Verified</div></div>
-                            </div>
-                            <div class="hpw-ls-status">
-                              <div class="hpw-verify-check hpw-check-animate"><i class="fa-solid fa-circle-check"></i> Government Match</div>
-                            </div>
-                          </div>
-                          <div class="hpw-legal-rows">
-                            <div class="hpw-legal-row hpw-lr-pass">
-                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
-                              <div class="hpw-lr-info"><div class="hpw-lr-title">RERA Registration</div><div class="hpw-lr-sub">Active · Verified</div></div>
-                              <div class="hpw-lr-badge hpw-badge-green">OK</div>
-                            </div>
-                            <div class="hpw-legal-row hpw-lr-pass">
-                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
-                              <div class="hpw-lr-info"><div class="hpw-lr-title">Survey Record</div><div class="hpw-lr-sub">Sy.No 142/A · Matched</div></div>
-                              <div class="hpw-lr-badge hpw-badge-green">Match</div>
-                            </div>
-                            <div class="hpw-legal-row hpw-lr-pass">
-                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
-                              <div class="hpw-lr-info"><div class="hpw-lr-title">Legal Approvals</div><div class="hpw-lr-sub">Scanned across portals</div></div>
-                              <div class="hpw-lr-badge hpw-badge-blue">Verified</div>
-                            </div>
-                            <div class="hpw-legal-row hpw-lr-pass">
-                              <div class="hpw-lr-icon"><i class="fa-solid fa-check"></i></div>
-                              <div class="hpw-lr-info"><div class="hpw-lr-title">Ownership Indicators</div><div class="hpw-lr-sub">Consistency check passed</div></div>
-                              <div class="hpw-lr-badge hpw-badge-green">Clear</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i><span>Verified Signals</span></div>
-                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-file-shield"></i><span>RERA + Survey</span></div>
-                  </div>
-                </article>
-
-                <!-- STEP 4 -->
-                <article class="hpw-panel" data-panel="3" aria-label="Step 04 Secure Payment">
-                  <div class="hpw-panel-content">
-                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 04</span></div>
                     <h3 class="hpw-step-title">Secure Payment</h3>
                     <p class="hpw-step-desc">Purchase a detailed property audit report through a secure checkout experience.</p>
                     <ul class="hpw-feature-list">
@@ -382,6 +383,87 @@
                     </div>
                     <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-lock"></i><span>Secure</span></div>
                     <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-shield-check"></i><span>Trusted Checkout</span></div>
+                  </div>
+                </article>
+
+                <!-- STEP 4 — RERA & Survey Verification -->
+                <article class="hpw-panel" data-panel="3" aria-label="Step 04 RERA &amp; Survey Verification">
+                  <div class="hpw-panel-content">
+                    <div class="hpw-step-meta"><span class="hpw-step-badge">Step 04</span></div>
+                    <h3 class="hpw-step-title">RERA &amp; Survey Verification</h3>
+                    <p class="hpw-step-desc">Verify survey details, ownership information, legal approvals, and builder registration status.</p>
+                    <ul class="hpw-feature-list">
+                      <li><i class="fa-solid fa-circle-check"></i> Survey &amp; ownership validation</li>
+                      <li><i class="fa-solid fa-circle-check"></i> RERA registration checks</li>
+                      <li><i class="fa-solid fa-circle-check"></i> Government verification indicators</li>
+                    </ul>
+                  </div>
+                  <div class="hpw-mockup-wrap">
+                    <div class="hpw-browser">
+                      <div class="hpw-browser-chrome">
+                        <span class="hpw-dot hpw-dot-r"></span><span class="hpw-dot hpw-dot-y"></span><span class="hpw-dot hpw-dot-g"></span>
+                        <div class="hpw-url-bar"><i class="fa-solid fa-lock hpw-url-icon"></i>propverify.in/audit</div>
+                      </div>
+                      <div class="hpw-browser-body">
+                        <div class="hpw-screen hpw-screen-legal" style="background:#fafafa;padding:13px 14px 12px;overflow:hidden;display:flex;flex-direction:column;gap:9px;">
+
+                          <!-- Modal-style header -->
+                          <div style="margin-bottom:1px;">
+                            <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:900;color:#141E3A;letter-spacing:-0.02em;line-height:1.2;">Property Information</div>
+                          </div>
+
+                          <!-- Row 1: RERA Number + Survey Number -->
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                              <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">RERA Number</div>
+                              <div style="background:#fff;border:1px solid rgba(20,30,58,0.14);border-radius:8px;padding:5px 8px;font-size:9px;font-weight:500;color:#bbb;">RERA Number</div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                              <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Survey Number <span style="font-weight:600;color:#888;text-transform:none;letter-spacing:0;">(required)</span></div>
+                              <div style="background:#fff;border:1.5px solid #141E3A;border-radius:8px;padding:5px 8px;font-size:9px;font-weight:700;color:#141E3A;box-shadow:0 0 0 3px rgba(20,30,58,0.06);">142/A<span style="display:inline-block;width:1px;height:9px;background:#141E3A;margin-left:1px;vertical-align:middle;animation:hpwCursorBlink 1s step-end infinite;"></span></div>
+                            </div>
+                          </div>
+
+                          <!-- Row 2: Village + Mandal -->
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                              <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Village</div>
+                              <div style="background:#fff;border:1px solid rgba(20,30,58,0.14);border-radius:8px;padding:5px 8px;font-size:9px;font-weight:500;color:#bbb;">Village</div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                              <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Mandal</div>
+                              <div style="background:#fff;border:1px solid rgba(20,30,58,0.14);border-radius:8px;padding:5px 8px;font-size:9px;font-weight:500;color:#bbb;">Mandal</div>
+                            </div>
+                          </div>
+
+                          <!-- Upload Documents dropzone -->
+                          <div style="display:flex;flex-direction:column;gap:3px;">
+                            <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Upload Documents <span style="font-weight:600;color:#888;text-transform:none;letter-spacing:0;">(optional — PDF, images, Word)</span></div>
+                            <div style="background:#fff;border:1.5px dashed rgba(20,30,58,0.2);border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;">
+                              <i class="fa-solid fa-cloud-arrow-up" style="font-size:16px;color:rgba(20,30,58,0.25);"></i>
+                              <div style="font-size:8px;font-weight:600;color:#555;text-align:center;">Drag &amp; drop files here or <span style="color:#141E3A;font-weight:800;text-decoration:underline;">browse</span></div>
+                              <div style="font-size:7px;font-weight:500;color:#aaa;">Supports all file types · Max 10MB per file</div>
+                            </div>
+                          </div>
+
+                          <!-- Additional Notes -->
+                          <div style="display:flex;flex-direction:column;gap:3px;">
+                            <div style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.13em;color:#141E3A;">Additional Notes <span style="font-weight:600;color:#888;text-transform:none;letter-spacing:0;">(optional)</span></div>
+                            <div style="background:#fff;border:1px solid rgba(20,30,58,0.14);border-radius:8px;padding:6px 8px;height:28px;">
+                              <div style="font-size:8px;font-weight:500;color:#ccc;line-height:1.4;">E.g. Property is near a lake, adjacent plot dispute…</div>
+                            </div>
+                          </div>
+
+                          <!-- Submit button -->
+                          <div style="background:#141E3A;color:#fff;border-radius:10px;padding:9px 14px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.02em;margin-top:1px;">
+                            Submit Audit Order <i class="fa-solid fa-arrow-right" style="font-size:9px;"></i>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hpw-float-card hpw-float-tl" aria-hidden="true"><i class="fa-solid fa-file-shield"></i><span>Property Details</span></div>
+                    <div class="hpw-float-card hpw-float-br" aria-hidden="true"><i class="fa-solid fa-cloud-arrow-up"></i><span>Doc Upload</span></div>
                   </div>
                 </article>
 
@@ -558,63 +640,6 @@
           </div>
         </section>
 
-        <!-- GOVERNMENT INTEGRATIONS (Variation B — navy bento panel) -->
-        <section id="gov-integrations" class="section fade-in">
-            <div class="gov-integrations-wrap gov-v2">
-                <div class="gov-integrations-panel">
-                    <div class="gov-panel-shine" aria-hidden="true"></div>
-                    <div class="gov-integrations-inner">
-                        <div class="section-label-wrap">
-                            <span class="pill gov-pill"><i class="fa-solid fa-circle" style="font-size:8px"></i> Government Integrations</span>
-                        </div>
-                        <h2 class="section-heading gov-section-heading">Real-Time Access to Official Records</h2>
-                        <p class="gov-section-sub">Verified data pulled from official Hyderabad property and land registries.</p>
-                        <div class="gov-grid">
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-file-contract"></i></span>
-                                <span class="gov-title">Ownership &amp; Loan Records</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
-                                <span class="gov-title">Court Case Search</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
-                                <span class="gov-title">Restricted Land Check</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-receipt"></i></span>
-                                <span class="gov-title">Property Tax Records</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-building"></i></span>
-                                <span class="gov-title">Builder Registration (RERA)</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
-                                <span class="gov-title">Government Land Records</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span>
-                                <span class="gov-title">Appreciation (3Y)</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                            <div class="gov-card">
-                                <span class="gov-card-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
-                                <span class="gov-title">GO111 Status</span>
-                                <span class="gov-badge live"><span class="gov-live-dot" aria-hidden="true"></span>Live</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section id="step-1-continued" class="section">
             <!-- COMPARISON -->
@@ -812,8 +837,8 @@
                 <h2 class="tracker-title">Track Your Audit</h2>
 
                 <div class="field">
-                    <label class="label">Track ID or Mobile</label>
-                    <input type="text" id="trackInput" class="input-field" placeholder="Ex: PV-8271 or 9848XXXXXX">
+                    <label class="label" for="trackInput">Track ID or Mobile</label>
+                    <input type="text" id="trackInput" class="input-field" placeholder="Ex: PV-8271 or 9848XXXXXX" autocomplete="off">
                 </div>
 
                 <button class="btn btn-primary btn-wide" type="button" onclick="handleTrack()">Check Status</button>
@@ -847,15 +872,62 @@
                     </div>
                 </div>
                 <div class="pay-grid">
-                    <button class="pay-btn" type="button" onclick="processPayment()">
+                    <button class="pay-btn" type="button" onclick="showPaymentComingSoon()">
                         <span>UPI / PhonePe / GPay</span>
                         <i class="fa-brands fa-google-pay"></i>
                     </button>
-                    <button class="pay-btn" type="button" onclick="processPayment()">
+                    <button class="pay-btn" type="button" onclick="showPaymentComingSoon()">
                         <span>Credit / Debit Card</span>
                         <i class="fa-solid fa-credit-card"></i>
                     </button>
                 </div>
+            </div>
+
+            <!-- PAYMENT COMING SOON -->
+            <div id="modal-coming-soon" class="modal-stage hidden">
+                <div class="modal-head">
+                    <div class="pcs-icon-wrap">
+                        <svg class="pcs-gear" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="32" r="10" stroke="#141E3A" stroke-width="2.5"/>
+                            <path d="M32 6v6M32 52v6M6 32h6M52 32h6M13.1 13.1l4.2 4.2M46.7 46.7l4.2 4.2M13.1 50.9l4.2-4.2M46.7 17.3l4.2-4.2" stroke="#141E3A" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                        <div class="pcs-lock-badge"><i class="fa-solid fa-lock"></i></div>
+                    </div>
+                    <h3 class="pcs-title">Payment Integration<br>In Progress</h3>
+                    <p class="pcs-sub">We are currently integrating our payment systems.<br>Services will be fully active shortly.</p>
+                </div>
+
+                <div class="pcs-steps">
+                    <div class="pcs-step">
+                        <div class="pcs-step-icon pcs-done"><i class="fa-solid fa-check"></i></div>
+                        <div class="pcs-step-text">
+                            <div class="pcs-step-label">Free Insights</div>
+                            <div class="pcs-step-sub">Live &amp; active</div>
+                        </div>
+                    </div>
+                    <div class="pcs-connector"></div>
+                    <div class="pcs-step">
+                        <div class="pcs-step-icon pcs-active"><i class="fa-solid fa-rotate fa-spin"></i></div>
+                        <div class="pcs-step-text">
+                            <div class="pcs-step-label">Payment Gateway</div>
+                            <div class="pcs-step-sub">Integration underway</div>
+                        </div>
+                    </div>
+                    <div class="pcs-connector"></div>
+                    <div class="pcs-step">
+                        <div class="pcs-step-icon pcs-pending"><i class="fa-solid fa-file-shield"></i></div>
+                        <div class="pcs-step-text">
+                            <div class="pcs-step-label">Full Audit Reports</div>
+                            <div class="pcs-step-sub">Coming very soon</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="pcs-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    In the meantime, try our <strong>Free Insights</strong> — no payment needed.
+                </p>
+                <button class="btn btn-primary btn-wide" type="button" onclick="closeModal()">Got it, thanks</button>
             </div>
 
             <!-- DETAILS -->
@@ -865,24 +937,28 @@
                 </div>
                 <div class="grid grid-2">
                     <div class="field">
-                        <input type="text" id="propRera" placeholder="RERA Number" class="input-field">
+                        <label class="label" for="propRera">RERA Number</label>
+                        <input type="text" id="propRera" placeholder="RERA Number" class="input-field" autocomplete="off">
                     </div>
                     <div class="field">
-                        <input type="text" id="propSurvey" placeholder="Survey Number (Required)" class="input-field">
+                        <label class="label" for="propSurvey">Survey Number <span class="label-hint">(required)</span></label>
+                        <input type="text" id="propSurvey" placeholder="Survey Number (Required)" class="input-field" autocomplete="off">
                     </div>
                 </div>
                 <div class="grid grid-2">
                     <div class="field">
-                        <input type="text" id="propVillage" placeholder="Village" class="input-field">
+                        <label class="label" for="propVillage">Village</label>
+                        <input type="text" id="propVillage" placeholder="Village" class="input-field" autocomplete="off">
                     </div>
                     <div class="field">
-                        <input type="text" id="propMandal" placeholder="Mandal" class="input-field">
+                        <label class="label" for="propMandal">Mandal</label>
+                        <input type="text" id="propMandal" placeholder="Mandal" class="input-field" autocomplete="off">
                     </div>
                 </div>
 
                 <!-- FILE UPLOAD -->
                 <div class="field">
-                    <label class="label label-upload">Upload Documents (optional- PDF,images,Word- any format)</label>
+                    <label class="label label-upload" for="propFiles">Upload Documents (optional- PDF,images,Word- any format)</label>
                     <div class="dropzone" id="dropzone" onclick="document.getElementById('propFiles').click()">
                         <input type="file" id="propFiles" multiple accept="*/*" style="display:none" onchange="handleFileSelect(this.files)">
                         <div class="dropzone-inner" id="dropzone-inner">
@@ -896,8 +972,8 @@
 
                 <!-- NOTES -->
                 <div class="field">
-                    <label class="label">Additional Notes <span class="label-hint">(optional)</span></label>
-                    <textarea id="propNotes" class="input-field input-textarea" placeholder="E.g. Property is near a lake, adjacent plot dispute, any concerns you want verified..."></textarea>
+                    <label class="label" for="propNotes">Additional Notes <span class="label-hint">(optional)</span></label>
+                    <textarea id="propNotes" class="input-field input-textarea" placeholder="E.g. Property is near a lake, adjacent plot dispute, any concerns you want verified..." autocomplete="off"></textarea>
                 </div>
 
                 <button class="btn btn-primary btn-wide" type="button" onclick="submitAudit()">Submit Audit Order</button>
@@ -922,9 +998,6 @@
             </button>
         </div>
     </div>
-
-    <!-- (Optional) reCAPTCHA container (unused for email auth) -->
-    <div id="recaptcha-container" class="hidden" aria-hidden="true"></div>
 
     <!-- Firebase SDKs (Compat builds so `script.js` can use `window.firebase.*`) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -1319,12 +1392,11 @@
                     <h4 class="footer-col-title">Quick Links</h4>
                     <ul class="footer-links">
                         <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Home</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>About Us</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Features</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Pricing</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Property Verification</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Location Insights</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Contact Us</a></li>
+                        <li><a href="#" class="footer-link" onclick="openAboutUs(event)"><i class="fa-solid fa-chevron-right"></i>About Us</a></li>
+                        <li><a href="#" class="footer-link" onclick="openContact(event)"><i class="fa-solid fa-chevron-right"></i>Contact Us</a></li>
+                        <li><a href="#" class="footer-link" onclick="openLegal('terms',event)"><i class="fa-solid fa-chevron-right"></i>Terms &amp; Conditions</a></li>
+                        <li><a href="#" class="footer-link" onclick="openLegal('refund',event)"><i class="fa-solid fa-chevron-right"></i>Refund Policy</a></li>
+                        <li><a href="#" class="footer-link" onclick="openLegal('privacy',event)"><i class="fa-solid fa-chevron-right"></i>Privacy Policy</a></li>
                     </ul>
                 </div>
 
@@ -1340,19 +1412,6 @@
                         <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Infrastructure Insights</a></li>
                         <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Investment Potential Score</a></li>
                         <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Growth Analysis</a></li>
-                    </ul>
-                </div>
-
-                <!-- COL 4: RESOURCES -->
-                <div class="footer-col">
-                    <h4 class="footer-col-title">Resources</h4>
-                    <ul class="footer-links">
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Blog</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Market Reports</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Real Estate News</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Investment Guides</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>FAQs</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Help Center</a></li>
                     </ul>
                 </div>
 
@@ -1391,9 +1450,9 @@
             <div class="container footer-bottom-inner">
                 <p class="footer-copy">© 2026 PropVerify. All Rights Reserved.</p>
                 <div class="footer-bottom-links">
-                    <a href="#" class="footer-bottom-link">Privacy Policy</a>
-                    <a href="#" class="footer-bottom-link">Terms &amp; Conditions</a>
-                    <a href="#" class="footer-bottom-link">Disclaimer</a>
+                    <a href="#" class="footer-bottom-link" onclick="openLegal('privacy',event)">Privacy Policy</a>
+                    <a href="#" class="footer-bottom-link" onclick="openLegal('terms',event)">Terms &amp; Conditions</a>
+                    <a href="#" class="footer-bottom-link" onclick="openLegal('refund',event)">Refund Policy</a>
                     <a href="#" class="footer-bottom-link">Cookie Policy</a>
                 </div>
                 <p class="footer-powered">Powered by PropVerify</p>
@@ -1401,5 +1460,6 @@
         </div>
 
     </footer>
+
 </body>
 </html>
