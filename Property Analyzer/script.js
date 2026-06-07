@@ -56,6 +56,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ── Prestige Loader helpers ── */
+let _loaderProgressInterval = null;
+
+function startLoaderProgress() {
+    stopLoaderProgress();
+    const el = document.getElementById("loader-percent-text");
+    if (!el) return;
+    let pct = 0;
+    el.textContent = "0%";
+    _loaderProgressInterval = setInterval(() => {
+        // Fast to 70%, then slow crawl — mimics real async behaviour
+        const step = pct < 70 ? (Math.random() * 3 + 1) : (Math.random() * 0.8 + 0.1);
+        pct = Math.min(pct + step, 95);
+        el.textContent = Math.round(pct) + "%";
+    }, 120);
+}
+
+function stopLoaderProgress(complete = false) {
+    if (_loaderProgressInterval) {
+        clearInterval(_loaderProgressInterval);
+        _loaderProgressInterval = null;
+    }
+    const el = document.getElementById("loader-percent-text");
+    if (!el) return;
+    if (complete) {
+        el.textContent = "100%";
+        // Briefly show 100% then clear
+        setTimeout(() => { el.textContent = "0%"; }, 400);
+    }
+}
+
 function showLoader(label = "Analyzing locality…") {
     let loader = document.getElementById("prestige-loader");
     if (!loader) {
@@ -75,18 +105,23 @@ function showLoader(label = "Analyzing locality…") {
               <path class="bld-path pin-path"   d="M40 14a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0 0v6"/>
             </svg>
           </div>
-          <p class="loader-label" id="loader-label-text">${label}</p>`;
+          <p class="loader-label" id="loader-label-text">${label}</p>
+          <p class="loader-percent" id="loader-percent-text">0%</p>`;
         document.body.appendChild(loader);
     } else {
         const lbl = loader.querySelector("#loader-label-text");
         if (lbl) lbl.textContent = label;
     }
-    requestAnimationFrame(() => loader.classList.add("loader-visible"));
+    requestAnimationFrame(() => {
+        loader.classList.add("loader-visible");
+        startLoaderProgress();
+    });
 }
 
 function hideLoader() {
     const loader = document.getElementById("prestige-loader");
     if (!loader) return;
+    stopLoaderProgress(true);
     loader.classList.remove("loader-visible");
 }
 

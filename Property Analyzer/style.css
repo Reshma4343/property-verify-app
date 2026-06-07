@@ -763,6 +763,17 @@ body {
   opacity: 1;
   white-space: nowrap;
 }
+#prestige-loader .loader-percent {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #C4A869;
+  opacity: 0.85;
+  white-space: nowrap;
+  margin-top: -6px;
+  transition: color 0.3s ease;
+}
 
 /* Loader inner stage — 80px */
 #prestige-loader .svg-stage      { width: 80px; height: 80px; position: relative; }
