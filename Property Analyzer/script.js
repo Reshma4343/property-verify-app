@@ -1,12 +1,8 @@
 // script.js
 
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
-let firebaseConfirmationResult = null;
 let lastAuditPayment = null;
 let selectedAuditFiles = [];
-let fakeOtp = null;
-const USE_FAKE_OTP = true;
-
 // Payment (Razorpay) — amounts in paise to avoid floating-point issues.
 const AUDIT_BASE_PAISE = 99900;
 const AUDIT_GST_PAISE = 17982; // 18% of 999.00 = 179.82
@@ -50,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         sampleBtn.addEventListener("click", openSampleReport);
     }
 
-    wireOtpInputs();
     wireDocumentUpload();
 });
 
@@ -127,14 +122,11 @@ async function startAnalysis() {
 
     showLoader("Analyzing locality…");
 
-    let aiResult = null;
     try {
-        aiResult = await fetchAI(loc, userData.budget);
+        await fetchAI(loc, userData.budget);
     } catch (e) {
         console.error("AI Fetch Error:", e);
-        const fallback = { price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" };
-        try { updateUI(fallback); } catch (_) {}
-        saveFreeInsightToFirestore(fallback);
+        try { updateUI({ price: "Market Data Pending", appreciation: "N/A", go111: "CHECKING", zoning: "Pending", metro: "Pending" }); } catch (_) {}
         showStep(2);
     } finally {
         hideLoader();
@@ -186,9 +178,7 @@ async function fetchAI(loc, budget) {
     if (!data || typeof data !== "object") throw new Error("Invalid analysis response.");
 
     updateUI(data);
-    saveFreeInsightToFirestore(data); // fire-and-forget, non-blocking
     showStep(2);
-    return data;
 }
 
 function updateUI(data) {
@@ -260,11 +250,10 @@ function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-1-continued").classList.add("hidden");
     document.getElementById("how-propverify-works").classList.add("hidden");
-    document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -283,52 +272,10 @@ function initAuditFlow() {
 }
 
 function showModalStage(stage) {
-    ["payment", "details", "success"].forEach((s) => {
+    ["payment", "details", "success", "coming-soon"].forEach((s) => {
         document.getElementById("modal-" + s).classList.add("hidden");
     });
     document.getElementById("modal-" + stage).classList.remove("hidden");
-}
-
-function verifyOTP() {
-    const btn = document.querySelector("#modal-otp button");
-    if (!btn) return;
-
-    const entered = readOtpInputs();
-    if (entered.length !== 4) {
-        alert("Please enter the 4-digit OTP.");
-        return;
-    }
-
-    const original = btn.innerHTML;
-    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...`;
-    btn.disabled = true;
-
-    Promise.resolve()
-        .then(() => {
-            if (!USE_FAKE_OTP) {
-                // Fallback to Firebase OTP (disabled by default due to billing requirements)
-                return verifyOtpWithFirebase(entered);
-            }
-            if (!fakeOtp?.code) throw new Error("OTP session not found. Please resend OTP.");
-            if (Date.now() > fakeOtp.expiresAt) throw new Error("OTP expired. Please resend OTP.");
-            if (String(entered) !== String(fakeOtp.code)) throw new Error("Invalid OTP. Please try again.");
-            fakeOtp = null;
-            return true;
-        })
-        .then(() => {
-            btn.innerHTML = original;
-            btn.disabled = false;
-            // In dev mode (self OTP), skip payment so you can test Firestore save/admin dashboard quickly.
-            showModalStage(USE_FAKE_OTP ? "details" : "payment");
-        })
-        .catch((err) => {
-            console.error("OTP verify error:", err);
-            btn.innerHTML = original;
-            btn.disabled = false;
-            alert(err?.message || "Invalid OTP. Please try again.");
-            clearOtpInputs();
-            focusFirstOtp();
-        });
 }
 
 function processPayment() {
@@ -503,38 +450,6 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     console.log("[auditOrders] saved", trackId);
 }
 
-async function saveFreeInsightToFirestore(aiData) {
-    try {
-        const db = getFirestore();
-        const FieldValue = window.firebase.firestore.FieldValue;
-        const payload = {
-            createdAt: FieldValue.serverTimestamp(),
-            name: userData.name || "",
-            phone: userData.phone || "",
-            email: userData.email || "",
-            locality: userData.locality || "",
-            budget: userData.budget || "",
-            aiInsights: {
-                price: aiData.price || "",
-                appreciation: aiData.appreciation || "",
-                go111: aiData.go111 || "",
-                zoning: aiData.zoning || "",
-                metro: aiData.metro || "",
-                orr_access: aiData.orr_access || "",
-                rail_access: aiData.rail_access || "",
-                highway: aiData.highway || "",
-                local_transport: aiData.local_transport || "",
-            },
-        };
-        const docId = `FREE-${userData.phone.replace(/\D/g, "")}-${Date.now()}`;
-        await db.collection("freeInsights").doc(docId).set(payload);
-        console.log("[freeInsights] saved", docId);
-    } catch (err) {
-        // Silent fail — never block the user-facing flow
-        console.warn("[freeInsights] save failed (non-critical):", err?.message || err);
-    }
-}
-
 async function createRazorpayOrder(payload) {
     const res = await fetch("/api/order", {
         method: "POST",
@@ -654,7 +569,7 @@ function handleFileSelect(files) {
         }
     });
 
-    selectedAuditFiles = accepted;
+    selectedAuditFiles = [...selectedAuditFiles, ...accepted];
     renderSelectedFiles();
 
     if (rejected.length) {
@@ -687,6 +602,11 @@ function wireDocumentUpload() {
         handleFileSelect(event.dataTransfer?.files);
         input.value = "";
     });
+
+    input.addEventListener("change", () => {
+        handleFileSelect(input.files);
+        input.value = "";
+    });
 }
 
 function closeModal() { document.getElementById("modal-container").classList.add("hidden"); }
@@ -696,73 +616,6 @@ function handleTrack() {
     if (document.getElementById("trackInput").value.trim()) {
         document.getElementById("trackResult").classList.remove("hidden");
     }
-}
-
-function generateAndSendOtp(_phone) {
-    clearOtpInputs();
-    focusFirstOtp();
-
-    if (USE_FAKE_OTP) {
-        const code = String(Math.floor(1000 + Math.random() * 9000));
-        fakeOtp = {
-            code,
-            expiresAt: Date.now() + 2 * 60 * 1000, // 2 minutes
-        };
-        alert(`DEV OTP for ${userData.phone}: ${code}`);
-        return;
-    }
-
-    // Real OTP via Firebase Auth Phone Sign-in (requires billing in many cases)
-    sendOtpWithFirebase(userData.phone).catch((err) => {
-        console.error(err);
-        alert(err?.message || "Failed to send OTP. Please try again.");
-    });
-}
-
-function wireOtpInputs() {
-    const boxes = Array.from(document.querySelectorAll(".otp-box"));
-    if (!boxes.length) return;
-
-    boxes.forEach((box, idx) => {
-        box.addEventListener("input", () => {
-            box.value = box.value.replace(/\D/g, "").slice(0, 1);
-            if (box.value && idx < boxes.length - 1) boxes[idx + 1].focus();
-        });
-
-        box.addEventListener("keydown", (e) => {
-            if (e.key === "Backspace" && !box.value && idx > 0) {
-                boxes[idx - 1].focus();
-            }
-            if (e.key === "Enter") verifyOTP();
-        });
-
-        box.addEventListener("paste", (e) => {
-            const text = (e.clipboardData || window.clipboardData).getData("text");
-            const digits = String(text).replace(/\D/g, "").slice(0, 4).split("");
-            if (!digits.length) return;
-            e.preventDefault();
-            digits.forEach((d, i) => {
-                if (boxes[i]) boxes[i].value = d;
-            });
-            const next = boxes[Math.min(digits.length, boxes.length) - 1];
-            next?.focus();
-        });
-    });
-}
-
-function readOtpInputs() {
-    return Array.from(document.querySelectorAll(".otp-box"))
-        .map((b) => b.value.trim())
-        .join("");
-}
-
-function clearOtpInputs() {
-    document.querySelectorAll(".otp-box").forEach((b) => (b.value = ""));
-}
-
-function focusFirstOtp() {
-    const first = document.querySelector(".otp-box");
-    first?.focus();
 }
 
 function normalizePhoneE164(phone) {
@@ -801,59 +654,4 @@ function initFirebaseIfNeeded() {
     try {
         window.firebase.analytics?.();
     } catch {}
-}
-
-function ensureRecaptchaVerifier() {
-    initFirebaseIfNeeded();
-
-    if (window.recaptchaVerifier) return window.recaptchaVerifier;
-
-    const containerId = "recaptcha-container";
-    const el = document.getElementById(containerId);
-    if (!el) throw new Error("Missing #recaptcha-container in HTML.");
-
-    window.recaptchaVerifier = new window.firebase.auth.RecaptchaVerifier(containerId, {
-        size: "invisible",
-    });
-    return window.recaptchaVerifier;
-}
-
-async function sendOtpWithFirebase(phone) {
-    const e164 = normalizePhoneE164(phone);
-    if (!e164) throw new Error("Enter a valid mobile number (preferably with +91).");
-
-    const btn = document.querySelector("#modal-otp button");
-    const original = btn?.innerHTML;
-    if (btn) {
-        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sending OTP...`;
-        btn.disabled = true;
-    }
-
-    try {
-        const verifier = ensureRecaptchaVerifier();
-        firebaseConfirmationResult = await window.firebase.auth().signInWithPhoneNumber(e164, verifier);
-        alert(`OTP sent to ${e164}.`);
-    } catch (e) {
-        // Reset reCAPTCHA on failures so next attempt works
-        try {
-            window.recaptchaVerifier?.clear();
-            window.recaptchaVerifier = null;
-        } catch {}
-        throw e;
-    } finally {
-        if (btn) {
-            btn.innerHTML = original;
-            btn.disabled = false;
-        }
-    }
-}
-
-async function verifyOtpWithFirebase(code) {
-    initFirebaseIfNeeded();
-    if (!firebaseConfirmationResult) {
-        throw new Error("OTP session not found. Please resend OTP.");
-    }
-    const cred = await firebaseConfirmationResult.confirm(String(code));
-    firebaseConfirmationResult = null;
-    return cred;
 }
