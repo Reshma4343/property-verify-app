@@ -13,7 +13,7 @@ const app = express();
 const PORT = Number(process.env.PORT || 4242);
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const cI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
