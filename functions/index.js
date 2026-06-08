@@ -1,14 +1,11 @@
-import crypto from "node:crypto";
-
 import "dotenv/config";
 import express from "express";
 import functions from "firebase-functions";
-import Razorpay from "razorpay";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-function getRazorpayConfig() {
+function getFirebaseConfig() {
   const cfg = (() => {
     try {
       return functions.config?.() || {};
@@ -17,35 +14,24 @@ function getRazorpayConfig() {
     }
   })();
 
-  const keyId = process.env.RAZORPAY_KEY_ID || cfg?.razorpay?.key_id;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET || cfg?.razorpay?.key_secret;
-  return { keyId, keySecret };
-}
-
-function getRazorpayClient() {
-  const { keyId, keySecret } = getRazorpayConfig();
-  if (!keyId || !keySecret) {
-    throw new Error("Missing Razorpay credentials. Set env vars or Firebase functions config.");
-  }
-  return {
-    keyId,
-    keySecret,
-    client: new Razorpay({ key_id: keyId, key_secret: keySecret }),
-  };
+  return cfg;
 }
 
 function getGeminiConfig() {
-  const cfg = (() => {
-    try {
-      return functions.config?.() || {};
-    } catch {
-      return {};
-    }
-  })();
+  const cfg = getFirebaseConfig();
+  const keys = (process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key || "")
+    .split(",")
+    .map((key) => key.trim())
+    .filter(Boolean);
+  const fallbackModels = (process.env.GEMINI_FALLBACK_MODELS || cfg?.gemini?.fallback_models || "gemini-2.0-flash,gemini-2.0-flash-lite")
+    .split(",")
+    .map((model) => model.trim())
+    .filter(Boolean);
 
   return {
-    apiKey: process.env.GEMINI_API_KEY || cfg?.gemini?.api_key,
+    keys,
     model: process.env.GEMINI_MODEL || cfg?.gemini?.model || "gemini-2.5-flash",
+    fallbackModels,
   };
 }
 
@@ -121,19 +107,45 @@ function findGo111Village(locality) {
 }
 
 app.get("/api/config", (_req, res) => {
-  try {
-    const { keyId } = getRazorpayClient();
-    res.json({ razorpayKeyId: keyId });
-  } catch (e) {
-    res.status(500).json({ error: e?.message || "Config error" });
-  }
+  const { keys } = getGeminiConfig();
+  res.json({ geminiKeyCount: keys.length });
 });
+
+async function callGeminiModel(model, apiKey, locality, budget) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
+      }),
+    }
+  );
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!rawText) {
+    const error = new Error("Empty Gemini response.");
+    error.status = 502;
+    throw error;
+  }
+
+  return parseGeminiJson(rawText);
+}
 
 app.post("/api/analyze", async (req, res) => {
   try {
-    const { apiKey, model } = getGeminiConfig();
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing Gemini API key on backend." });
+    const { keys, model, fallbackModels } = getGeminiConfig();
+    if (!keys.length) {
+      return res.status(500).json({ error: "Missing Gemini API keys on backend." });
     }
 
     const locality = String(req.body?.locality || "").trim();
@@ -142,29 +154,29 @@ app.post("/api/analyze", async (req, res) => {
       return res.status(400).json({ error: "Locality is required." });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
-        }),
+    let data;
+    let lastError;
+    for (const modelCandidate of [...new Set([model, ...fallbackModels])]) {
+      for (const [keyIndex, apiKey] of keys.entries()) {
+        try {
+          data = await callGeminiModel(modelCandidate, apiKey, locality, budget);
+          console.log(`Analyze succeeded with Gemini model ${modelCandidate} using key #${keyIndex + 1}`);
+          break;
+        } catch (err) {
+          lastError = err;
+          console.warn(`Analyze failed with Gemini model ${modelCandidate}, key #${keyIndex + 1}:`, err?.message || err);
+          if (![429, 500, 502, 503, 504].includes(Number(err?.status))) break;
+        }
       }
-    );
-
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
-      return res.status(response.status).json({ error: message });
+      if (data) break;
     }
 
-    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) {
-      return res.status(502).json({ error: "Empty Gemini response." });
+    if (!data) {
+      return res.status(lastError?.status || 500).json({
+        error: lastError?.message || "Failed to analyze locality.",
+      });
     }
 
-    const data = parseGeminiJson(rawText);
     const go111Match = findGo111Village(locality);
     data.go111 = go111Match ? "AFFECTED" : "SAFE";
     data.go111_details = go111Match
@@ -179,66 +191,6 @@ app.post("/api/analyze", async (req, res) => {
   } catch (e) {
     console.error("Analyze failed:", e);
     res.status(500).json({ error: "Failed to analyze locality." });
-  }
-});
-
-app.post("/api/order", async (req, res) => {
-  try {
-    const { client, keyId } = getRazorpayClient();
-    const amount = Number(req.body?.amount);
-    const currency = (req.body?.currency || "INR").toUpperCase();
-    const receipt = String(req.body?.receipt || `rcpt_${Date.now()}`).slice(0, 40);
-    const notes = typeof req.body?.notes === "object" && req.body?.notes ? req.body.notes : undefined;
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return res.status(400).json({ error: "Invalid amount (expected integer paise)." });
-    }
-    if (!/^[A-Z]{3}$/.test(currency)) {
-      return res.status(400).json({ error: "Invalid currency." });
-    }
-
-    const order = await client.orders.create({
-      amount: Math.round(amount),
-      currency,
-      receipt,
-      notes,
-    });
-
-    res.json({
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId,
-    });
-  } catch (e) {
-    console.error("Order create failed:", e);
-    res.status(500).json({ error: "Failed to create order." });
-  }
-});
-
-app.post("/api/verify", (req, res) => {
-  try {
-    const { keySecret } = getRazorpayClient();
-    const orderId = String(req.body?.razorpay_order_id || "");
-    const paymentId = String(req.body?.razorpay_payment_id || "");
-    const signature = String(req.body?.razorpay_signature || "");
-
-    if (!orderId || !paymentId || !signature) {
-      return res.status(400).json({ ok: false, error: "Missing verification fields." });
-    }
-
-    const expected = crypto
-      .createHmac("sha256", keySecret)
-      .update(`${orderId}|${paymentId}`)
-      .digest("hex");
-
-    const ok = crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(signature, "hex"));
-    if (!ok) return res.status(400).json({ ok: false, error: "Invalid signature." });
-
-    res.json({ ok: true });
-  } catch (e) {
-    console.error("Verify failed:", e);
-    res.status(500).json({ ok: false, error: "Verification error." });
   }
 });
 

@@ -1,21 +1,23 @@
-# Razorpay backend (Node.js)
+# PropVerify backend (Node.js)
 
-If you are deploying on Firebase, use `FIREBASE_DEPLOY.md` instead (Firebase Hosting + Cloud Functions).
+Serves the `Property Analyzer/` frontend and handles server-side Gemini analysis.
 
 ## Setup
 1. Install dependencies:
    - `cd backend`
-   - If PowerShell blocks `npm` scripts, use:
-     - `& "$env:ProgramFiles\\nodejs\\npm.cmd" install`
-2. Create env file:
-   - Copy `backend/.env.example` to `backend/.env`
-   - Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (never commit the secret key)
+   - `npm install`
+2. Create `backend/.env` with:
+   - `PORT=4242`
+   - `GEMINI_API_KEYS=key_one,key_two,key_three`
+   - `GEMINI_MODEL=gemini-2.5-flash`
 3. Run server:
-   - `& "$env:ProgramFiles\\nodejs\\npm.cmd" run dev`
+   - `npm run dev`
 
 ## Open the app
-Open `http://localhost:4242/` (served from `Property Analyzer/`).
+Open `http://localhost:4242/`.
 
 ## API
-- `POST /api/order` → creates Razorpay order (amount in paise)
-- `POST /api/verify` → verifies checkout signature
+- `POST /api/analyze` analyzes a Hyderabad locality.
+- `POST /api/upload-document/:trackId` uploads audit documents.
+
+Gemini keys are tried in order. If a key/model fails with a retryable quota or server error, the backend tries the next key, then fallback models.

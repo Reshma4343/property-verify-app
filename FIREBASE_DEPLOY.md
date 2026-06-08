@@ -1,10 +1,9 @@
-# Firebase deploy (Hosting + Functions) for Razorpay
+# Firebase Deploy (Hosting + Functions)
 
-Firebase Hosting is only for static files — Razorpay **requires a backend** for order creation + signature verification.
 This repo includes a Firebase Functions backend at `functions/index.js` and a Hosting rewrite for `/api/*`.
 
-## 1) One-time Firebase setup
-Install Firebase CLI (on your machine):
+## 1. One-Time Firebase Setup
+Install Firebase CLI:
 - `npm i -g firebase-tools`
 
 Login:
@@ -13,23 +12,22 @@ Login:
 Set your Firebase project id:
 - Edit `.firebaserc` and replace `YOUR_FIREBASE_PROJECT_ID`
 
-## 2) Configure Razorpay keys (recommended: Functions config)
-Run:
-- `firebase functions:config:set razorpay.key_id="rzp_test_..." razorpay.key_secret="..."`
+## 2. Configure Gemini Keys
+Use a comma-separated list so the backend can rotate through keys:
+- `firebase functions:config:set gemini.api_keys="key_one,key_two,key_three" gemini.model="gemini-2.5-flash"`
 
-Then:
-- `firebase deploy --only functions`
+Optional fallback models:
+- `firebase functions:config:set gemini.fallback_models="gemini-2.0-flash,gemini-2.0-flash-lite"`
 
-## 3) Install dependencies and deploy
+## 3. Install Dependencies And Deploy
 From repo root:
 - `cd functions`
-- `& "$env:ProgramFiles\\nodejs\\npm.cmd" install`
+- `npm install`
 - `cd ..`
 - `firebase deploy`
 
-## Local testing (optional)
-Put keys in `functions/.env` (copy from `functions/.env.example`), then:
+## Local Testing
+Put `GEMINI_API_KEYS` in `functions/.env`, then run:
 - `firebase emulators:start`
 
 Open the emulator Hosting URL printed in the terminal.
-

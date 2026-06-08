@@ -2,17 +2,11 @@
 
 let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
-let lastAuditPayment = null;
 let selectedAuditFiles = [];
 let currentAuditTrackId = null;
 let fakeOtp = null;
 const USE_FAKE_OTP = true;
 let lastFreeInsightDocId = null;
-
-// Payment (Razorpay) — amounts in paise to avoid floating-point issues.
-const AUDIT_BASE_PAISE = 99900;
-const AUDIT_GST_PAISE = 17982; // 18% of 999.00 = 179.82
-const AUDIT_TOTAL_PAISE = AUDIT_BASE_PAISE + AUDIT_GST_PAISE; // 1178.82 INR
 
 // Embedded sample report PDF (base64, non-editable, opens in all browsers)
 const SAMPLE_REPORT_B64 = "JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgMTAgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgOSAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNSAwIG9iago8PAovQ29udGVudHMgMTEgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgOSAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNiAwIG9iago8PAovQ29udGVudHMgMTIgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgOSAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNyAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDkgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago4IDAgb2JqCjw8Ci9BdXRob3IgKFwoYW5vbnltb3VzXCkpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjA1MTEwNTU3NTArMDAnMDAnKSAvQ3JlYXRvciAoXCh1bnNwZWNpZmllZFwpKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjA1MTEwNTU3NTArMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIHd3dy5yZXBvcnRsYWIuY29tKSAKICAvU3ViamVjdCAoXCh1bnNwZWNpZmllZFwpKSAvVGl0bGUgKFwoYW5vbnltb3VzXCkpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKOSAwIG9iago8PAovQ291bnQgMyAvS2lkcyBbIDQgMCBSIDUgMCBSIDYgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iagoxMCAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAxNDM3Cj4+CnN0cmVhbQpHYXUwQz5CP04yJjpYQFRvVjYmNyxyNmMpKydsXjlFdFdWWEExTl1TKTlsXCg+WDI2ZXFzRUAqJi8zbUBlZ1coV0QjM3VfckNvWTFpJ2lTKE1gJjtaISV1OCouImJuNjw3YzN0WS8oUS5eSC9hTWU0bTFEIjNuN1oySG8jQDFuY1IvcUltKTs2UT43PSlBamsuNj1ANkJFXFYxQSRGY2hAZE02akVuJ1ZTdWYuY2ZvMVkzMCpfNz1eKW5aS1B1Rzs9M1RHQHNpPXBdbEJ1SkReZVBccV1WXFFlYmRvLC5YIW86XFFRJiw4Z21ZQWJIZGw9WExGai9gT0RzNmBaZU0xaEtbdTFyTjsrajdUaSM3TjFBYkdmSUxKNC49REZoNFNfM3BGZVVKQD5lXVteO19fQWAjZlQ4NUInO1QoV1FjQTlUKGY8ZXFndVhkU05haWZWa0tPQG1uL2MqRjQkWyxRUGpvTD5NVTlZND5rKEw4QztkYjZGYSElIThSISUnPkRdSTAtdVNUWjlfcyJZQEUxWyIxZSI+REwrQ0QqW2FBNVY1VGRBaD9JQlV0QTtAZy43MjE5cVxrc0NAJHRXTHIpVjElNDBTVDxQLjs9PGRedVxKbyk1YFVJYUNmTEMlPDBCR1RBIUJKKGMuamwlUTpALy41SStvTSlVaiRQMmwkU2xHVF9BQVtlYywiSkg5cWVrOio1P10/bis3SCpBcmRLbXAlLVZxKXBMMlpTdEQhMmpha2s6JUdxdElTPHEnYkhzbjRhOT1gdWs5T1w7JFMkVVFsaCkoVldPWGxqayNiOCQ0RlgxJDQ/OFVMOy5bbF5AO2ImVkwqP18jMUdBTFs7ajdSay4oRTZKWTwiSVRfWF5sPnI5cUNrPkhWO2xtUG5bPC0nWUNSYGloRF9WWEhNUDpRPTg3LTEwZyYhZWg/J15IUUQ7SEhfKXRVaSMnZihbYUM3Tj85LmhGOVonUWlvMVsmWEk0IUZxWEM8KVFac109J3I9bV5bQysjRihSUlhcOlA6KlZLYSMxOGMzPExXREhqcTxnbic+YyhnK1UoVUdQcltZW2QrMFxTdC89M0BSY19bI2JmMUVLLzheaVctUSpPR0BLR2ZOUztLOzlXJVRDP0hnXjxVMTNPUCkrQXInUU0yYlNbPmpzOTghLlVWcURVTUhILjgjSWEjbShaP1NQcFhHTmFJNGw1YztTV0VlTDlIL0BgU01NIVMhbkI9VS8nNkxNbEJ0alRUTnFZc2g2VGhuKkVyMHInQFtLU1VUIV1rZjc1I0NCJylSYS5yaTRFbXA4NFoxU1ZsKGU9MkxoKGMuSGUoLDVxIi1xKjBwcDNuIlYiIyVlaHE1b0ZIIkpyW045RihoME5fcjE3YHE0SzZBKlcuVytITzg2VC9gIlY3ZSxhSy5rS1xdITI+MGRYbEJDLkxpV10oUyI3IXFMVk8jbWpRaGJVZTY4MkRuTydMOmYrJ3JtaWZCc3FvaU9hPCpxcjszVi05SVkuWmlCO1pxIU1nQUtCUDs0Xm1lKG8sdUxDR1JBVjYrXWFYU0JEN2VcTUwoYzslRUxaPl8sVCJpTHBnU2ZIPjROZ0xZWScnX05SXylIKm1LVGclNVU3KUtNPnJvOT9OPSY/IjUpViQ/NixfcmZqND80Q2ZZbEVUSl0lI0pAWCxEUTVuZEEvbShvLGdHN01pOT1USGBEVS87OS9PczoiVTZKOzgzNyEqRDgkJ2ozKDAxOlorM0p1IlckZUhRPDdwVWFtTVFfKE1KSjIrWXRaLEtCdD5HN0xEQ0ttUWorYElqMnInQU0tbT1pQF90KyJAUV5Ray9nKjQiWmktbkk+MWBsTzszUTokUjBMRDwnVmZbSnUxa2lhXlNIV1E+c0BMZmBYL0JuVVNvJ0Jjamdmfj5lbmRzdHJlYW0KZW5kb2JqCjExIDAgb2JqCjw8Ci9GaWx0ZXIgWyAvQVNDSUk4NURlY29kZSAvRmxhdGVEZWNvZGUgXSAvTGVuZ3RoIDExMjIKPj4Kc3RyZWFtCkdiIi9mPkFvdWInWl0sJi5GKUVeQmRyMmksPkRtOS9JPGw5U0wzYUNVQ050RGNyJjVvaGdXUzRLWCwsO1NodDAwJ0k/bCVrT1NBJFQsZSVBcV1Qa1dYVD9eJFM2ZD0nLmM7VHFJQWQ3PkpxalRnIz1zKyktPFFRZ1p1KmlxJlplQFkqQ1codVoiVFdQITUpcEM8J1dwPDhsX2xaLVdlb2BkM2Y0J0IvO0xBbmRiLjBpOmc3Si8sJVldMFdedEk9Wi4sKmV1Q081PEQsN15GSiNYVDxlXTNWa2RDTzc8ImZUR2JQLVhfQGsqZUg2aGY3OihoT2RiMjxwIms6cTFcJjpQMSxEVGYjKEtPTkU5JjEwVyloXiw7LkBQSCskKl9OTC5RYThMSjI5NjdVRWh1dGFnY2x1VT4mTGlvK0hRQm5naytGJi06KmNpXGQrYEk5T1lKI10oOnUjZWtmXVMpJlpPaUVmRzUia1QvMFk1WSonI0wtUkoiLTVwVUhCODxULVMuSUFNITZwLGRdKE0tOUwkOjQ2LWhjR0JNMSFhOHRtZF5EXClXZXBpPmlfQlVrQ2RPQS90Kyt1JyhiZEhPSExla29pMzouMExda1ktO1RqNC8jL0FnVTNgRythWlZkTWdGU1x1T0lAPlQtJUJlOTxacTFZXjM+NCdUY2YrYkBlVWFGWkw2b0NDVlQkI0VSZFopakFuXyVQWk8wWjpZa25gQS1FJ0RBWmAoN2dcUFpzUzRNJEguci4iQyMtUVwkKU5FIVQ2bE5bMEMvW1o/bERSbWdXSHBJa1h1XkIwcGJhVjBgRj87TFpSIVoqI2xLQW1pJUhlWGdhTzozMzpbMT8uJXJOU3BdaCghOGZIbTNiOFZTSz87R20rZDhMcXNbUERBYmI4NDtEZ1pnNGMnS0ovQVRLI1A4T1t0OT5NKEdSPiNmNSRcbSthYmNMWGRlWzVHU1YtVTBtRWQ3UWZHKF5DJWctMkBaTEs2ZmA2T3JYbz8pY2d0aFZWSEc/SVBRZj1rO081SWtgMy0nNVBQYWlHY21Za24vRm5yUThrOkU6QSkkRk1wczghWG8yc0pLNlRlQmk4ITpwbCU9Pl5hO3FRLWRwSFlscj1pXTQhREpRWDxKdE5eJzxFMERaSUsoOTZvLEJAJDFOLztpP1MpKlQ/ZEMrcG45cXUiWSVzMSZqbDllYllubnFtJiVkKUdjXT1ZWjhFb2BsSjFZLUNGLDAuU3FWNUtnTTAjVCo3OT9BbiI9L205UzEvOmxjUj9udS8zXDFOMXBBZ2gsKzNkI25PRC9XNTljUG5OIi9hdVs/Ul0mWFwzLXMxPSwnIl1gdFpVM2cqVTlqZ1ZVKUdDW0BDZUAzZnROMkhELChxaDwxTlpLUzxXYSElVjtZUyZyK0IjWzRZRThVaTBJYztSXzUrdGVYZDZOZGcxcCNkcVUrP3BmWXJCXVBIYTBvIjxOMWRhTThPNihdbz5eUkJPRUh+PmVuZHN0cmVhbQplbmRvYmoKMTIgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMTUyNgo+PgpzdHJlYW0KR2IhI1w+QkFMWiY6V2VEbHNpZUcnJi9mLmRodEpDbDgpW0NuOHRPZ19BNVV0WXJJbj9MT1wzSEkpNC9ATVlraDEmdD4wXHAxYUstKCluaCZmXUlbZiJhS09xcmxHQiEhSWtRZWdOKC0mXnQ8VCdobHVdImgoSj5HRyxzTEJvTUddLC9ALUluIzNzcD0zPydpYlI0WlY3RWpWWilKJjxQUUotdV45bUtBZTM7JWEvbUQ5VEY+K2xXSkZNalBcQyNVXEdaODRmWjVpYV0yOlAocGFjaSUlQzxTdWNDWWhkVm1KTSJtUiFgJm89bz1xPjM5KzdOWFJycmRPVltoRi1iQGJDbVEiUjEoVTgubmApTSc+Wk1SOjZiKiUnQXJjQTFOQ2Q2UEUhJ19OcCE6V2RsQj0kXSplL1tMLzRTYSZpMi9AYVtES0VrXlZDWUpUQys2UyU0c19KSldeQD1zcTpMbHUzU0VKUk1FQmRsWkReamRWL2E6NmxpNV9XWl8qQmlQPyRfaU1XIUswRSwyMzwzVVQvRi1JNm1rWEUhUD4rakUlSTNrSG9DTSxBLCVyZ0dZZDEwa14ybj1OOTluWHBjUTpTWi4hSzJnViNlXEs1LkJucUcsQihmUGw7WTVTPU8jS2FONTk1ISomJyQuYl5lWFsxUyhvaidQbGpwSDpoYVY9QUFWR1lVXlVmLGtWTjNcVWIoW1FeVDFWVD5rN0pNayImb0krUGgsXmhea1cvJSprJj0qdUNeTjIvbmFIPylXNmRFW2hDVDtJJzFcci1rOCFXTGtNNEdZbmFdclg5IVtpODstXXUtOkNocGo2WjIyXykhbERNR1ohSnAwMTc2JSZvaHN1XFlZY19ra0MlbVBSQTRnTHUrMV9cJTlqOmghRFNAUS0+VFppdC10QGJCcDtZZ3I9SE1vSSZQVGpxLTZMbT5ROT4nVEEtNmpmSlJFKDEpXydoXSM+VWAvcDgwWmFbVD5PPmRMV2wkPydCaFl0PyYoYzJLckxPWkxlPGxfS05MdE1OR25Wa1hVOSNmTyYkSU8mUC88LzAlQV8pXjZxRm4/b1gvPiRROVdJUFJCcj4wK25aSitiJE9jZzZQWmhySmBPZUlqLyZMV25JPD5sdVNZSVIxRTklXl5TOT5bSV4odWlbck8iZXVddHBRPWtJUjRRU1JeWVI0bDgpVC0tVyI+U09SWS1JbE8ibW4rVm1LKlcxKlxfIVQ1PjgjS1JoSilqaXNpc01DKzMlZT1AZExcVFUraEAvQSZYQ0xzSTNZWkRRZCVmPz5LPzZNYyU1LWo9QmNrNlpFOiZxaEBEX0M2QEkuK0E5KyQ6Z0d1JmA8Jl1vL0o9aE4qIk5GIlUzIWhNPjpmTlkkbE5XTlluVmpiZVpmOXRuX1kiRGhLcikiUzFST10jVD1CXkhQWzJrYCxLRCU4NSw/ZUBxUllXcls1SkZtTUVyZV1VK2lESCYkISE7MEhYOV45bWx0KTVAPEZJaiJqXUxydTdCPk0hNXBsR01KKy9ORlZXcjE6b0puUjRuS3NiX0pdLDNMVUFpbCQyYUdvTzJzSTpSbWcpYD5LIzwtOVNMNV0vNDhXLjhFdSlxYUZKRkw2XC8/Il1RJWVEYVonWCcjPzIrYEBPOU8tOis7PVpuZDlyS0JJN0I2dXBzXjdmbk9mLTwrYHIjajN0WyZpOEoqSSRZJFZGOiNTPVEucVE8aDFSMSRXQSpLPCoqPFk/bkM5I3VacionaGJvOWx1JT51JVIlIiZdRlNCaXFHZG9bLXEtLiw7U0RAX2g6aGNYQz4xOUg9Yy1uaCRNZzdbPjo7bCJUIiMpUldyblo2RCpSZFUhN0YrImg8bkMsMyVCJWA0S2ZQJSlvNEdpXGdLSy1GI21PNCpfKGY0KF0mMFlDa2oiXUdyYCNyNCIpc2BLR0FyPVw3STRoYDImbVlaJEY9ITUjSCo/RjgmKXBnYVZALnIjIz9bYSUmaHFmRHBpYWlGVz5HYkRkImwrYDdkVjBEQmAmIlFKbWIsfj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMwowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNzMgMDAwMDAgbiAKMDAwMDAwMDExNCAwMDAwMCBuIAowMDAwMDAwMjIxIDAwMDAwIG4gCjAwMDAwMDAzMzMgMDAwMDAgbiAKMDAwMDAwMDUzNyAwMDAwMCBuIAowMDAwMDAwNzQxIDAwMDAwIG4gCjAwMDAwMDA5NDUgMDAwMDAgbiAKMDAwMDAwMTAxMyAwMDAwMCBuIAowMDAwMDAxMjk2IDAwMDAwIG4gCjAwMDAwMDEzNjcgMDAwMDAgbiAKMDAwMDAwMjg5NiAwMDAwMCBuIAowMDAwMDA0MTEwIDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPDNhNTJmNGRhYjI4MTkwM2E0MzFmZjg4M2ViODUyM2ZkPjwzYTUyZjRkYWIyODE5MDNhNDMxZmY4ODNlYjg1MjNmZD5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChodHRwOi8vd3d3LnJlcG9ydGxhYi5jb20pCgovSW5mbyA4IDAgUgovUm9vdCA3IDAgUgovU2l6ZSAxMwo+PgpzdGFydHhyZWYKNTcyOAolJUVPRgo=";
@@ -379,26 +373,6 @@ async function saveFreeInsightToFirestore(aiInsights) {
     }
 }
 
-async function markFreeInsightConverted(trackId) {
-    try {
-        const db = getFirestore();
-        const FieldValue = window.firebase.firestore.FieldValue;
-        const docId = lastFreeInsightDocId || getFreeInsightDocId();
-
-        await db.collection("freeInsights").doc(docId).set({
-            paymentStatus: "converted",
-            convertedToPaid: true,
-            convertedTrackId: trackId,
-            convertedAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-        }, { merge: true });
-
-        console.log("[freeInsights] marked converted", docId);
-    } catch (err) {
-        console.warn("[freeInsights] conversion update failed", err?.message || err);
-    }
-}
-
 function escapeHtml(input) {
     return String(input)
         .replaceAll("&", "&amp;")
@@ -442,113 +416,7 @@ function showModalStage(stage) {
 }
 
 function processPayment() {
-    startRazorpayCheckout().catch((err) => {
-        console.error(err);
-        alert(err?.message || "Payment failed to start. Please try again.");
-    });
-}
-
-async function startRazorpayCheckout() {
-    if (typeof window.Razorpay !== "function") {
-        throw new Error("Razorpay SDK not loaded. Please refresh and try again.");
-    }
-
-    const payButtons = Array.from(document.querySelectorAll("#modal-payment .pay-btn"));
-    payButtons.forEach((b) => (b.disabled = true));
-
-    let order;
-    try {
-        if (!currentAuditTrackId) currentAuditTrackId = "PV-" + Math.floor(1000 + Math.random() * 9000);
-        order = await createRazorpayOrder({
-            amount: AUDIT_TOTAL_PAISE,
-            currency: "INR",
-            receipt: currentAuditTrackId,
-            notes: {
-                trackId: currentAuditTrackId,
-                name: userData.name || "",
-                phone: userData.phone || "",
-                email: userData.email || "",
-                locality: userData.locality || "",
-                budget: userData.budget || "",
-            },
-        });
-    } finally {
-        payButtons.forEach((b) => (b.disabled = false));
-    }
-
-    // Support multiple backend response shapes:
-    // - Some backends return { keyId, orderId }
-    // - Razorpay APIs commonly return { key_id, id }
-    const keyId =
-        order?.keyId ??
-        order?.key_id ??
-        order?.razorpayKeyId ??
-        order?.razorpay_key_id ??
-        "";
-
-    const orderId =
-        order?.orderId ??
-        order?.order_id ??
-        order?.id ??
-        "";
-
-    const amount = Number(order?.amount ?? AUDIT_TOTAL_PAISE);
-    const currency = String(order?.currency ?? "INR");
-
-    if (!keyId) {
-        throw new Error("Payment config missing: key id not returned by /api/order.");
-    }
-    if (!orderId) {
-        throw new Error("Payment config missing: order id not returned by /api/order.");
-    }
-
-    const options = {
-        key: keyId,
-        amount,
-        currency,
-        name: "PropVerify Hyderabad",
-        description: "Full Digital Property Audit",
-        order_id: orderId,
-        prefill: {
-            name: userData.name || "",
-            email: userData.email || "",
-            contact: userData.phone || "",
-        },
-        notes: {
-            locality: userData.locality || "",
-            budget: userData.budget || "",
-        },
-        theme: { color: "#5b5df5" },
-        handler: async (response) => {
-            try {
-                const ok = await verifyRazorpayPayment(response);
-                if (!ok) throw new Error("Payment verification failed.");
-                lastAuditPayment = {
-                    ...response,
-                    amount_paise: amount,
-                    currency,
-                    verifiedAt: new Date().toISOString(),
-                };
-                await savePaidLeadToFirestore(currentAuditTrackId);
-                showModalStage("details");
-            } catch (e) {
-                console.error(e);
-                alert(e?.message || "Payment verification failed. If money was deducted, contact support.");
-            }
-        },
-        modal: {
-            ondismiss: () => {
-                // User closed checkout
-            },
-        },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", (resp) => {
-        const msg = resp?.error?.description || resp?.error?.reason || "Payment failed.";
-        alert(msg);
-    });
-    rzp.open();
+    showModalStage("coming-soon");
 }
 
 function getFirestore() {
@@ -595,7 +463,7 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
         trackId,
         createdAt: FieldValue.serverTimestamp(),
         status: "New Lead",
-        paymentStatus: lastAuditPayment ? "paid" : "pending",
+        paymentStatus: "pending",
         user: { ...userData },
         property: {
             rera: property?.rera || "",
@@ -605,97 +473,15 @@ async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
         },
         notes: notes || "",
         documents: documents || [],
-        payment: lastAuditPayment ? { ...lastAuditPayment } : null,
         client: {
             userAgent: navigator.userAgent,
             locale: navigator.language,
         },
     };
-
-    if (lastAuditPayment?.amount_paise) {
-        payload.amountPaid = lastAuditPayment.amount_paise / 100;
-        payload.revenue = payload.amountPaid;
-        payload.paidAt = FieldValue.serverTimestamp();
-        payload.paymentTimestamp = FieldValue.serverTimestamp();
-    }
 
     console.log("[auditOrders] saving", trackId, payload);
     await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
     console.log("[auditOrders] saved", trackId);
-}
-
-async function savePaidLeadToFirestore(trackId) {
-    const db = getFirestore();
-    const FieldValue = window.firebase.firestore.FieldValue;
-    const amountPaid = lastAuditPayment?.amount_paise ? lastAuditPayment.amount_paise / 100 : null;
-
-    const payload = {
-        trackId,
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-        status: "New Lead",
-        paymentStatus: lastAuditPayment ? "paid" : "pending",
-        user: { ...userData },
-        property: {},
-        documents: [],
-        notes: "",
-        payment: lastAuditPayment ? { ...lastAuditPayment } : null,
-        client: {
-            userAgent: navigator.userAgent,
-            locale: navigator.language,
-        },
-    };
-
-    if (amountPaid !== null) {
-        payload.amountPaid = amountPaid;
-        payload.revenue = amountPaid;
-        payload.paidAt = FieldValue.serverTimestamp();
-        payload.paymentTimestamp = FieldValue.serverTimestamp();
-    }
-
-    console.log("[auditOrders] saving paid lead", trackId, payload);
-    await db.collection("auditOrders").doc(trackId).set(payload, { merge: true });
-    await markFreeInsightConverted(trackId);
-    console.log("[auditOrders] paid lead saved", trackId);
-}
-
-async function createRazorpayOrder(payload) {
-    const res = await fetch("/api/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-    });
-
-    const contentType = res.headers.get("content-type") || "";
-    const data = contentType.includes("application/json")
-        ? await res.json().catch(() => ({}))
-        : { raw: await res.text().catch(() => "") };
-
-    if (!res.ok) {
-        const hint =
-            res.status === 404
-                ? "Endpoint not found. Is your backend actually serving /api/order on this same domain?"
-                : res.status === 0
-                    ? "Network error. Are you opening the site via file:// instead of http(s):// ?"
-                    : "";
-        console.error("[/api/order] failed", { status: res.status, data });
-        throw new Error(
-            data?.error ||
-            `Order create failed (HTTP ${res.status}). ${hint}`.trim()
-        );
-    }
-
-    return data;
-}
-
-async function verifyRazorpayPayment(response) {
-    const res = await fetch("/api/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response),
-    });
-    const data = await res.json().catch(() => ({}));
-    return Boolean(data?.ok);
 }
 
 async function submitAudit() {

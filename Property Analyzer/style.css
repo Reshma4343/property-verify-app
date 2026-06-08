@@ -638,7 +638,7 @@ body {
 }
 
 /* AD BANNERS */
-.ad-banner {
+/* .ad-banner {
     width: 100%;
     margin: 0 auto 28px auto;
     border-radius: 16px;
@@ -653,6 +653,23 @@ body {
     display: block;
     border-radius: 16px;
     object-fit: cover;
+} */
+ .ad-sidebar {
+    width: 248px;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-self: flex-start;  /* was: stretch — stops it growing taller than content */
+    line-height: 0;
+    margin-right: 0;          /* was: 68px — removes the broken offset */
+    position: sticky;         /* keeps it visible while scrolling */
+    top: 88px;                /* below the nav */
+}
+.ad-sidebar-img {
+    width: 100%;
+    height: auto;             /* was: 100% — lets image keep its natural proportions */
+    display: block;
+    object-fit: unset;        /* was: cover — no longer needed with height: auto */
+    object-position: top;
 }
 
 /* Step-2: true full-viewport-width fill, no card background */
