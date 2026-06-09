@@ -5,6 +5,25 @@ import functions from "firebase-functions";
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
+function parseCsv(value, fallback = "") {
+  return String(value ?? fallback)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+function summarizeGeminiError(err) {
+  return String(err?.message || err || "Unknown Gemini error").split("\n")[0];
+}
+
+function getGeminiAttemptSummary(attempts) {
+  return attempts
+    .map((attempt) => `model ${attempt.model}, key #${attempt.keyIndex}: HTTP ${attempt.status || "error"} - ${attempt.message}`)
+    .join(" | ");
+}
+
 function getFirebaseConfig() {
   const cfg = (() => {
     try {
@@ -19,14 +38,8 @@ function getFirebaseConfig() {
 
 function getGeminiConfig() {
   const cfg = getFirebaseConfig();
-  const keys = (process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key || "")
-    .split(",")
-    .map((key) => key.trim())
-    .filter(Boolean);
-  const fallbackModels = (process.env.GEMINI_FALLBACK_MODELS || cfg?.gemini?.fallback_models || "gemini-2.0-flash,gemini-2.0-flash-lite")
-    .split(",")
-    .map((model) => model.trim())
-    .filter(Boolean);
+  const keys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key);
+  const fallbackModels = parseCsv(process.env.GEMINI_FALLBACK_MODELS || cfg?.gemini?.fallback_models);
 
   return {
     keys,
@@ -107,8 +120,11 @@ function findGo111Village(locality) {
 }
 
 app.get("/api/config", (_req, res) => {
-  const { keys } = getGeminiConfig();
-  res.json({ geminiKeyCount: keys.length });
+  const { keys, model, fallbackModels } = getGeminiConfig();
+  res.json({
+    geminiKeyCount: keys.length,
+    geminiModels: [...new Set([model, ...fallbackModels])],
+  });
 });
 
 async function callGeminiModel(model, apiKey, locality, budget) {
@@ -156,6 +172,7 @@ app.post("/api/analyze", async (req, res) => {
 
     let data;
     let lastError;
+    const attempts = [];
     for (const modelCandidate of [...new Set([model, ...fallbackModels])]) {
       for (const [keyIndex, apiKey] of keys.entries()) {
         try {
@@ -164,8 +181,14 @@ app.post("/api/analyze", async (req, res) => {
           break;
         } catch (err) {
           lastError = err;
-          console.warn(`Analyze failed with Gemini model ${modelCandidate}, key #${keyIndex + 1}:`, err?.message || err);
-          if (![429, 500, 502, 503, 504].includes(Number(err?.status))) break;
+          attempts.push({
+            model: modelCandidate,
+            keyIndex: keyIndex + 1,
+            status: err?.status,
+            message: summarizeGeminiError(err),
+            retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
+          });
+          console.warn(`Analyze failed with Gemini model ${modelCandidate}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
         }
       }
       if (data) break;
@@ -173,7 +196,9 @@ app.post("/api/analyze", async (req, res) => {
 
     if (!data) {
       return res.status(lastError?.status || 500).json({
-        error: lastError?.message || "Failed to analyze locality.",
+        error: "All Gemini keys failed for this request.",
+        lastError: summarizeGeminiError(lastError),
+        attempts: getGeminiAttemptSummary(attempts),
       });
     }
 

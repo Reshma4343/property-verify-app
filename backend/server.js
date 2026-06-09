@@ -9,15 +9,37 @@ import { findGo111Village } from "./data/go111Villages.js";
 const app = express();
 
 const PORT = Number(process.env.PORT || 4242);
-const GEMINI_API_KEYS = (process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "")
-  .split(",")
-  .map((key) => key.trim())
-  .filter(Boolean);
+function parseCsv(value, fallback = "") {
+  return String(value ?? fallback)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+const GEMINI_API_KEYS = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || "gemini-2.0-flash,gemini-2.0-flash-lite")
-  .split(",")
-  .map((model) => model.trim())
-  .filter(Boolean);
+const GEMINI_FALLBACK_MODELS = parseCsv(process.env.GEMINI_FALLBACK_MODELS);
+
+const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+function summarizeGeminiError(err) {
+  return String(err?.message || err || "Unknown Gemini error").split("\n")[0];
+}
+
+function getGeminiAttemptSummary(attempts) {
+  return attempts
+    .map((attempt) => `model ${attempt.model}, key #${attempt.keyIndex}: HTTP ${attempt.status || "error"} - ${attempt.message}`)
+    .join(" | ");
+}
+
+const GEMINI_KEY_FORMAT_WARNINGS = GEMINI_API_KEYS
+  .map((key, index) => ({ key, index: index + 1 }))
+  .filter(({ key }) => !key.startsWith("AIza") && !key.startsWith("AQ."))
+  .map(({ index }) => `#${index}`);
+
+if (GEMINI_KEY_FORMAT_WARNINGS.length) {
+  console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}`);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +55,10 @@ app.use(express.static(frontendDir));
 app.use("/uploads", express.static(uploadsDir));
 
 app.get("/api/config", (_req, res) => {
-  res.json({ geminiKeyCount: GEMINI_API_KEYS.length });
+  res.json({
+    geminiKeyCount: GEMINI_API_KEYS.length,
+    geminiModels: getGeminiModelCandidates(),
+  });
 });
 
 function safeFileName(fileName) {
@@ -168,6 +193,7 @@ app.post("/api/analyze", async (req, res) => {
 
     let data;
     let lastError;
+    const attempts = [];
     for (const model of getGeminiModelCandidates()) {
       for (const [keyIndex, apiKey] of GEMINI_API_KEYS.entries()) {
         try {
@@ -176,8 +202,14 @@ app.post("/api/analyze", async (req, res) => {
           break;
         } catch (err) {
           lastError = err;
-          console.warn(`Analyze failed with Gemini model ${model}, key #${keyIndex + 1}:`, err?.message || err);
-          if (![429, 500, 502, 503, 504].includes(Number(err?.status))) break;
+          attempts.push({
+            model,
+            keyIndex: keyIndex + 1,
+            status: err?.status,
+            message: summarizeGeminiError(err),
+            retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
+          });
+          console.warn(`Analyze failed with Gemini model ${model}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
         }
       }
       if (data) break;
@@ -185,7 +217,9 @@ app.post("/api/analyze", async (req, res) => {
 
     if (!data) {
       return res.status(lastError?.status || 500).json({
-        error: lastError?.message || "Failed to analyze locality.",
+        error: "All Gemini keys failed for this request.",
+        lastError: summarizeGeminiError(lastError),
+        attempts: getGeminiAttemptSummary(attempts),
       });
     }
 
