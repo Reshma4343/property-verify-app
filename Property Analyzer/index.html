@@ -832,6 +832,9 @@
         <section id="step-2" class="section hidden fade-in">
             <div class="step2-wrapper">
             <div class="step2-content">
+            <button class="btn-back" type="button" onclick="showStep(1)">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
             <div class="card glass-card">
                 <div class="results-head">
                     <div class="results-left">
@@ -940,6 +943,9 @@
 
         <!-- TRACKER -->
         <section id="tracker-view" class="section hidden fade-in">
+            <button class="btn-back" type="button" onclick="showStep(1)">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
             <div class="card glass-card tracker">
                 <div class="tracker-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
                 <h2 class="tracker-title">Track Your Audit</h2>
@@ -950,7 +956,6 @@
                 </div>
 
                 <button class="btn btn-primary btn-wide" type="button" onclick="handleTrack()">Check Status</button>
-                <button class="btn btn-ghost btn-wide" type="button" onclick="location.reload()">Go Back</button>
 
                 <div id="trackResult" class="track-result hidden">
                     Audit Status: Under Verification (Report in 15Min)
