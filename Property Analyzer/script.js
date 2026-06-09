@@ -127,17 +127,57 @@ async function startAnalysis() {
     const locRaw = document.getElementById("userLocality").value.trim();
     const loc = toPascalCase(locRaw);
 
-    const missing = [];
-    if (!name) missing.push("Name");
-    if (!phone) missing.push("Mobile");
-    if (!email) missing.push("Email");
-    if (!budget) missing.push("Budget");
-    if (!locRaw) missing.push("Locality");
-
-    if (missing.length) {
-        alert(`Please fill all details: ${missing.join(", ")}`);
-        return;
+    // --- Validation helpers ---
+    function setError(id, msg) {
+        const el = document.getElementById("err-" + id);
+        const input = document.getElementById(id);
+        if (el) { el.textContent = msg; el.style.display = msg ? "block" : "none"; }
+        if (input) input.classList.toggle("input-field--error", !!msg);
     }
+    function clearErrors() {
+        ["userName","userPhone","userEmail","userBudget","userLocality"].forEach(id => setError(id, ""));
+    }
+
+    clearErrors();
+    let hasError = false;
+
+    // Name: letters, spaces, dots, hyphens only — min 2 chars
+    if (!name) {
+        setError("userName", "Name is required."); hasError = true;
+    } else if (!/^[A-Za-z\s.\-']{2,}$/.test(name)) {
+        setError("userName", "Enter a valid name (letters only)."); hasError = true;
+    }
+
+    // Phone: 10 digits, optionally prefixed with +91 or 0
+    const phoneDigits = phone.replace(/[\s\-\(\)]/g, "");
+    if (!phone) {
+        setError("userPhone", "Mobile number is required."); hasError = true;
+    } else if (!/^(\+91|91|0)?[6-9]\d{9}$/.test(phoneDigits)) {
+        setError("userPhone", "Enter a valid 10-digit Indian mobile number."); hasError = true;
+    }
+
+    // Email: standard format
+    if (!email) {
+        setError("userEmail", "Email is required."); hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        setError("userEmail", "Enter a valid email address."); hasError = true;
+    }
+
+    // Budget: must contain at least one digit or known keyword
+    if (!budget) {
+        setError("userBudget", "Budget is required."); hasError = true;
+    } else if (!/\d/.test(budget) && !/flexible|any/i.test(budget)) {
+        setError("userBudget", "Enter a valid budget (e.g. 50L, 1Cr)."); hasError = true;
+    }
+
+    // Locality: letters, spaces, commas, hyphens only
+    if (!locRaw) {
+        setError("userLocality", "Locality is required."); hasError = true;
+    } else if (!/^[A-Za-z\s,\-.']{2,}$/.test(locRaw)) {
+        setError("userLocality", "Enter a valid locality name (letters only)."); hasError = true;
+    }
+
+    if (hasError) return;
 
     userData = {
         name,
@@ -386,10 +426,11 @@ function showStep(n) {
     document.getElementById("step-1").classList.add("hidden");
     document.getElementById("step-1-continued").classList.add("hidden");
     document.getElementById("how-propverify-works").classList.add("hidden");
+    document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
 
-    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); }
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-propverify-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
