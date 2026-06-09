@@ -46,6 +46,17 @@ document.addEventListener("DOMContentLoaded", () => {
         sampleBtn.addEventListener("click", openSampleReport);
     }
 
+    // Clear field error immediately when user starts typing / editing
+    ["userName", "userPhone", "userEmail", "userBudget", "userLocality"].forEach(id => {
+        const input = document.getElementById(id);
+        const errEl = document.getElementById("err-" + id);
+        if (!input) return;
+        input.addEventListener("input", () => {
+            input.classList.remove("input-field--error");
+            if (errEl) { errEl.textContent = ""; errEl.style.display = "none"; }
+        });
+    });
+
     wireDocumentUpload();
 });
 
@@ -166,6 +177,8 @@ async function startAnalysis() {
     // Budget: must contain at least one digit or known keyword
     if (!budget) {
         setError("userBudget", "Budget is required."); hasError = true;
+    } else if (/(?<!\d)0\d/.test(budget)) {
+        setError("userBudget", "Budget cannot start with leading zeros (e.g. use 50L, not 050L)."); hasError = true;
     } else if (!/\d/.test(budget) && !/flexible|any/i.test(budget)) {
         setError("userBudget", "Enter a valid budget (e.g. 50L, 1Cr)."); hasError = true;
     }
