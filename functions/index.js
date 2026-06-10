@@ -5,11 +5,22 @@ import functions from "firebase-functions";
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
+const GEMINI_REQUEST_INTERVAL_MS = Math.max(0, Number(process.env.GEMINI_REQUEST_INTERVAL_MS || 1000));
+
 function parseCsv(value, fallback = "") {
   return String(value ?? fallback)
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function getNumberedGeminiKeys(env) {
+  const keys = [];
+  for (let index = 1; index <= 100; index += 1) {
+    const key = String(env[`GEMINI_API_KEY_${index}`] || "").trim();
+    if (key) keys.push(key);
+  }
+  return keys;
 }
 
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
@@ -38,7 +49,9 @@ function getFirebaseConfig() {
 
 function getGeminiConfig() {
   const cfg = getFirebaseConfig();
-  const keys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key);
+  const numberedKeys = getNumberedGeminiKeys(process.env);
+  const csvKeys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key);
+  const keys = [...new Set([...numberedKeys, ...csvKeys])];
   const fallbackModels = parseCsv(process.env.GEMINI_FALLBACK_MODELS || cfg?.gemini?.fallback_models);
 
   return {
@@ -119,24 +132,46 @@ function findGo111Village(locality) {
   );
 }
 
+let geminiQueue = Promise.resolve();
+let lastGeminiCallAt = 0;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runGeminiQueued(task) {
+  const run = geminiQueue.then(async () => {
+    const elapsed = Date.now() - lastGeminiCallAt;
+    const waitMs = GEMINI_REQUEST_INTERVAL_MS - elapsed;
+    if (waitMs > 0) await sleep(waitMs);
+    lastGeminiCallAt = Date.now();
+    return task();
+  });
+  geminiQueue = run.catch(() => {});
+  return run;
+}
+
 app.get("/api/config", (_req, res) => {
   const { keys, model, fallbackModels } = getGeminiConfig();
   res.json({
     geminiKeyCount: keys.length,
     geminiModels: [...new Set([model, ...fallbackModels])],
+    geminiRequestIntervalMs: GEMINI_REQUEST_INTERVAL_MS,
   });
 });
 
 async function callGeminiModel(model, apiKey, locality, budget) {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
-      }),
-    }
+  const response = await runGeminiQueued(() =>
+    fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
+        }),
+      }
+    )
   );
 
   const result = await response.json().catch(() => ({}));

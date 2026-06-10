@@ -9,6 +9,8 @@ import { findGo111Village } from "./data/go111Villages.js";
 const app = express();
 
 const PORT = Number(process.env.PORT || 4242);
+const GEMINI_REQUEST_INTERVAL_MS = Math.max(0, Number(process.env.GEMINI_REQUEST_INTERVAL_MS || 1000));
+
 function parseCsv(value, fallback = "") {
   return String(value ?? fallback)
     .split(",")
@@ -16,7 +18,22 @@ function parseCsv(value, fallback = "") {
     .filter(Boolean);
 }
 
-const GEMINI_API_KEYS = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY);
+function getNumberedGeminiKeys(env) {
+  const keys = [];
+  for (let index = 1; index <= 100; index += 1) {
+    const key = String(env[`GEMINI_API_KEY_${index}`] || "").trim();
+    if (key) keys.push(key);
+  }
+  return keys;
+}
+
+function getGeminiApiKeys() {
+  const numberedKeys = getNumberedGeminiKeys(process.env);
+  const csvKeys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY);
+  return [...new Set([...numberedKeys, ...csvKeys])];
+}
+
+const GEMINI_API_KEYS = getGeminiApiKeys();
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const GEMINI_FALLBACK_MODELS = parseCsv(process.env.GEMINI_FALLBACK_MODELS);
 
@@ -41,6 +58,25 @@ if (GEMINI_KEY_FORMAT_WARNINGS.length) {
   console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}`);
 }
 
+let geminiQueue = Promise.resolve();
+let lastGeminiCallAt = 0;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runGeminiQueued(task) {
+  const run = geminiQueue.then(async () => {
+    const elapsed = Date.now() - lastGeminiCallAt;
+    const waitMs = GEMINI_REQUEST_INTERVAL_MS - elapsed;
+    if (waitMs > 0) await sleep(waitMs);
+    lastGeminiCallAt = Date.now();
+    return task();
+  });
+  geminiQueue = run.catch(() => {});
+  return run;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
@@ -58,6 +94,7 @@ app.get("/api/config", (_req, res) => {
   res.json({
     geminiKeyCount: GEMINI_API_KEYS.length,
     geminiModels: getGeminiModelCandidates(),
+    geminiRequestIntervalMs: GEMINI_REQUEST_INTERVAL_MS,
   });
 });
 
@@ -150,15 +187,17 @@ function getGeminiModelCandidates() {
 }
 
 async function callGeminiModel(model, apiKey, locality, budget) {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
-      }),
-    }
+  const response = await runGeminiQueued(() =>
+    fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
+        }),
+      }
+    )
   );
 
   const result = await response.json().catch(() => ({}));
