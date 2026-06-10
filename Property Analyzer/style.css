@@ -1698,7 +1698,7 @@ body {
 .footer-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0;
     font-size: 13.5px;
     font-weight: 500;
     color: rgba(255,255,255,0.5);
@@ -1718,7 +1718,7 @@ body {
 .footer-link:hover i {
     width: auto;
 }
-.footer-link:hover { color: #ffffff; gap: 10px; }
+.footer-link:hover { color: #ffffff; gap: 8px; }
 .footer-link:hover i { opacity: 1; transform: translateX(0); }
 .footer-link--static {
     cursor: default;
