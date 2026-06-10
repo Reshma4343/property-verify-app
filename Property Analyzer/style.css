@@ -1714,6 +1714,10 @@ body {
 }
 .footer-link:hover { color: #ffffff; gap: 10px; }
 .footer-link:hover i { opacity: 1; transform: translateX(0); }
+.footer-link--static {
+    cursor: default;
+    pointer-events: none;
+}
 
 /* ── CONTACT ───────────────────────────────── */
 .footer-contact-list {

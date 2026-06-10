@@ -1510,6 +1510,7 @@
                         <li><a href="#" class="footer-link" onclick="openLegal('terms',event)"><i class="fa-solid fa-chevron-right"></i>Terms &amp; Conditions</a></li>
                         <li><a href="#" class="footer-link" onclick="openLegal('refund',event)"><i class="fa-solid fa-chevron-right"></i>Refund Policy</a></li>
                         <li><a href="#" class="footer-link" onclick="openLegal('privacy',event)"><i class="fa-solid fa-chevron-right"></i>Privacy Policy</a></li>
+                        <li><a href="#" class="footer-link" onclick="openBlogModal(event)"><i class="fa-solid fa-chevron-right"></i>Blog</a></li>
                     </ul>
                 </div>
 
@@ -1517,14 +1518,14 @@
                 <div class="footer-col">
                     <h4 class="footer-col-title">Services</h4>
                     <ul class="footer-links">
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Property Verification</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>GO 111 Analysis</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>DTCP Verification</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>HMDA Verification</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>RERA Verification</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Infrastructure Insights</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Investment Potential Score</a></li>
-                        <li><a href="#" class="footer-link"><i class="fa-solid fa-chevron-right"></i>Growth Analysis</a></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>Property Verification</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>GO 111 Analysis</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>DTCP Verification</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>HMDA Verification</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>RERA Verification</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>Infrastructure Insights</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>Investment Potential Score</span></li>
+                        <li><span class="footer-link footer-link--static"><i class="fa-solid fa-chevron-right"></i>Growth Analysis</span></li>
                     </ul>
                 </div>
 
@@ -1546,12 +1547,12 @@
                         </li>
                     </ul>
                     <h4 class="footer-col-title" style="margin-top:28px">Follow Us</h4>
-                    <div class="footer-socials">
-                        <a href="#" class="social-btn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#" class="social-btn" aria-label="X/Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-                        <a href="#" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="social-btn" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <div class="footer-socials" style="pointer-events:none;">
+                        <span class="social-btn" style="cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important;background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.09)!important;color:rgba(255,255,255,0.5)!important;" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></span>
+                        <span class="social-btn" style="cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important;background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.09)!important;color:rgba(255,255,255,0.5)!important;" aria-label="X/Twitter"><i class="fa-brands fa-twitter"></i></span>
+                        <span class="social-btn" style="cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important;background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.09)!important;color:rgba(255,255,255,0.5)!important;" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></span>
+                        <span class="social-btn" style="cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important;background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.09)!important;color:rgba(255,255,255,0.5)!important;" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></span>
+                        <span class="social-btn" style="cursor:default;pointer-events:none;transform:none!important;box-shadow:none!important;background:rgba(255,255,255,0.06)!important;border-color:rgba(255,255,255,0.09)!important;color:rgba(255,255,255,0.5)!important;" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></span>
                     </div>
                 </div>
 
@@ -1566,7 +1567,6 @@
                     <a href="#" class="footer-bottom-link" onclick="openLegal('privacy',event)">Privacy Policy</a>
                     <a href="#" class="footer-bottom-link" onclick="openLegal('terms',event)">Terms &amp; Conditions</a>
                     <a href="#" class="footer-bottom-link" onclick="openLegal('refund',event)">Refund Policy</a>
-                    <a href="#" class="footer-bottom-link">Cookie Policy</a>
                 </div>
                 <p class="footer-powered">Powered by PropVerify</p>
             </div>
@@ -2530,17 +2530,17 @@ document.addEventListener('keydown', function(e) {
 
           <div class="contact-field">
             <label class="contact-label" for="contactName">Full Name <span class="contact-req">*</span></label>
-            <input type="text" id="contactName" name="name" class="input-field contact-input" placeholder="Ex: Ahmed Khan" required autocomplete="name">
+            <input type="text" id="contactName" name="name" class="input-field contact-input">
           </div>
 
           <div class="contact-row-2">
             <div class="contact-field">
               <label class="contact-label" for="contactEmail">Email Address <span class="contact-req">*</span></label>
-              <input type="email" id="contactEmail" name="email" class="input-field contact-input" placeholder="ahmed@example.com" required autocomplete="email">
+              <input type="email" id="contactEmail" name="email" class="input-field contact-input" >
             </div>
             <div class="contact-field">
               <label class="contact-label" for="contactPhone">Phone Number</label>
-              <input type="tel" id="contactPhone" name="phone" class="input-field contact-input" placeholder="+91 98765 43210" autocomplete="tel">
+              <input type="tel" id="contactPhone" name="phone" class="input-field contact-input" >
             </div>
           </div>
 
@@ -2845,6 +2845,479 @@ function showPaymentComingSoon() {
   var mc = document.getElementById("modal-container");
   if (mc) mc.classList.remove("hidden");
 }
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOG MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="blogModal" class="au-backdrop" aria-modal="true" role="dialog" aria-label="Blog" onclick="handleBlogBackdropClick(event)">
+  <div class="au-modal blog-modal-inner">
+
+    <!-- Header -->
+    <div class="au-header">
+      <div class="au-header-inner">
+        <div class="au-logo">
+          <span class="au-logo-icon"><i class="fa-solid fa-shield-halved"></i></span>
+          <span class="au-logo-text">Prop<span class="au-accent">Verify</span></span>
+        </div>
+        <button class="au-close" onclick="closeBlogModal()" aria-label="Close Blog"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="au-hero" style="background:linear-gradient(180deg,#f0f2f8 0%,#fafafa 100%);padding:40px 48px 32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(20,30,58,.045) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:9999px;background:rgba(20,30,58,.07);border:1px solid rgba(20,30,58,.10);font-size:10px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;color:var(--primary);margin-bottom:18px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--primary);animation:blogDotPulse 2.4s ease-in-out infinite;display:inline-block;"></span>
+            Property Knowledge
+          </div>
+          <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(26px,4vw,48px);font-weight:900;letter-spacing:-.03em;color:var(--primary);line-height:1.06;margin:0 0 14px;">Expert Guides &amp; Insights</h1>
+          <p style="font-size:15px;font-weight:500;color:var(--text-muted);max-width:520px;line-height:1.7;margin:0;">Guides on property verification, RERA checks, legal due diligence, GO111, land records, and home buying in Hyderabad.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="au-body" style="padding:0;">
+
+      <!-- Category Filters -->
+      <div style="padding:32px 40px 0;">
+        <div class="bm-filters" id="bmFilters">
+          <button class="bm-pill active" data-cat="all">All Articles</button>
+          <button class="bm-pill" data-cat="verification">Property Verification</button>
+          <button class="bm-pill" data-cat="rera">RERA</button>
+          <button class="bm-pill" data-cat="legal">Legal Checks</button>
+          <button class="bm-pill" data-cat="land">Land Records</button>
+          <button class="bm-pill" data-cat="investment">Investment Tips</button>
+          <button class="bm-pill" data-cat="government">Government Records</button>
+          <button class="bm-pill" data-cat="buying">Home Buying</button>
+        </div>
+      </div>
+
+      <!-- Blog Grid -->
+      <div style="padding:24px 40px 40px;">
+        <div class="bm-grid" id="bmGrid">
+
+          <!-- Card 1 -->
+          <article class="bm-card" data-category="verification">
+            <div class="bm-card-thumb bm-thumb-verification">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-file-shield bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-id-card"></i> Dharani</span><span class="bm-badge"><i class="fa-solid fa-scroll"></i> EC</span><span class="bm-badge"><i class="fa-solid fa-magnifying-glass"></i> Ownership</span></div>
+              <p class="bm-thumb-title">How to Verify Property Ownership in Hyderabad</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-verification"><i class="fa-solid fa-shield-check"></i> Property Verification</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 8 min</span>
+              </div>
+              <h3 class="bm-card-title">How to Verify Property Ownership in Hyderabad</h3>
+              <p class="bm-card-excerpt">Step-by-step walkthrough to verify who legally owns a property using Dharani, Encumbrance Certificate, and official land records before signing any agreement.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 1 June 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="bm-card" data-category="rera">
+            <div class="bm-card-thumb bm-thumb-rera">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-building-columns bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-certificate"></i> RERA</span><span class="bm-badge"><i class="fa-solid fa-shield-check"></i> Compliant</span><span class="bm-badge"><i class="fa-solid fa-building"></i> Builder</span></div>
+              <p class="bm-thumb-title">RERA Verification Explained</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-rera"><i class="fa-solid fa-certificate"></i> RERA</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 6 min</span>
+              </div>
+              <h3 class="bm-card-title">RERA Verification Explained: What Every Buyer Must Know</h3>
+              <p class="bm-card-excerpt">Learn how to check RERA registration status of any builder or project in Telangana, understand what RERA compliance means, and what happens when a project isn't registered.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 28 May 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="bm-card" data-category="legal">
+            <div class="bm-card-thumb bm-thumb-legal">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-triangle-exclamation bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-ban"></i> Fraud</span><span class="bm-badge"><i class="fa-solid fa-eye"></i> Red Flags</span><span class="bm-badge"><i class="fa-solid fa-user-shield"></i> Safety</span></div>
+              <p class="bm-thumb-title">7 Property Scam Red Flags</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-legal"><i class="fa-solid fa-shield-halved"></i> Legal Checks</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 5 min</span>
+              </div>
+              <h3 class="bm-card-title">7 Property Scam Red Flags Every Hyderabad Buyer Must Know</h3>
+              <p class="bm-card-excerpt">From fake layout approvals to duplicate sale deeds — these seven warning signs can save you from losing lakhs on a fraudulent property transaction in Hyderabad.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 20 May 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="bm-card" data-category="legal">
+            <div class="bm-card-thumb bm-thumb-legal">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-scroll bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-file-contract"></i> EC</span><span class="bm-badge"><i class="fa-solid fa-landmark"></i> IGRS</span><span class="bm-badge"><i class="fa-solid fa-clock-rotate-left"></i> 30 Yrs</span></div>
+              <p class="bm-thumb-title">How to Check Encumbrance Certificate Online</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-legal"><i class="fa-solid fa-file-contract"></i> Legal Checks</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
+              </div>
+              <h3 class="bm-card-title">How to Check Encumbrance Certificate (EC) Online in Telangana</h3>
+              <p class="bm-card-excerpt">A complete guide to obtaining and reading an Encumbrance Certificate (EC) — the most critical document to verify a property's 30-year ownership and loan history.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 15 May 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5 -->
+          <article class="bm-card" data-category="land">
+            <div class="bm-card-thumb bm-thumb-land">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-leaf bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-tree"></i> GO111</span><span class="bm-badge"><i class="fa-solid fa-water"></i> FTL Zone</span><span class="bm-badge"><i class="fa-solid fa-map-pin"></i> Buffer</span></div>
+              <p class="bm-thumb-title">GO111 Explained</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-land"><i class="fa-solid fa-map-location-dot"></i> Land Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 9 min</span>
+              </div>
+              <h3 class="bm-card-title">GO111 Explained: The Environmental Order Every Hyderabad Buyer Must Understand</h3>
+              <p class="bm-card-excerpt">Government Order 111 prohibits construction near Hyderabad's reservoir catchment areas. Learn how to check if your survey number falls within the restricted zone before you invest.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 10 May 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 6 -->
+          <article class="bm-card" data-category="government">
+            <div class="bm-card-thumb bm-thumb-government">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-scale-balanced bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-stamp"></i> DTCP</span><span class="bm-badge"><i class="fa-solid fa-city"></i> HMDA</span><span class="bm-badge"><i class="fa-solid fa-check-double"></i> Approval</span></div>
+              <p class="bm-thumb-title">DTCP vs HMDA: Which Approval Matters?</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-government"><i class="fa-solid fa-landmark"></i> Government Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 6 min</span>
+              </div>
+              <h3 class="bm-card-title">DTCP vs HMDA: Which Approval Matters for Your Property?</h3>
+              <p class="bm-card-excerpt">Understand the critical difference between DTCP and HMDA approvals, and why getting this wrong can make your property unloanable.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 5 May 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 7 -->
+          <article class="bm-card" data-category="investment">
+            <div class="bm-card-thumb bm-thumb-investment">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-receipt bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-building-columns"></i> GHMC</span><span class="bm-badge"><i class="fa-solid fa-droplet"></i> HMWSSB</span><span class="bm-badge"><i class="fa-solid fa-indian-rupee-sign"></i> Dues</span></div>
+              <p class="bm-thumb-title">Property Tax Verification Guide</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-investment"><i class="fa-solid fa-chart-line"></i> Investment Tips</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 5 min</span>
+              </div>
+              <h3 class="bm-card-title">Property Tax Verification Guide for Hyderabad (GHMC &amp; HMWSSB)</h3>
+              <p class="bm-card-excerpt">Unpaid property tax arrears can become your liability after purchase. Here's how to verify property tax records online through GHMC and check for outstanding dues before buying.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 28 Apr 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 8 -->
+          <article class="bm-card" data-category="verification">
+            <div class="bm-card-thumb bm-thumb-verification">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-gavel bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-gavel"></i> eCourts</span><span class="bm-badge"><i class="fa-solid fa-balance-scale"></i> High Court</span><span class="bm-badge"><i class="fa-solid fa-file-circle-exclamation"></i> Litigation</span></div>
+              <p class="bm-thumb-title">Court Case Search Before Buying Land</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-verification"><i class="fa-solid fa-shield-check"></i> Property Verification</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
+              </div>
+              <h3 class="bm-card-title">How to Search Court Cases Before Buying Land in Hyderabad</h3>
+              <p class="bm-card-excerpt">Litigation disputes can freeze your property for years. Learn how to search civil court records, High Court cases, and Dharani-linked disputes for any survey number in Telangana.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 22 Apr 2026</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 9 -->
+          <article class="bm-card" data-category="buying">
+            <div class="bm-card-thumb bm-thumb-buying">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-list-check bm-thumb-bg-icon"></i>
+              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-list-check"></i> 25 Steps</span><span class="bm-badge"><i class="fa-solid fa-house-circle-check"></i> Title</span><span class="bm-badge"><i class="fa-solid fa-circle-check"></i> Legal</span></div>
+              <p class="bm-thumb-title">Complete Property Due Diligence Checklist (2026)</p>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-buying"><i class="fa-solid fa-house-user"></i> Home Buying</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 12 min</span>
+              </div>
+              <h3 class="bm-card-title">The Complete Property Due Diligence Checklist for Hyderabad (2026)</h3>
+              <p class="bm-card-excerpt">A comprehensive 25-point checklist covering every document, verification step, approval check, and risk assessment you must complete before buying any property in Hyderabad.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 15 Apr 2026</span>
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /bm-grid -->
+      </div>
+
+    </div><!-- /au-body -->
+  </div><!-- /au-modal -->
+</div><!-- /blogModal -->
+
+<style>
+@keyframes blogDotPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.45; transform:scale(.65); }
+}
+.blog-modal-inner { max-width: 1000px; }
+
+.bm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.bm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: .2s;
+  white-space: nowrap;
+}
+.bm-pill:hover { border-color: rgba(20,30,58,.3); color: var(--primary); background: var(--accent-dim); }
+.bm-pill.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(20,30,58,.22); }
+
+.bm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 860px) { .bm-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .bm-grid { grid-template-columns: 1fr; } }
+
+.bm-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .25s, border-color .25s, transform .25s cubic-bezier(.34,1.2,.64,1);
+}
+.bm-card:hover { box-shadow: 0 12px 36px rgba(20,30,58,.11); border-color: rgba(20,30,58,.18); transform: translateY(-3px); }
+
+.bm-card-thumb {
+  position: relative;
+  aspect-ratio: 16/8;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 14px 16px;
+}
+.bm-thumb-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle,rgba(20,30,58,.06) 1px,transparent 1px);
+  background-size: 20px 20px;
+}
+.bm-thumb-verification { background: linear-gradient(135deg,#dbeafe 0%,#93c5fd 100%); }
+.bm-thumb-rera         { background: linear-gradient(135deg,#d1fae5 0%,#6ee7b7 100%); }
+.bm-thumb-legal        { background: linear-gradient(135deg,#ede9fe 0%,#c4b5fd 100%); }
+.bm-thumb-land         { background: linear-gradient(135deg,#ffedd5 0%,#fdba74 100%); }
+.bm-thumb-investment   { background: linear-gradient(135deg,#e0f2fe 0%,#7dd3fc 100%); }
+.bm-thumb-government   { background: linear-gradient(135deg,#cffafe 0%,#67e8f9 100%); }
+.bm-thumb-buying       { background: linear-gradient(135deg,#fee2e2 0%,#fca5a5 100%); }
+
+.bm-thumb-bg-icon {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  font-size: 72px;
+  color: rgba(20,30,58,.08);
+  pointer-events: none;
+}
+.bm-thumb-badges {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.bm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(20,30,58,.10);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(20,30,58,.65);
+  letter-spacing: .01em;
+}
+.bm-badge i { font-size: 9px; }
+.bm-thumb-title {
+  position: relative;
+  z-index: 1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(20,30,58,.8);
+  line-height: 1.3;
+  margin: 0;
+  text-shadow: none;
+}
+.bm-card-body {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.bm-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bm-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 9999px;
+}
+.bm-cat-verification { background: rgba(37,99,235,.08);  color: #2563eb; }
+.bm-cat-rera         { background: rgba(5,150,105,.08);  color: #059669; }
+.bm-cat-legal        { background: rgba(139,92,246,.08); color: #7c3aed; }
+.bm-cat-land         { background: rgba(234,88,12,.08);  color: #ea580c; }
+.bm-cat-investment   { background: rgba(14,165,233,.08); color: #0ea5e9; }
+.bm-cat-government   { background: rgba(6,182,212,.08);  color: #0891b2; }
+.bm-cat-buying       { background: rgba(239,68,68,.08);  color: #dc2626; }
+
+.bm-read-time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-subtle);
+}
+.bm-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.38;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+.bm-card-excerpt {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+.bm-card-footer {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+.bm-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-subtle);
+}
+</style>
+
+<script>
+function openBlogModal(e) {
+  if (e) e.preventDefault();
+  var modal = document.getElementById('blogModal');
+  modal.classList.add('au-open');
+  document.body.style.overflow = 'hidden';
+
+  // Wire filters once
+  if (!modal._filtersWired) {
+    modal._filtersWired = true;
+    var pills  = modal.querySelectorAll('.bm-pill');
+    var cards  = modal.querySelectorAll('#bmGrid .bm-card');
+    pills.forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        pills.forEach(function(p) { p.classList.remove('active'); });
+        this.classList.add('active');
+        var cat = this.dataset.cat;
+        cards.forEach(function(card) {
+          if (cat === 'all' || card.dataset.category === cat) {
+            card.style.display = '';
+            requestAnimationFrame(function() { card.style.opacity = '1'; card.style.transform = ''; });
+          } else {
+            card.style.opacity = '0';
+            setTimeout(function() { card.style.display = 'none'; }, 180);
+          }
+        });
+      });
+    });
+  }
+}
+function closeBlogModal() {
+  document.getElementById('blogModal').classList.remove('au-open');
+  document.body.style.overflow = '';
+}
+function handleBlogBackdropClick(e) {
+  if (e.target === document.getElementById('blogModal')) closeBlogModal();
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('blogModal').classList.contains('au-open')) closeBlogModal();
+});
 </script>
 
 </body>
