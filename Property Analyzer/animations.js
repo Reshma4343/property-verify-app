@@ -1,5 +1,5 @@
 /**
- * PROPVERIFY — PREMIUM HOMEPAGE ANIMATIONS
+ * AsliProperty — PREMIUM HOMEPAGE ANIMATIONS
  * animations.js  |  Drop-in enhancement layer
  *
  * Zero changes to script.js / style.css / HTML structure.
@@ -49,7 +49,7 @@
           <div class="pv-loader-icon">
             <i class="fa-solid fa-shield-halved"></i>
           </div>
-          <span class="pv-loader-brand">Prop<span>Verify</span></span>
+          <span class="pv-loader-brand">Asli<span>Property</span></span>
         </div>
         <div class="pv-loader-bar-wrap">
           <div class="pv-loader-bar"></div>
