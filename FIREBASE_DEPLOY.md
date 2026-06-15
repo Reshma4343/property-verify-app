@@ -19,7 +19,16 @@ Use a comma-separated list so the backend can rotate through keys:
 Optional fallback models:
 - `firebase functions:config:set gemini.fallback_models="gemini-2.0-flash,gemini-2.0-flash-lite"`
 
-## 3. Install Dependencies And Deploy
+## 3. Configure Contact Email
+For local testing, put these values in `functions/.env`:
+- `BREVO_API_KEY=your_brevo_api_key`
+- `CONTACT_TO_EMAIL=info@asliproperty.in`
+- `CONTACT_FROM_EMAIL=info@asliproperty.in`
+- `CONTACT_FROM_NAME=AsliProperty Website`
+
+For production Firebase Functions, configure the same values as environment variables or secrets before deploying. `CONTACT_FROM_EMAIL` must be verified in Brevo.
+
+## 4. Install Dependencies And Deploy
 From repo root:
 - `cd functions`
 - `npm install`

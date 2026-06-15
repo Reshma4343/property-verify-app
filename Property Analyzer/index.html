@@ -2481,7 +2481,7 @@ document.addEventListener('keydown', function(e) {
               <div class="contact-info-icon"><i class="fa-solid fa-envelope"></i></div>
               <div>
                 <div class="contact-info-label">Email Us</div>
-                <div class="contact-info-val">info@asliproperty.in</div>
+                <a class="contact-info-val" href="mailto:info@asliproperty.in">info@asliproperty.in</a>
               </div>
             </div>
             <div class="contact-info-item">
@@ -2519,23 +2519,21 @@ document.addEventListener('keydown', function(e) {
           <p class="contact-form-sub">We typically respond within 24 hours on business days.</p>
         </div>
 
-        <form id="contactForm" class="contact-form" action="https://formspree.io/f/xyzgpqrw" method="POST" onsubmit="handleContactSubmit(event)">
-          <input type="hidden" name="_replyto" value="shaiktouseef002@gmail.com">
-          <input type="hidden" name="_subject" value="New Contact Form Submission — AsliProperty">
+        <form id="contactForm" class="contact-form" onsubmit="handleContactSubmit(event)">
 
           <div class="contact-field">
             <label class="contact-label" for="contactName">Full Name <span class="contact-req">*</span></label>
-            <input type="text" id="contactName" name="name" class="input-field contact-input">
+            <input type="text" id="contactName" name="name" class="input-field contact-input" required autocomplete="name">
           </div>
 
           <div class="contact-row-2">
             <div class="contact-field">
               <label class="contact-label" for="contactEmail">Email Address <span class="contact-req">*</span></label>
-              <input type="email" id="contactEmail" name="email" class="input-field contact-input" >
+              <input type="email" id="contactEmail" name="email" class="input-field contact-input" required autocomplete="email">
             </div>
             <div class="contact-field">
               <label class="contact-label" for="contactPhone">Phone Number</label>
-              <input type="tel" id="contactPhone" name="phone" class="input-field contact-input" >
+              <input type="tel" id="contactPhone" name="phone" class="input-field contact-input" autocomplete="tel">
             </div>
           </div>
 
@@ -2566,7 +2564,7 @@ document.addEventListener('keydown', function(e) {
         <div id="contactSuccess" class="contact-success" style="display:none">
           <div class="contact-success-icon"><i class="fa-solid fa-circle-check"></i></div>
           <div class="contact-success-title">Message Sent!</div>
-          <p class="contact-success-text">Thank you for reaching out. Our team will get back to you at your email address within 24 hours.</p>
+          <p class="contact-success-text">Thank you for reaching out. Our team will reply to your email address.</p>
           <button class="btn btn-primary" onclick="closeContact()" style="margin-top:8px">Close</button>
         </div>
 
@@ -2678,7 +2676,9 @@ document.addEventListener('keydown', function(e) {
   font-size: 13.5px;
   font-weight: 600;
   color: rgba(255,255,255,0.88);
+  text-decoration: none;
 }
+.contact-info-val:hover { color: #fff; }
 
 /* RIGHT */
 .contact-right {
@@ -2808,28 +2808,40 @@ async function handleContactSubmit(e) {
   e.preventDefault();
   const btn = document.getElementById('contactSubmitBtn');
   const btnText = document.getElementById('contactBtnText');
+  const form = document.getElementById('contactForm');
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const phone = document.getElementById('contactPhone').value.trim();
+  const subjectValue = document.getElementById('contactSubject').value.trim();
+  const message = document.getElementById('contactMessage').value.trim();
+
+  if (!form.reportValidity()) return;
+
   btn.disabled = true;
   btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
   try {
-    const form = document.getElementById('contactForm');
-    const data = new FormData(form);
-    // Append target email
-    data.append('_replyto', 'shaiktouseef002@gmail.com');
-    const res = await fetch('https://formspree.io/f/xyzgpqrw', {
+    const response = await fetch('/api/contact', {
       method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        subject: subjectValue,
+        message,
+      }),
     });
-    if (res.ok) {
-      form.style.display = 'none';
-      document.getElementById('contactSuccess').style.display = 'flex';
-    } else {
-      throw new Error('Failed');
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result?.error || `Contact email failed (HTTP ${response.status}).`);
     }
-  } catch {
+    form.style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'flex';
+  } catch (err) {
+    console.error('Contact form failed:', err);
     btnText.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Message';
     btn.disabled = false;
-    alert('Something went wrong. Please email us directly at info@asliproperty.in');
+    alert(err?.message || 'Please email us directly at info@asliproperty.in');
   }
 }
 </script>
