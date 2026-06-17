@@ -54,65 +54,12 @@
     </nav>
 
     <main class="container main">
+        <!-- TOP BANNER -->
+        <div class="ad-banner ad-banner-top" id="top-banner">
+            <img src="assets/ad-banner-blue.jpeg" alt="AsliProperty – Pay ₹299, Invest with Confidence" class="ad-banner-img">
+        </div>
+
         <!-- STEP 1 -->
-        <section id="step-1" class="section fade-in">
-            <div class="ad-banner">
-                <img src="assets/ad-banner-blue.jpeg" alt="AsliProperty – Pay ₹299, Invest with Confidence" class="ad-banner-img">
-            </div>
-            <div class="step1-header">
-                <div class="pill pill-primary">
-                    <i class="fa-solid fa-bolt"></i>
-                    Real-time Hyderabad Market Intelligence
-                </div>
-
-                <h1 class="hero-title">
-                    Smart Property Solution
-                </h1>
-            </div>
-
-            <div class="card glass-card">
-                <div class="grid grid-2">
-                    <div class="field">
-                        <label class="label" for="userName">Your Name</label>
-                        <input type="text" id="userName"  class="input-field" autocomplete="name">
-                        <span class="field-error" id="err-userName"></span>
-                    </div>
-                    <div class="field">
-                        <label class="label" for="userPhone">WhatsApp Mobile</label>
-                        <input type="tel" id="userPhone" placeholder="+91" class="input-field" autocomplete="tel">
-                        <span class="field-error" id="err-userPhone"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-2">
-                    <div class="field">
-                        <label class="label" for="userEmail">Email ID</label>
-                        <input type="email" id="userEmail"  class="input-field" autocomplete="email">
-                        <span class="field-error" id="err-userEmail"></span>
-                    </div>
-                    <div class="field">
-                        <label class="label" for="userBudget">Approx Budget</label>
-                        <input type="text" id="userBudget" placeholder="Ex: 50L - 1Cr" class="input-field" autocomplete="off">
-                        <span class="field-error" id="err-userBudget"></span>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label" for="userLocality">Target Locality in Hyderabad</label>
-                    <input type="text" id="userLocality" placeholder="Ex: Tellapur, Adibatla, Mokila" class="input-field" autocomplete="off">
-                    <span class="field-error" id="err-userLocality"></span>
-                </div>
-
-                <button class="btn btn-primary btn-wide" type="button" onclick="startAnalysis()">
-                    <span id="btnText">Analyze Locality</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-
-
-        </section>
-
-        <!-- HOW ASLIPROPERTY WORKS -->
         <section class="hpw-section" id="how-AsliProperty-works" aria-label="How AsliProperty Works">
 
           <div class="hpw-divider-top" aria-hidden="true">
@@ -650,7 +597,7 @@
             <!-- CTA strip -->
             <div class="hpw-cta-strip hpw-reveal">
               <p class="hpw-cta-text">Ready to verify your property?</p>
-              <button class="btn btn-primary" type="button" onclick="initAuditFlow()">
+              <button class="btn btn-primary" type="button" onclick="document.getElementById('step-1').scrollIntoView({behavior:'smooth'});return false;">
                 Start Verification <i class="fa-solid fa-arrow-right"></i>
               </button>
             </div>
@@ -665,7 +612,63 @@
         </section>
 
 
-        <!-- GOVERNMENT INTEGRATIONS -->
+
+        <section id="step-1" class="section fade-in">
+            <div class="step1-header">
+                <div class="pill pill-primary">
+                    <i class="fa-solid fa-bolt"></i>
+                    Real-time Hyderabad Market Intelligence
+                </div>
+
+                <h1 class="hero-title">
+                    Smart Property Solution
+                </h1>
+            </div>
+
+            <div class="card glass-card">
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label class="label" for="userName">Your Name</label>
+                        <input type="text" id="userName"  class="input-field" autocomplete="name">
+                        <span class="field-error" id="err-userName"></span>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="userPhone">WhatsApp Mobile</label>
+                        <input type="tel" id="userPhone" placeholder="+91" class="input-field" autocomplete="tel">
+                        <span class="field-error" id="err-userPhone"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label class="label" for="userEmail">Email ID</label>
+                        <input type="email" id="userEmail"  class="input-field" autocomplete="email">
+                        <span class="field-error" id="err-userEmail"></span>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="userBudget">Approx Budget</label>
+                        <input type="text" id="userBudget" placeholder="Ex: 50L - 1Cr" class="input-field" autocomplete="off">
+                        <span class="field-error" id="err-userBudget"></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="userLocality">Target Locality in Hyderabad</label>
+                    <input type="text" id="userLocality" placeholder="Ex: Tellapur, Adibatla, Mokila" class="input-field" autocomplete="off">
+                    <span class="field-error" id="err-userLocality"></span>
+                </div>
+
+                <button class="btn btn-primary btn-wide" type="button" onclick="startAnalysis()">
+                    <span id="btnText">Analyze Locality</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+
+        </section>
+
+
+
         <section id="gov-integrations" class="section">
           <div class="container">
           <div class="gov-integrations-wrap gov-v2" style="margin-top: 0;">
@@ -728,26 +731,40 @@
                     <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                   </div>
 
-                  <!-- 7: Appreciation (3Y) -->
-                  <div class="gov-card">
-                    <span class="gov-card-icon"><i class="fa-solid fa-chart-line"></i></span>
-                    <span class="gov-title">Appreciation (3Y)</span>
-                    <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
-                  </div>
+                  <!-- 7 & 8: Appreciation + GO111 — centred last row -->
+                  <div style="grid-column: 1 / -1; display: flex; justify-content: center; gap: 20px;">
 
-                  <!-- 8: GO111 Status -->
-                  <div class="gov-card">
-                    <span class="gov-card-icon" style="background: linear-gradient(145deg, #ec4899, rgba(236,72,153,0.72));"><i class="fa-solid fa-leaf"></i></span>
-                    <span class="gov-title">GO111 Status</span>
-                    <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
+                    <div class="gov-card" style="width: calc(33.333% - 7px);">
+                      <span class="gov-card-icon"><i class="fa-solid fa-chart-line"></i></span>
+                      <span class="gov-title">Appreciation (3Y)</span>
+                      <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
+                    </div>
+
+                    <div class="gov-card" style="width: calc(33.333% - 7px);">
+                      <span class="gov-card-icon" style="background: linear-gradient(145deg, #ec4899, rgba(236,72,153,0.72));"><i class="fa-solid fa-leaf"></i></span>
+                      <span class="gov-title">GO111 Status</span>
+                      <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
+                    </div>
+
                   </div>
 
                 </div>
-              </div>
+
             </div>
           </div>
+
+          <!-- CTA strip -->
+          <div class="hpw-cta-strip" style="margin-top:32px;">
+            <p class="hpw-cta-text">Want to learn more about property verification?</p>
+            <button class="btn btn-primary" type="button" onclick="openBlogModal(event)">
+              View More <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
           </div>
         </section>
+
+
 
         <section id="step-1-continued" class="section">
             <!-- COMPARISON -->
@@ -778,13 +795,16 @@
             </div>
 
             <!-- TESTIMONIALS -->
-            <div class="testimonials-wrap">
+            <div class="testimonials-wrap" id="testimonialsWrap">
                 <div class="section-label-wrap">
                     <span class="pill pill-primary"><i class="fa-solid fa-star"></i> Trusted by Buyers</span>
                 </div>
                 <h2 class="section-heading">What Our Customers Say</h2>
-                <div class="testimonials-grid">
-                    <div class="testimonial-card">
+
+                <!-- Unified testimonials section: static grid → scrolling marquee on View More -->
+                <div class="testimonials-grid" id="testimonialsGrid">
+                    <!-- Static cards (shown by default as 3-col grid) -->
+                    <div class="testimonial-card tg-static">
                         <div class="testimonial-stars">
                             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                         </div>
@@ -797,7 +817,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="testimonial-card">
+                    <div class="testimonial-card tg-static">
                         <div class="testimonial-stars">
                             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                         </div>
@@ -810,7 +830,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="testimonial-card">
+                    <div class="testimonial-card tg-static">
                         <div class="testimonial-stars">
                             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
                         </div>
@@ -823,6 +843,119 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Marquee track (hidden until View More is clicked, sits inside same section) -->
+                    <div class="testimonials-marquee-track" id="testimonialsMarqueeTrack">
+                        <!-- All 10 cards -->
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"AsliProperty saved me from buying a disputed property in Tellapur. The audit revealed an encumbrance I had no clue about. Worth every rupee."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">AK</div><div><p class="testimonial-name">Ahmed Khan</p><p class="testimonial-meta">Buyer, Tellapur · ₹82L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"Got my full report in under 24 hours. The GO111 check and court case scan gave me the confidence to go ahead with the deal in Mokila."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">SR</div><div><p class="testimonial-name">Sunita Reddy</p><p class="testimonial-meta">Investor, Mokila · ₹1.2Cr villa</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"The locality market profile for Adibatla was spot on — IT corridor growth, metro proximity, everything laid out clearly. Made my decision easy."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">RP</div><div><p class="testimonial-name">Rajesh Pillai</p><p class="testimonial-meta">First-time buyer, Adibatla · ₹55L flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The RERA registration check was the deciding factor for us. PropVerify confirmed the project was fully registered and CC received. Bought our flat in Kondapur with complete peace of mind."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">NM</div><div><p class="testimonial-name">Nandita Mishra</p><p class="testimonial-meta">Buyer, Kondapur · ₹1.05Cr flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"As an NRI investing from the US, I couldn't visit the property in person. PropVerify's digital audit with satellite imagery and legal checks gave me full confidence from 10,000 miles away."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">VS</div><div><p class="testimonial-name">Venkat Subramanian</p><p class="testimonial-meta">NRI Investor, Gachibowli · ₹2.4Cr villa</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"We were about to finalise a plot in Shadnagar when the PropVerify report flagged an ongoing court litigation. Saved us from a multi-year legal nightmare. Highly recommend."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">PJ</div><div><p class="testimonial-name">Priya Joshi</p><p class="testimonial-meta">Buyer, Shadnagar · ₹38L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The encumbrance certificate check through PropVerify showed a bank mortgage I never knew about. The seller hadn't disclosed it. Crisis averted. This service is worth 10x its price."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">KR</div><div><p class="testimonial-name">Kiran Rao</p><p class="testimonial-meta">Investor, Uppal · ₹67L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The HMDA layout approval check and boundary verification in Narsingi was detailed and accurate. My builder's claims matched exactly. Proceeded with full confidence."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">AT</div><div><p class="testimonial-name">Arjun Tiwari</p><p class="testimonial-meta">First-time buyer, Narsingi · ₹88L villa plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"Excellent turnaround. I ordered the audit on Friday evening and had the full PDF report on Saturday morning. The water &amp; drainage connection status for Bachupally was perfectly accurate."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">SM</div><div><p class="testimonial-name">Sowmya Murthy</p><p class="testimonial-meta">Buyer, Bachupally · ₹72L flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"PropVerify flagged that the layout in Kompally did not have final DTCP approval. The builder had not mentioned this. Saved us from a huge risk. Every buyer should run this check."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">DG</div><div><p class="testimonial-name">Deepak Gupta</p><p class="testimonial-meta">Investor, Kompally · ₹54L plot</p></div></div>
+                        </div>
+                        <!-- Duplicate set for seamless loop -->
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"AsliProperty saved me from buying a disputed property in Tellapur. The audit revealed an encumbrance I had no clue about. Worth every rupee."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">AK</div><div><p class="testimonial-name">Ahmed Khan</p><p class="testimonial-meta">Buyer, Tellapur · ₹82L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"Got my full report in under 24 hours. The GO111 check and court case scan gave me the confidence to go ahead with the deal in Mokila."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">SR</div><div><p class="testimonial-name">Sunita Reddy</p><p class="testimonial-meta">Investor, Mokila · ₹1.2Cr villa</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"The locality market profile for Adibatla was spot on — IT corridor growth, metro proximity, everything laid out clearly. Made my decision easy."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">RP</div><div><p class="testimonial-name">Rajesh Pillai</p><p class="testimonial-meta">First-time buyer, Adibatla · ₹55L flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The RERA registration check was the deciding factor for us. PropVerify confirmed the project was fully registered and CC received. Bought our flat in Kondapur with complete peace of mind."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">NM</div><div><p class="testimonial-name">Nandita Mishra</p><p class="testimonial-meta">Buyer, Kondapur · ₹1.05Cr flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"As an NRI investing from the US, I couldn't visit the property in person. PropVerify's digital audit with satellite imagery and legal checks gave me full confidence from 10,000 miles away."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">VS</div><div><p class="testimonial-name">Venkat Subramanian</p><p class="testimonial-meta">NRI Investor, Gachibowli · ₹2.4Cr villa</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"We were about to finalise a plot in Shadnagar when the PropVerify report flagged an ongoing court litigation. Saved us from a multi-year legal nightmare. Highly recommend."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">PJ</div><div><p class="testimonial-name">Priya Joshi</p><p class="testimonial-meta">Buyer, Shadnagar · ₹38L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The encumbrance certificate check through PropVerify showed a bank mortgage I never knew about. The seller hadn't disclosed it. Crisis averted. This service is worth 10x its price."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">KR</div><div><p class="testimonial-name">Kiran Rao</p><p class="testimonial-meta">Investor, Uppal · ₹67L plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"The HMDA layout approval check and boundary verification in Narsingi was detailed and accurate. My builder's claims matched exactly. Proceeded with full confidence."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">AT</div><div><p class="testimonial-name">Arjun Tiwari</p><p class="testimonial-meta">First-time buyer, Narsingi · ₹88L villa plot</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="testimonial-text">"Excellent turnaround. I ordered the audit on Friday evening and had the full PDF report on Saturday morning. The water &amp; drainage connection status for Bachupally was perfectly accurate."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">SM</div><div><p class="testimonial-name">Sowmya Murthy</p><p class="testimonial-meta">Buyer, Bachupally · ₹72L flat</p></div></div>
+                        </div>
+                        <div class="testimonial-card tm-card">
+                            <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <p class="testimonial-text">"PropVerify flagged that the layout in Kompally did not have final DTCP approval. The builder had not mentioned this. Saved us from a huge risk. Every buyer should run this check."</p>
+                            <div class="testimonial-author"><div class="testimonial-avatar">DG</div><div><p class="testimonial-name">Deepak Gupta</p><p class="testimonial-meta">Investor, Kompally · ₹54L plot</p></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View More Button -->
+                <div class="testimonials-view-more-wrap">
+                    <button class="btn-view-more-testimonials" id="viewMoreTestimonialsBtn" onclick="toggleTestimonialMarquee()">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        <span>View More Reviews</span>
+                    </button>
                 </div>
             </div>
 
@@ -840,7 +973,7 @@
                     <div class="results-left">
                         <div class="pills">
                             <span class="pill"><i class="fa-solid fa-map-pin"></i> <span id="resName">Locality</span></span>
-                            <span class="pill pill-success"><i class="fa-solid fa-check-circle"></i> AI Verified</span>
+                           
                             <span class="pill pill-muted" id="resBudgetPill">Budget: Loading...</span>
                         </div>
                         <h2 class="results-title" id="resAnalysisTitle">Locality Market Profile</h2>
@@ -855,7 +988,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-4 stats">
+                <div class="grid grid-4 stats" style="margin-bottom: 8px;">
                     <!-- Appreciation (3Y) card hidden from UI
                     <div class="grid-item stat-card-clickable" onclick="showStatPopup('appreciation')">
                         <p class="meta">Appreciation (3Y)</p>
@@ -908,7 +1041,31 @@
                     </div>
                 </div>
 
-                <div class="grid grid-3 transport">
+                <div class="grid grid-3" style="margin-top: 20px;">
+                    <div class="grid-item bordered-left bordered-teal">
+                        <div class="card-head">
+                            <span class="icon icon-teal"><i class="fa-solid fa-leaf"></i></span>
+                            <h4 class="head-title">Public Gardens</h4>
+                        </div>
+                        <div id="resGardens" class="list-skeleton"></div>
+                    </div>
+                    <div class="grid-item bordered-left bordered-amber">
+                        <div class="card-head">
+                            <span class="icon icon-amber"><i class="fa-solid fa-landmark"></i></span>
+                            <h4 class="head-title">Tourism Spots</h4>
+                        </div>
+                        <div id="resTourism" class="list-skeleton"></div>
+                    </div>
+                    <div class="grid-item bordered-left bordered-pink">
+                        <div class="card-head">
+                            <span class="icon icon-pink"><i class="fa-solid fa-utensils"></i></span>
+                            <h4 class="head-title">Restaurants</h4>
+                        </div>
+                        <div id="resRestaurants" class="list-skeleton"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-3 transport" style="margin-top: 20px;">
                     <div class="transport-item">
                         <span class="icon icon-orange"><i class="fa-solid fa-road"></i></span>
                         <div>

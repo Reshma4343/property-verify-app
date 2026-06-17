@@ -228,10 +228,12 @@ body {
     letter-spacing: 0.01em;
 }
 
-.grid { display: grid; row-gap: 28px; column-gap: 20px; align-items: start; }
+.grid { display: grid; row-gap: 18px; column-gap: 18px; align-items: start; }
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid.stats { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+.grid.stats .grid-item { display: flex; flex-direction: column; justify-content: flex-start; }
 
 /* BUTTONS */
 .btn {
@@ -353,7 +355,7 @@ body {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 16px;
+    padding: 20px 20px 16px;
     transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.22s;
 }
 /* Blue pop on hover for infra cards (Hospitals, Schools, Malls) */
@@ -449,14 +451,15 @@ body {
 .section-title {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 22px 0 14px;
+    gap: 12px;
+    margin: 36px 0 20px;
+    padding: 0 2px;
 }
-.section-title i { color: var(--primary); }
+.section-title i { color: var(--primary); font-size: 18px; }
 .section-title h3 {
     margin: 0;
     font-family: 'Playfair Display', serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text);
 }
@@ -465,8 +468,30 @@ body {
 .bordered-red { border-left-color: #ef4444; }
 .bordered-green { border-left-color: #10b981; }
 .bordered-blue { border-left-color: rgba(20,30,58,0.45); }
+.bordered-teal { border-left-color: #0d9488; }
+.bordered-amber { border-left-color: #d97706; }
+.bordered-pink { border-left-color: #db2777; }
 
-.card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.infra-view-more {
+    margin-left: auto;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.infra-view-more:hover {
+    background: rgba(20, 30, 58, 0.07);
+    border-color: var(--primary);
+}
 .head-title { margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.16em; color: #000000; }
 .icon {
     width: 36px;
@@ -482,28 +507,33 @@ body {
 .icon-blue { background: rgba(20,30,58,0.08); color: var(--primary); }
 .icon-orange { background: #ffedd5; color: #ea580c; }
 .icon-purple { background: #ede9fe; color: #7c3aed; }
+.icon-teal { background: #ccfbf1; color: #0d9488; }
+.icon-amber { background: #fef3c7; color: #d97706; }
+.icon-pink { background: #fce7f3; color: #db2777; }
 
 .infra-item {
     border-left: 3px solid var(--border-hover);
-    padding: 10px 0 10px 12px;
-    margin-bottom: 8px;
-    font-weight: 800;
+    padding: 9px 0 9px 12px;
+    margin-bottom: 6px;
+    font-weight: 700;
     color: var(--text);
-    font-size: 16px;
+    font-size: 13px;
+    line-height: 1.4;
 }
-.list-skeleton { padding: 6px 0; }
+.infra-item:last-child { margin-bottom: 0; }
+.list-skeleton { padding: 4px 0; }
 .empty-note { font-size: 12px; color: var(--text-subtle); font-style: italic; padding: 8px 0; }
 .subnote { font-size: 11px; font-weight: 900; color: #f97316; }
 
 .transport {
-    margin-top: 14px;
-    margin-bottom: 14px;
+    margin-top: 24px;
+    margin-bottom: 16px;
 }
 .transport-item {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: flex-start;
-    padding: 14px;
+    padding: 16px 18px;
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid var(--border);
@@ -695,6 +725,10 @@ body {
     line-height: 0;
     aspect-ratio: 1480 / 163;
     background: linear-gradient(90deg, #141E3A 0%, #1e2e52 100%);
+}
+.ad-banner.ad-banner-top {
+    margin-bottom: 32px;
+    border-radius: 20px;
 }
 .ad-banner-img {
     width: 100%;
@@ -970,17 +1004,19 @@ body {
 
 /* ── GOVERNMENT INTEGRATIONS (Variation B) ───────────── */
 .gov-integrations-wrap.gov-v2 {
-    margin-top: 64px;
-    padding: 0;
+    margin-top: 48px;
+    margin-bottom: 8px;
+    padding: 0 24px;
     width: 100%;
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 .gov-integrations-panel {
     position: relative;
     border-radius: 28px;
-    padding: 52px 44px 48px;
+    padding: 56px 52px 52px;
     overflow: hidden;
     background: linear-gradient(152deg, #0f1729 0%, #141e3a 42%, #1a2a4f 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1034,7 +1070,7 @@ body {
 .gov-section-sub {
     text-align: center;
     max-width: 540px;
-    margin: 0 auto 40px;
+    margin: 0 auto 48px;
     font-size: 15px;
     font-weight: 600;
     line-height: 1.65;
@@ -1072,7 +1108,7 @@ body {
 .gov-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 20px;
 }
 .gov-card {
     --gov-accent: #2563eb;
@@ -1081,9 +1117,9 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     min-height: 0;
-    padding: 18px 18px 18px 22px;
+    padding: 20px 20px 20px 24px;
     border-radius: 16px;
     background: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1422,10 +1458,49 @@ body {
 }
 
 /* ── TESTIMONIALS ────────────────────────────────────── */
+/* Testimonials: unified section — static grid default, marquee on "View More" */
 .testimonials-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    overflow: hidden;
+    transition: all 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* When marquee mode is active, convert grid to a scroll container */
+.testimonials-grid.marquee-active {
+    display: block;
+    overflow: hidden;
+}
+
+/* Hide the static cards when marquee is active */
+.testimonials-grid.marquee-active .tg-static {
+    display: none;
+}
+
+/* Marquee track — hidden by default inside grid */
+.testimonials-marquee-track {
+    display: none;
+    gap: 20px;
+    width: max-content;
+    padding: 12px 0;
+}
+
+/* Fade edges when marquee is visible */
+.testimonials-grid.marquee-active {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+}
+
+/* Show and animate the track when parent has marquee-active */
+.testimonials-grid.marquee-active .testimonials-marquee-track {
+    display: flex;
+    animation: marqueeScroll 32s linear infinite;
+}
+
+.testimonials-grid.marquee-active .testimonials-marquee-track:hover {
+    animation-play-state: paused;
 }
 .testimonial-card {
     background: var(--surface);
@@ -1453,6 +1528,51 @@ body {
 }
 .testimonial-name { font-size: 13px; font-weight: 800; color: var(--text); margin: 0 0 2px; }
 .testimonial-meta { font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0; }
+
+/* View More Button */
+.testimonials-view-more-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+}
+.btn-view-more-testimonials {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 28px;
+    background: transparent;
+    border: 1.5px solid var(--border-hover);
+    border-radius: 50px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    letter-spacing: 0.01em;
+}
+.btn-view-more-testimonials:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(201,168,76,0.06);
+}
+.btn-view-more-testimonials i {
+    font-size: 11px;
+    transition: transform 0.3s ease;
+}
+.btn-view-more-testimonials.open i {
+    transform: rotate(180deg);
+}
+
+.tm-card {
+    width: 320px;
+    flex-shrink: 0;
+}
+
+@keyframes marqueeScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
 
 /* ═══════════════════════════════════════════════════════
    WORLD-CLASS FOOTER

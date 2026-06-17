@@ -345,7 +345,51 @@ function updateUI(data) {
                 return String(item);
             };
 
-            container.innerHTML = list.map((item) => `<div class="infra-item">${escapeHtml(toText(item))}</div>`).join("");
+            const SHOW = 3;
+            const MAX  = 10;
+            const items = list.slice(0, MAX);
+            const visible = items.slice(0, SHOW);
+            const hidden  = items.slice(SHOW);
+
+            const visibleHTML = visible.map(item =>
+                `<div class="infra-item">${escapeHtml(toText(item))}</div>`
+            ).join("");
+
+            const hiddenHTML = hidden.length > 0
+                ? `<div class="infra-extra" style="display:none;">${
+                    hidden.map(item => `<div class="infra-item">${escapeHtml(toText(item))}</div>`).join("")
+                  }</div>`
+                : "";
+
+            // Inject "View More" button into the card-head beside the title
+            const cardHead = container.previousElementSibling;
+            if (cardHead && cardHead.classList.contains("card-head") && hidden.length > 0) {
+                // Remove any existing view-more btn to avoid duplicates on re-render
+                const existing = cardHead.querySelector(".infra-view-more");
+                if (existing) existing.remove();
+
+                const btn = document.createElement("button");
+                btn.className = "infra-view-more";
+                btn.type = "button";
+                btn.textContent = `View More`;
+                btn.setAttribute("data-expanded", "false");
+                btn.addEventListener("click", function () {
+                    const extra = container.querySelector(".infra-extra");
+                    const expanded = this.getAttribute("data-expanded") === "true";
+                    if (expanded) {
+                        extra.style.display = "none";
+                        this.textContent = "View More";
+                        this.setAttribute("data-expanded", "false");
+                    } else {
+                        extra.style.display = "block";
+                        this.textContent = "View Less";
+                        this.setAttribute("data-expanded", "true");
+                    }
+                });
+                cardHead.appendChild(btn);
+            }
+
+            container.innerHTML = visibleHTML + hiddenHTML;
         } else {
             container.innerHTML = `<div class="empty-note">No major facilities within 10km radius identified.</div>`;
         }
@@ -376,6 +420,34 @@ function updateUI(data) {
         infra.malls,
         infra.malls_list,
         infra.markets
+    )));
+
+    renderInfra("resGardens", normalizeList(firstValue(
+        data.gardens_list,
+        data.gardens,
+        data.public_gardens,
+        data.parks,
+        data.nearby_parks,
+        infra.gardens,
+        infra.parks
+    )));
+    renderInfra("resTourism", normalizeList(firstValue(
+        data.tourism_list,
+        data.tourism_spots,
+        data.tourist_spots,
+        data.attractions,
+        data.nearby_attractions,
+        infra.tourism,
+        infra.attractions
+    )));
+    renderInfra("resRestaurants", normalizeList(firstValue(
+        data.restaurants_list,
+        data.restaurants,
+        data.nearby_restaurants,
+        data.dining,
+        data.food_places,
+        infra.restaurants,
+        infra.dining
     )));
 
     const orr = firstValue(data.orr_access, data.orr, data.orr_connectivity, data.outer_ring_road) || "Checking...";
@@ -442,8 +514,9 @@ function showStep(n) {
     document.getElementById("gov-integrations").classList.add("hidden");
     document.getElementById("step-2").classList.add("hidden");
     document.getElementById("tracker-view").classList.add("hidden");
+    document.getElementById("top-banner").classList.add("hidden");
 
-    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-AsliProperty-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); }
+    if (n === 1) { document.getElementById("step-1").classList.remove("hidden"); document.getElementById("step-1-continued").classList.remove("hidden"); document.getElementById("how-AsliProperty-works").classList.remove("hidden"); document.getElementById("gov-integrations").classList.remove("hidden"); document.getElementById("top-banner").classList.remove("hidden"); }
     if (n === 2) document.getElementById("step-2").classList.remove("hidden");
     if (n === 3) document.getElementById("tracker-view").classList.remove("hidden");
 
@@ -758,4 +831,21 @@ async function verifyOtpWithFirebase(code) {
     const cred = await firebaseConfirmationResult.confirm(String(code));
     firebaseConfirmationResult = null;
     return cred;
+}
+
+// ── Testimonials View More Toggle ──────────────────────────
+function toggleTestimonialMarquee() {
+    const grid = document.getElementById('testimonialsGrid');
+    const btn  = document.getElementById('viewMoreTestimonialsBtn');
+    if (!grid || !btn) return;
+    const isOpen = grid.classList.contains('marquee-active');
+    if (isOpen) {
+        grid.classList.remove('marquee-active');
+        btn.classList.remove('open');
+        btn.querySelector('span').textContent = 'View More Reviews';
+    } else {
+        grid.classList.add('marquee-active');
+        btn.classList.add('open');
+        btn.querySelector('span').textContent = 'Show Less';
+    }
 }
