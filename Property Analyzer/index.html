@@ -2671,6 +2671,7 @@ document.addEventListener('keydown', function(e) {
 
       <!-- RIGHT PANEL: FORM -->
       <div class="contact-right">
+        <button class="contact-close-right" onclick="closeContact()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
         <div class="contact-form-header">
           <h3 class="contact-form-title">Send Us a Message</h3>
           <p class="contact-form-sub">We typically respond within 24 hours on business days.</p>
@@ -2774,6 +2775,7 @@ document.addEventListener('keydown', function(e) {
   position: absolute;
   top: 20px; right: 20px;
   z-index: 2;
+  display: none;
 }
 .contact-left-logo {
   display: flex;
@@ -2844,6 +2846,26 @@ document.addEventListener('keydown', function(e) {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  position: relative;
+}
+.contact-close-right {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--surface, #fff);
+  color: var(--text-muted, #6b7280);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  z-index: 2;
+}
+.contact-close-right:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 .contact-form-header { margin-bottom: 24px; }
 .contact-form-title {

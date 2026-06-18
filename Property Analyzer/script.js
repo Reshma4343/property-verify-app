@@ -361,18 +361,20 @@ function updateUI(data) {
                   }</div>`
                 : "";
 
-            // Inject "View More" button into the card-head beside the title
-            const cardHead = container.previousElementSibling;
-            if (cardHead && cardHead.classList.contains("card-head") && hidden.length > 0) {
-                // Remove any existing view-more btn to avoid duplicates on re-render
-                const existing = cardHead.querySelector(".infra-view-more");
-                if (existing) existing.remove();
+            // Remove any existing view-more btn to avoid duplicates on re-render
+            const existingBtn = container.parentElement.querySelector(".infra-view-more");
+            if (existingBtn) existingBtn.remove();
 
-                const btn = document.createElement("button");
-                btn.className = "infra-view-more";
-                btn.type = "button";
-                btn.textContent = `View More`;
-                btn.setAttribute("data-expanded", "false");
+            const btn = document.createElement("button");
+            btn.className = "infra-view-more";
+            btn.type = "button";
+            btn.textContent = "View More";
+            btn.setAttribute("data-expanded", "false");
+            if (hidden.length === 0) {
+                btn.disabled = true;
+                btn.style.opacity = "0.4";
+                btn.style.cursor = "default";
+            } else {
                 btn.addEventListener("click", function () {
                     const extra = container.querySelector(".infra-extra");
                     const expanded = this.getAttribute("data-expanded") === "true";
@@ -386,10 +388,10 @@ function updateUI(data) {
                         this.setAttribute("data-expanded", "true");
                     }
                 });
-                cardHead.appendChild(btn);
             }
 
             container.innerHTML = visibleHTML + hiddenHTML;
+            container.appendChild(btn);
         } else {
             container.innerHTML = `<div class="empty-note">No major facilities within 10km radius identified.</div>`;
         }
