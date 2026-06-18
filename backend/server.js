@@ -295,13 +295,16 @@ Return ONLY a valid JSON with these keys:
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
 "metro" (nearest metro station and distance),
-"hospitals_list" (array of exactly 3-4 top hospitals with distance in KM),
-"schools_list" (array of exactly 3-4 top schools with distance in KM),
-"malls_list" (array of exactly 3-4 top malls/markets with distance in KM),
-"highway" (nearest NH highway connectivity),
-"orr_access" (nearest ORR Exit and distance),
-"rail_access" (nearest MMTS or Railway station),
-"local_transport" (General bus/transit availability)`;
+"hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; each item must include "name" and "distance_km"),
+"schools_list" (array of exactly 10 nearby schools, sorted nearest first; each item must include "name" and "distance_km"),
+"malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
+"gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
+"tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
+"restaurants_list" (array of exactly 10 nearby restaurants, cafes, or popular food places, sorted nearest first; each item must include "name" and "distance_km"),
+"highway" (array of at least 3 nearest main highways/NH/SH roads, sorted nearest first; each item must include "name" and "distance_km"),
+"orr_access" (array of at least 2 nearest ORR exits/gates/interchanges, sorted nearest first; each item must include "name" and "distance_km"),
+"rail_access" (array that must include Secunderabad Railway Station with "distance_km", plus nearby main MMTS stations and railway stations with "name" and "distance_km"),
+"local_transport" (array of nearby proper bus stands, TSRTC stops, bus depots, and public transport hubs, sorted nearest first; each item must include "name" and "distance_km")`;
 }
 
 function parseGeminiJson(text) {
