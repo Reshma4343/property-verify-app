@@ -240,13 +240,16 @@ Return ONLY a valid JSON with these keys:
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
 "metro" (nearest metro station and distance),
-"hospitals_list" (array of exactly 3-4 top hospitals with distance in KM),
-"schools_list" (array of exactly 3-4 top schools with distance in KM),
-"malls_list" (array of exactly 3-4 top malls/markets with distance in KM),
-"highway" (nearest NH highway connectivity),
-"orr_access" (nearest ORR Exit and distance),
-"rail_access" (nearest MMTS or Railway station),
-"local_transport" (General bus/transit availability)`;
+"hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; each item must include "name" and "distance_km"),
+"schools_list" (array of exactly 10 nearby schools, sorted nearest first; each item must include "name" and "distance_km"),
+"malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
+"gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
+"tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
+"restaurants_list" (array of exactly 10 nearby restaurants, cafes, or popular food places, sorted nearest first; each item must include "name" and "distance_km"),
+"highway" (array of at least 3 nearest main highways/NH/SH roads, sorted nearest first; each item must include "name" and "distance_km"),
+"orr_access" (array of at least 2 nearest ORR exits/gates/interchanges, sorted nearest first; each item must include "name" and "distance_km"),
+"rail_access" (array that must include Secunderabad Railway Station with "distance_km", plus nearby main MMTS stations and railway stations with "name" and "distance_km"),
+"local_transport" (array of nearby proper bus stands, TSRTC stops, bus depots, and public transport hubs, sorted nearest first; each item must include "name" and "distance_km")`;
 }
 
 async function fetchAI(loc, budget) {
@@ -300,6 +303,53 @@ function normalizeList(value) {
     return [String(value)];
 }
 
+function textFromPlaceItem(item) {
+    if (item == null) return "";
+    if (typeof item === "string") return item;
+    if (typeof item === "number" || typeof item === "boolean") return String(item);
+    if (typeof item === "object") {
+        const name = item.name
+            ?? item.title
+            ?? item.hospital
+            ?? item.school
+            ?? item.mall
+            ?? item.restaurant
+            ?? item.cafe
+            ?? item.garden
+            ?? item.park
+            ?? item.attraction
+            ?? item.tourist_spot
+            ?? item.landmark
+            ?? item.station
+            ?? item.stop
+            ?? item.bus_stand
+            ?? item.exit
+            ?? item.road
+            ?? item.highway
+            ?? item.place
+            ?? "";
+        const distanceValue = item.distance_km ?? item.distance ?? item.dist ?? item.km ?? "";
+        const distance = item.distance_km && !String(item.distance_km).toLowerCase().includes("km")
+            ? `${item.distance_km} km`
+            : distanceValue;
+        const extra = item.address ?? item.area ?? item.type ?? "";
+        const parts = [name, distance && `(${distance})`, extra].filter(Boolean);
+        if (parts.length) return parts.join(" ");
+        try { return JSON.stringify(item); } catch { return String(item); }
+    }
+    return String(item);
+}
+
+function normalizeBulletList(value) {
+    if (Array.isArray(value)) return value.map(textFromPlaceItem).filter(Boolean);
+    if (!value) return [];
+    if (typeof value === "object") return normalizeList(value).map(textFromPlaceItem).filter(Boolean);
+    return String(value)
+        .split(/\n|;|,(?=\s*[A-Z0-9])/)
+        .map((item) => item.trim().replace(/^[-•]\s*/, ""))
+        .filter(Boolean);
+}
+
 function updateUI(data) {
     console.log("[analyze] AI data", data);
     const priceEl = document.getElementById("resPrice");
@@ -330,36 +380,19 @@ function updateUI(data) {
         const container = document.getElementById(id);
         if (!container) return;
         if (list && list.length > 0) {
-            const toText = (item) => {
-                if (item == null) return "";
-                if (typeof item === "string") return item;
-                if (typeof item === "number" || typeof item === "boolean") return String(item);
-                if (typeof item === "object") {
-                    const name = item.name ?? item.title ?? item.hospital ?? item.school ?? item.mall ?? item.place ?? "";
-                    const distance = item.distance ?? item.dist ?? item.km ?? "";
-                    const extra = item.address ?? item.area ?? "";
-                    const parts = [name, distance && `(${distance})`, extra].filter(Boolean);
-                    if (parts.length) return parts.join(" ");
-                    try { return JSON.stringify(item); } catch { return String(item); }
-                }
-                return String(item);
-            };
-
             const SHOW = 3;
             const MAX  = 10;
-            const items = list.slice(0, MAX);
+            const items = list.slice(0, MAX).map(textFromPlaceItem).filter(Boolean);
             const visible = items.slice(0, SHOW);
             const hidden  = items.slice(SHOW);
 
             const visibleHTML = visible.map(item =>
-                `<div class="infra-item">${escapeHtml(toText(item))}</div>`
+                `<li class="infra-item">${escapeHtml(item)}</li>`
             ).join("");
 
-            const hiddenHTML = hidden.length > 0
-                ? `<div class="infra-extra" style="display:none;">${
-                    hidden.map(item => `<div class="infra-item">${escapeHtml(toText(item))}</div>`).join("")
-                  }</div>`
-                : "";
+            const hiddenHTML = hidden.map(item =>
+                `<li class="infra-item infra-extra" hidden>${escapeHtml(item)}</li>`
+            ).join("");
 
             // Remove any existing view-more btn to avoid duplicates on re-render
             const existingBtn = container.parentElement.querySelector(".infra-view-more");
@@ -376,25 +409,38 @@ function updateUI(data) {
                 btn.style.cursor = "default";
             } else {
                 btn.addEventListener("click", function () {
-                    const extra = container.querySelector(".infra-extra");
+                    const extraItems = container.querySelectorAll(".infra-extra");
                     const expanded = this.getAttribute("data-expanded") === "true";
                     if (expanded) {
-                        extra.style.display = "none";
+                        extraItems.forEach((item) => { item.hidden = true; });
                         this.textContent = "View More";
                         this.setAttribute("data-expanded", "false");
                     } else {
-                        extra.style.display = "block";
+                        extraItems.forEach((item) => { item.hidden = false; });
                         this.textContent = "View Less";
                         this.setAttribute("data-expanded", "true");
                     }
                 });
             }
 
-            container.innerHTML = visibleHTML + hiddenHTML;
+            container.innerHTML = `<ul class="infra-list">${visibleHTML}${hiddenHTML}</ul>`;
             container.appendChild(btn);
         } else {
             container.innerHTML = `<div class="empty-note">No major facilities within 10km radius identified.</div>`;
         }
+    };
+
+    const renderTransport = (id, values) => {
+        const container = document.getElementById(id);
+        if (!container) return;
+        const items = normalizeBulletList(values).slice(0, 8);
+        if (!items.length) {
+            container.innerHTML = `<div class="empty-note">Checking connectivity...</div>`;
+            return;
+        }
+        container.innerHTML = `<ul class="transport-list">${
+            items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
+        }</ul>`;
     };
 
     renderInfra("resHospitals", normalizeList(firstValue(
@@ -452,11 +498,12 @@ function updateUI(data) {
         infra.dining
     )));
 
-    const orr = firstValue(data.orr_access, data.orr, data.orr_connectivity, data.outer_ring_road) || "Checking...";
-    const highway = firstValue(data.highway, data.highway_connectivity, data.nearest_highway) || "";
-    setHtml("resORR", `${escapeHtml(orr)}${highway ? `<br><span class="subnote">${escapeHtml(highway)}</span>` : ""}`);
-    setText("resTrain", firstValue(data.rail_access, data.railway, data.mmts, data.nearest_railway) || "Checking Stations...");
-    setText("resLocalTrans", firstValue(data.local_transport, data.public_transport, data.bus_connectivity) || "Checking Connectivity...");
+    renderTransport("resORR", [
+        ...normalizeBulletList(firstValue(data.orr_access, data.orr, data.orr_connectivity, data.outer_ring_road)),
+        ...normalizeBulletList(firstValue(data.highway, data.highway_connectivity, data.nearest_highway))
+    ]);
+    renderTransport("resTrain", firstValue(data.rail_access, data.railway, data.mmts, data.nearest_railway));
+    renderTransport("resLocalTrans", firstValue(data.local_transport, data.public_transport, data.bus_connectivity));
 }
 
 function normalizeDocPart(value, fallback = "unknown") {

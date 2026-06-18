@@ -358,6 +358,18 @@ body {
     padding: 20px 20px 16px;
     transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.22s;
 }
+#step-2 .grid-3 {
+    align-items: stretch;
+}
+#step-2 .grid-3 > .grid-item,
+#step-2 .grid-3 > .transport-item {
+    height: 100%;
+}
+#step-2 .grid-3 > .grid-item {
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+}
 /* Blue pop on hover for infra cards (Hospitals, Schools, Malls) */
 .grid-item.bordered-left:hover {
     background: #eff6ff;
@@ -513,19 +525,49 @@ body {
 .icon-amber { background: #fef3c7; color: #d97706; }
 .icon-pink { background: #fce7f3; color: #db2777; }
 
+.infra-list,
+.transport-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.infra-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 .infra-item {
+    position: relative;
     border-left: 3px solid var(--border-hover);
-    padding: 9px 0 9px 12px;
-    margin-bottom: 6px;
+    padding: 8px 0 8px 22px;
     font-weight: 700;
     color: var(--text);
     font-size: 13px;
     line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+.infra-item::before,
+.transport-list li::before {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--primary);
+}
+.infra-item::before {
+    left: 9px;
+    top: 17px;
 }
 .infra-item:last-child { margin-bottom: 0; }
-.list-skeleton { padding: 4px 0; }
+.list-skeleton {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 4px 0;
+}
 .empty-note { font-size: 12px; color: var(--text-subtle); font-style: italic; padding: 8px 0; }
-.subnote { font-size: 11px; font-weight: 900; color: #f97316; }
 
 .transport {
     margin-top: 24px;
@@ -537,10 +579,11 @@ body {
     align-items: flex-start;
     padding: 16px 18px;
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 18px;
     border: 1px solid var(--border);
     transition: background 0.22s, box-shadow 0.22s, border-color 0.22s, transform 0.22s;
     cursor: default;
+    min-height: 190px;
 }
 .transport-item:hover {
     background: #eff6ff;
@@ -549,6 +592,35 @@ body {
     transform: translateY(-2px);
 }
 .transport-item .meta { color: #000000; }
+.transport-item > div {
+    min-width: 0;
+    flex: 1;
+}
+.transport-value {
+    margin: 0;
+}
+.transport-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: 128px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.transport-list li {
+    position: relative;
+    padding-left: 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+.transport-list li::before {
+    left: 1px;
+    top: 7px;
+    background: #f97316;
+}
 
 /* TRACKER */
 .tracker { text-align: center; padding: 52px 40px; max-width: 480px; margin: 0 auto; }
