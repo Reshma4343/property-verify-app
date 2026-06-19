@@ -36,8 +36,7 @@
     <nav class="nav">
         <div class="container nav-inner">
             <button class="brand" type="button" onclick="location.reload()">
-                <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
-                <span class="brand-text">Asli<span class="accent">Property</span></span>
+                <img src="assets/logo_nav.png" alt="AsliProperty" class="brand-logo">
             </button>
 
             <div class="nav-actions">
@@ -62,20 +61,12 @@
         <!-- STEP 1 -->
         <section class="hpw-section" id="how-AsliProperty-works" aria-label="How AsliProperty Works">
 
-          <div class="hpw-divider-top" aria-hidden="true">
-            <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-              <path d="M0 56 C240 0 480 56 720 28 C960 0 1200 56 1440 28 L1440 56 Z" fill="#fafafa"/>
-            </svg>
-          </div>
 
           <div class="hpw-inner">
 
             <!-- HEADER -->
             <div class="hpw-header hpw-reveal">
-              <div class="hpw-header-pill">
-                <span class="hpw-pill-dot"></span>
-                How AsliProperty Works
-              </div>
+           
               <h2 class="hpw-title">How <span class="hpw-title-accent">AsliProperty</span> Works</h2>
               <p class="hpw-subtitle">From Property Search to Verified Property Intelligence in Minutes</p>
             </div>
@@ -1003,11 +994,11 @@
                     </div>
                     -->
                     <div class="grid-item">
-                        <p class="meta">Master Plan Zone</p>
+                        <p class="meta" style="font-weight:900;color:var(--text);">Master Plan Zone</p>
                         <p class="stat stat-accent" id="resZone">Loading...</p>
                     </div>
                     <div class="grid-item">
-                        <p class="meta">Metro Connectivity</p>
+                        <p class="meta" style="font-weight:900;color:var(--text);">Metro Connectivity</p>
                         <p class="stat" id="resMetro">Loading...</p>
                     </div>
                 </div>
@@ -1025,16 +1016,16 @@
                         </div>
                         <div id="resHospitals" class="list-skeleton"></div>
                     </div>
-                    <div class="grid-item bordered-left bordered-green">
+                    <div class="grid-item bordered-left bordered-indigo">
                         <div class="card-head">
-                            <span class="icon icon-green"><i class="fa-solid fa-graduation-cap"></i></span>
+                            <span class="icon icon-indigo"><i class="fa-solid fa-graduation-cap"></i></span>
                             <h4 class="head-title">Top Schools</h4>
                         </div>
                         <div id="resSchools" class="list-skeleton"></div>
                     </div>
                     <div class="grid-item bordered-left bordered-blue">
                         <div class="card-head">
-                            <span class="icon icon-blue"><i class="fa-solid fa-bag-shopping"></i></span>
+                            <span class="icon icon-blue"><i class="fa-solid fa-store"></i></span>
                             <h4 class="head-title">Malls & Shopping</h4>
                         </div>
                         <div id="resMalls" class="list-skeleton"></div>
@@ -1067,25 +1058,25 @@
 
                 <div class="grid grid-3 transport" style="margin-top: 20px;">
                     <div class="transport-item">
-                        <span class="icon icon-orange"><i class="fa-solid fa-road"></i></span>
-                        <div>
+                        <div class="transport-item-head">
+                            <span class="icon icon-orange"><i class="fa-solid fa-road"></i></span>
                             <p class="meta">ORR & Highway</p>
-                            <div class="transport-value" id="resORR">Checking...</div>
                         </div>
+                        <div class="transport-value" id="resORR">Checking...</div>
                     </div>
                     <div class="transport-item">
-                        <span class="icon icon-blue"><i class="fa-solid fa-train-subway"></i></span>
-                        <div>
+                        <div class="transport-item-head">
+                            <span class="icon icon-blue"><i class="fa-solid fa-train-subway"></i></span>
                             <p class="meta">Railway / MMTS</p>
-                            <div class="transport-value" id="resTrain">Checking...</div>
                         </div>
+                        <div class="transport-value" id="resTrain">Checking...</div>
                     </div>
                     <div class="transport-item">
-                        <span class="icon icon-purple"><i class="fa-solid fa-bus"></i></span>
-                        <div>
+                        <div class="transport-item-head">
+                            <span class="icon icon-purple"><i class="fa-solid fa-bus"></i></span>
                             <p class="meta">Public Transit</p>
-                            <div class="transport-value" id="resLocalTrans">Checking...</div>
                         </div>
+                        <div class="transport-value" id="resLocalTrans">Checking...</div>
                     </div>
                 </div>
 
@@ -1093,7 +1084,7 @@
             </div>
             </div>
             <div class="ad-sidebar">
-                <img src="assets/ad-banner-white.jpeg" alt="Every Property. Every Detail. Verified." class="ad-sidebar-img">
+                <img src="assets/ad-banner-white.png" alt="Invest Smarter. Buy Safer." class="ad-sidebar-img">
             </div>
             </div>
         </section>
@@ -1283,9 +1274,9 @@
   'use strict';
 
   const TOTAL_STEPS = 6;
-  const STEP_VISIBLE_MS = 2500;
+  const STEP_VISIBLE_MS = 3000;
   const STEP_TRANSITION_MS = 500;
-  const STEP_TOTAL_MS = STEP_VISIBLE_MS + STEP_TRANSITION_MS; // 3000ms
+  const STEP_TOTAL_MS = STEP_VISIBLE_MS + STEP_TRANSITION_MS; // 3500ms
 
   let currentStep = 0;
   let locked = false;
@@ -1938,7 +1929,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px 0;
+  padding: 24px 32px 16px;
 }
 .au-logo {
   display: flex;
@@ -1972,7 +1963,7 @@
   display: inline-flex;
 }
 .au-hero-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 700;
   color: #fff;
@@ -2017,6 +2008,7 @@
   color: var(--text-muted, #888);
   line-height: 1.7;
   margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .au-para strong { color: var(--text, #141E3A); font-weight: 700; }
 
@@ -2191,6 +2183,7 @@
 /* Responsive */
 @media (max-width: 640px) {
   .au-header-inner, .au-hero, .au-body { padding-left: 20px; padding-right: 20px; }
+  .au-header-inner { padding-bottom: 14px; }
   .au-mv-row { grid-template-columns: 1fr; }
   .au-who-row { grid-template-columns: 1fr 1fr; }
   .au-modal { border-radius: 16px; }
@@ -2451,7 +2444,7 @@ PLOT No.212, ADARSH NAGAR,<br> Hyderabad, Telangana<br>504208</span></div>
               <div class="legal-contact-item"><i class="fa-solid fa-phone"></i><span>+91 79818 41990</span></div>
               <div class="legal-contact-item"><i class="fa-solid fa-location-dot"></i><span>SRI SAI NIVAS,PLOT No.212, ADARSH NAGAR,<br> Hyderabad, Telangana<br>504208</span></div>
             </div>
-            <p class="au-para" style="margin-top:14px"><strong>Grievance Officer:</strong><br>Name: Karthik<br></p>
+            <p class="au-para" style="margin-top:14px"><strong>Grievance Officer:</strong><br>Name: <strong>Karthik</strong><br></p>
           </div>
         </div>
 
@@ -2553,6 +2546,7 @@ PLOT No.212, ADARSH NAGAR,<br> Hyderabad, Telangana<br>504208</span></div>
   color: var(--text, #141E3A);
   margin-bottom: 8px;
   letter-spacing: -0.01em;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .legal-contact-grid {
   display: flex;
@@ -2791,9 +2785,10 @@ document.addEventListener('keydown', function(e) {
   flex: 1;
 }
 .contact-left-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -.02em;
   color: #fff;
   line-height: 1.2;
   margin-bottom: 14px;
@@ -3065,214 +3060,227 @@ function showPaymentComingSoon() {
     <!-- Body -->
     <div class="au-body" style="padding:0;">
 
-      <!-- Category Filters -->
-      <div style="padding:32px 40px 0;">
-        <div class="bm-filters" id="bmFilters">
-          <button class="bm-pill active" data-cat="all">All Articles</button>
-          <button class="bm-pill" data-cat="verification">Property Verification</button>
-          <button class="bm-pill" data-cat="rera">RERA</button>
-          <button class="bm-pill" data-cat="legal">Legal Checks</button>
-          <button class="bm-pill" data-cat="land">Land Records</button>
-          <button class="bm-pill" data-cat="investment">Investment Tips</button>
-          <button class="bm-pill" data-cat="government">Government Records</button>
-          <button class="bm-pill" data-cat="buying">Home Buying</button>
-        </div>
-      </div>
-
       <!-- Blog Grid -->
       <div style="padding:24px 40px 40px;">
         <div class="bm-grid" id="bmGrid">
 
-          <!-- Card 1 -->
+          <!-- Card 1: Ownership & Loan Records -->
           <article class="bm-card" data-category="verification">
             <div class="bm-card-thumb bm-thumb-verification">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-file-shield bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-id-card"></i> Dharani</span><span class="bm-badge"><i class="fa-solid fa-scroll"></i> EC</span><span class="bm-badge"><i class="fa-solid fa-magnifying-glass"></i> Ownership</span></div>
-              <p class="bm-thumb-title">How to Verify Property Ownership in Hyderabad</p>
+              <i class="fa-solid fa-file-contract bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-file-lines"></i> EC</span>
+                  <span class="bm-badge"><i class="fa-solid fa-landmark"></i> IGRS</span>
+                  <span class="bm-badge"><i class="fa-regular fa-clock"></i> 30 Yrs</span>
+                </div>
+                <p class="bm-thumb-title">Ownership &amp; Loan Records</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-verification"><i class="fa-solid fa-shield-check"></i> Property Verification</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 8 min</span>
+                <span class="bm-cat bm-cat-verification"><i class="fa-solid fa-shield-check"></i> Legal Checks</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
               </div>
-              <h3 class="bm-card-title">How to Verify Property Ownership in Hyderabad</h3>
-              <p class="bm-card-excerpt">Step-by-step walkthrough to verify who legally owns a property using Dharani, Encumbrance Certificate, and official land records before signing any agreement.</p>
+              <h3 class="bm-card-title">How to Verify Ownership &amp; Loan Records Before Buying</h3>
+              <p class="bm-card-excerpt">Confirm the seller's legal ownership and check for any mortgage or financial charge on the property to avoid costly disputes.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 1 June 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 2 -->
-          <article class="bm-card" data-category="rera">
-            <div class="bm-card-thumb bm-thumb-rera">
+          <!-- Card 2: Court Case Search -->
+          <article class="bm-card" data-category="legal">
+            <div class="bm-card-thumb bm-thumb-legal">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-building-columns bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-certificate"></i> RERA</span><span class="bm-badge"><i class="fa-solid fa-shield-check"></i> Compliant</span><span class="bm-badge"><i class="fa-solid fa-building"></i> Builder</span></div>
-              <p class="bm-thumb-title">RERA Verification Explained</p>
+              <i class="fa-solid fa-scale-balanced bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-gavel"></i> eCourts</span>
+                  <span class="bm-badge"><i class="fa-solid fa-building-columns"></i> High Court</span>
+                  <span class="bm-badge"><i class="fa-solid fa-file-circle-exclamation"></i> Litigation</span>
+                </div>
+                <p class="bm-thumb-title">Court Case Search</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-rera"><i class="fa-solid fa-certificate"></i> RERA</span>
+                <span class="bm-cat bm-cat-legal"><i class="fa-solid fa-gavel"></i> Legal Checks</span>
                 <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 6 min</span>
               </div>
-              <h3 class="bm-card-title">RERA Verification Explained: What Every Buyer Must Know</h3>
-              <p class="bm-card-excerpt">Learn how to check RERA registration status of any builder or project in Telangana, understand what RERA compliance means, and what happens when a project isn't registered.</p>
+              <h3 class="bm-card-title">Court Case Search Before Buying Land</h3>
+              <p class="bm-card-excerpt">Identify pending legal disputes on the property, seller, or builder to avoid litigation risks and ownership complications.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 28 May 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 3 -->
-          <article class="bm-card" data-category="legal">
-            <div class="bm-card-thumb bm-thumb-legal">
+          <!-- Card 3: Restricted Land -->
+          <article class="bm-card" data-category="government">
+            <div class="bm-card-thumb bm-thumb-government">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-triangle-exclamation bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-ban"></i> Fraud</span><span class="bm-badge"><i class="fa-solid fa-eye"></i> Red Flags</span><span class="bm-badge"><i class="fa-solid fa-user-shield"></i> Safety</span></div>
-              <p class="bm-thumb-title">7 Property Scam Red Flags</p>
+              <i class="fa-solid fa-ban bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-circle-exclamation"></i> GO111</span>
+                  <span class="bm-badge"><i class="fa-solid fa-list"></i> FTL Zone</span>
+                  <span class="bm-badge"><i class="fa-solid fa-tree"></i> Buffer</span>
+                </div>
+                <p class="bm-thumb-title">GO111 Explained</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-legal"><i class="fa-solid fa-shield-halved"></i> Legal Checks</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 5 min</span>
+                <span class="bm-cat bm-cat-government"><i class="fa-solid fa-landmark"></i> Land Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 9 min</span>
               </div>
-              <h3 class="bm-card-title">7 Property Scam Red Flags Every Hyderabad Buyer Must Know</h3>
-              <p class="bm-card-excerpt">From fake layout approvals to duplicate sale deeds — these seven warning signs can save you from losing lakhs on a fraudulent property transaction in Hyderabad.</p>
+              <h3 class="bm-card-title">GO111 Explained: The Environmental Order Every Hyderabad Buyer Must Understand</h3>
+              <p class="bm-card-excerpt">Government Order 111 prohibits construction near Hyderabad's reservoir catchment areas. Learn how to check if your survey number falls within the restricted zone.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 20 May 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 4 -->
-          <article class="bm-card" data-category="legal">
-            <div class="bm-card-thumb bm-thumb-legal">
+          <!-- Card 4: Property Tax -->
+          <article class="bm-card" data-category="government">
+            <div class="bm-card-thumb bm-thumb-buying">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-scroll bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-file-contract"></i> EC</span><span class="bm-badge"><i class="fa-solid fa-landmark"></i> IGRS</span><span class="bm-badge"><i class="fa-solid fa-clock-rotate-left"></i> 30 Yrs</span></div>
-              <p class="bm-thumb-title">How to Check Encumbrance Certificate Online</p>
+              <i class="fa-solid fa-receipt bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-building"></i> GHMC</span>
+                  <span class="bm-badge"><i class="fa-solid fa-droplet"></i> HMWSSB</span>
+                  <span class="bm-badge"><i class="fa-solid fa-indian-rupee-sign"></i> Dues</span>
+                </div>
+                <p class="bm-thumb-title">Property Tax Verification Guide</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-legal"><i class="fa-solid fa-file-contract"></i> Legal Checks</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
+                <span class="bm-cat bm-cat-buying"><i class="fa-solid fa-building"></i> Government Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 5 min</span>
               </div>
-              <h3 class="bm-card-title">How to Check Encumbrance Certificate (EC) Online in Telangana</h3>
-              <p class="bm-card-excerpt">A complete guide to obtaining and reading an Encumbrance Certificate (EC) — the most critical document to verify a property's 30-year ownership and loan history.</p>
+              <h3 class="bm-card-title">Property Tax Verification Guide for Hyderabad Buyers</h3>
+              <p class="bm-card-excerpt">Confirm tax payment status and municipal records to avoid inheriting unpaid dues and ownership disputes after purchase.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 15 May 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 5 -->
-          <article class="bm-card" data-category="land">
-            <div class="bm-card-thumb bm-thumb-land">
+          <!-- Card 5: RERA -->
+          <article class="bm-card" data-category="rera">
+            <div class="bm-card-thumb bm-thumb-rera">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-leaf bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-tree"></i> GO111</span><span class="bm-badge"><i class="fa-solid fa-water"></i> FTL Zone</span><span class="bm-badge"><i class="fa-solid fa-map-pin"></i> Buffer</span></div>
-              <p class="bm-thumb-title">GO111 Explained</p>
+              <i class="fa-solid fa-building-shield bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-check-circle"></i> DTCP</span>
+                  <span class="bm-badge"><i class="fa-solid fa-landmark"></i> HMDA</span>
+                  <span class="bm-badge"><i class="fa-solid fa-stamp"></i> Approval</span>
+                </div>
+                <p class="bm-thumb-title">DTCP vs HMDA: Which Approval Matters?</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-land"><i class="fa-solid fa-map-location-dot"></i> Land Records</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 9 min</span>
+                <span class="bm-cat bm-cat-rera"><i class="fa-solid fa-building-shield"></i> Government Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 6 min</span>
               </div>
-              <h3 class="bm-card-title">GO111 Explained: The Environmental Order Every Hyderabad Buyer Must Understand</h3>
-              <p class="bm-card-excerpt">Government Order 111 prohibits construction near Hyderabad's reservoir catchment areas. Learn how to check if your survey number falls within the restricted zone before you invest.</p>
+              <h3 class="bm-card-title">DTCP vs HMDA: Which Approval Matters for Your Property?</h3>
+              <p class="bm-card-excerpt">Understand the critical difference between DTCP and HMDA approvals, and why getting this wrong can make your property unloanable.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 10 May 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 6 -->
-          <article class="bm-card" data-category="government">
-            <div class="bm-card-thumb bm-thumb-government">
+          <!-- Card 6: Government Land Records -->
+          <article class="bm-card" data-category="land">
+            <div class="bm-card-thumb bm-thumb-land">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-scale-balanced bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-stamp"></i> DTCP</span><span class="bm-badge"><i class="fa-solid fa-city"></i> HMDA</span><span class="bm-badge"><i class="fa-solid fa-check-double"></i> Approval</span></div>
-              <p class="bm-thumb-title">DTCP vs HMDA: Which Approval Matters?</p>
+              <i class="fa-solid fa-map-location-dot bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-map"></i> Survey No.</span>
+                  <span class="bm-badge"><i class="fa-solid fa-file"></i> Pattadar</span>
+                  <span class="bm-badge"><i class="fa-solid fa-database"></i> Dharani</span>
+                </div>
+                <p class="bm-thumb-title">Government Land Records Guide</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-government"><i class="fa-solid fa-landmark"></i> Government Records</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 6 min</span>
+                <span class="bm-cat bm-cat-land"><i class="fa-solid fa-map"></i> Land Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 8 min</span>
               </div>
-              <h3 class="bm-card-title">DTCP vs HMDA: Which Approval Matters for Your Property?</h3>
-              <p class="bm-card-excerpt">Understand the critical difference between DTCP and HMDA approvals, and why getting this wrong can make your property unloanable.</p>
+              <h3 class="bm-card-title">How to Read Government Land Records in Telangana</h3>
+              <p class="bm-card-excerpt">A step-by-step guide to understanding survey numbers, Pattadar passbooks, and Dharani records before buying a plot.</p>
               <div class="bm-card-footer">
                 <span class="bm-date"><i class="fa-regular fa-calendar"></i> 5 May 2026</span>
               </div>
             </div>
           </article>
 
-          <!-- Card 7 -->
+          <!-- Card 7: Appreciation -->
           <article class="bm-card" data-category="investment">
             <div class="bm-card-thumb bm-thumb-investment">
               <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-receipt bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-building-columns"></i> GHMC</span><span class="bm-badge"><i class="fa-solid fa-droplet"></i> HMWSSB</span><span class="bm-badge"><i class="fa-solid fa-indian-rupee-sign"></i> Dues</span></div>
-              <p class="bm-thumb-title">Property Tax Verification Guide</p>
+              <i class="fa-solid fa-chart-line bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-arrow-trend-up"></i> 25 Steps</span>
+                  <span class="bm-badge"><i class="fa-solid fa-file-contract"></i> Title</span>
+                  <span class="bm-badge"><i class="fa-solid fa-scale-balanced"></i> Legal</span>
+                </div>
+                <p class="bm-thumb-title">Complete Property Due Diligence Checklist (2026)</p>
+              </div>
             </div>
             <div class="bm-card-body">
               <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-investment"><i class="fa-solid fa-chart-line"></i> Investment Tips</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 5 min</span>
-              </div>
-              <h3 class="bm-card-title">Property Tax Verification Guide for Hyderabad (GHMC &amp; HMWSSB)</h3>
-              <p class="bm-card-excerpt">Unpaid property tax arrears can become your liability after purchase. Here's how to verify property tax records online through GHMC and check for outstanding dues before buying.</p>
-              <div class="bm-card-footer">
-                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 28 Apr 2026</span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 8 -->
-          <article class="bm-card" data-category="verification">
-            <div class="bm-card-thumb bm-thumb-verification">
-              <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-gavel bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-gavel"></i> eCourts</span><span class="bm-badge"><i class="fa-solid fa-balance-scale"></i> High Court</span><span class="bm-badge"><i class="fa-solid fa-file-circle-exclamation"></i> Litigation</span></div>
-              <p class="bm-thumb-title">Court Case Search Before Buying Land</p>
-            </div>
-            <div class="bm-card-body">
-              <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-verification"><i class="fa-solid fa-shield-check"></i> Property Verification</span>
-                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
-              </div>
-              <h3 class="bm-card-title">How to Search Court Cases Before Buying Land in Hyderabad</h3>
-              <p class="bm-card-excerpt">Litigation disputes can freeze your property for years. Learn how to search civil court records, High Court cases, and Dharani-linked disputes for any survey number in Telangana.</p>
-              <div class="bm-card-footer">
-                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 22 Apr 2026</span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 9 -->
-          <article class="bm-card" data-category="buying">
-            <div class="bm-card-thumb bm-thumb-buying">
-              <div class="bm-thumb-pattern"></div>
-              <i class="fa-solid fa-list-check bm-thumb-bg-icon"></i>
-              <div class="bm-thumb-badges"><span class="bm-badge"><i class="fa-solid fa-list-check"></i> 25 Steps</span><span class="bm-badge"><i class="fa-solid fa-house-circle-check"></i> Title</span><span class="bm-badge"><i class="fa-solid fa-circle-check"></i> Legal</span></div>
-              <p class="bm-thumb-title">Complete Property Due Diligence Checklist (2026)</p>
-            </div>
-            <div class="bm-card-body">
-              <div class="bm-card-meta">
-                <span class="bm-cat bm-cat-buying"><i class="fa-solid fa-house-user"></i> Home Buying</span>
+                <span class="bm-cat bm-cat-investment"><i class="fa-solid fa-chart-line"></i> Investment</span>
                 <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 12 min</span>
               </div>
-              <h3 class="bm-card-title">The Complete Property Due Diligence Checklist for Hyderabad (2026)</h3>
-              <p class="bm-card-excerpt">A comprehensive 25-point checklist covering every document, verification step, approval check, and risk assessment you must complete before buying any property in Hyderabad.</p>
+              <h3 class="bm-card-title">Complete Property Due Diligence Checklist (2026)</h3>
+              <p class="bm-card-excerpt">A comprehensive 25-step checklist covering title, legal, survey, and government checks every buyer must complete before investing.</p>
               <div class="bm-card-footer">
-                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 15 Apr 2026</span>
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 1 May 2026</span>
               </div>
             </div>
           </article>
 
-        </div><!-- /bm-grid -->
+          <!-- Card 8: GO111 -->
+          <article class="bm-card" data-category="government">
+            <div class="bm-card-thumb bm-thumb-government">
+              <div class="bm-thumb-pattern"></div>
+              <i class="fa-solid fa-shield-halved bm-thumb-bg-icon"></i>
+              <div style="position:relative;z-index:1;width:100%;">
+                <div class="bm-thumb-badges">
+                  <span class="bm-badge"><i class="fa-solid fa-circle-exclamation"></i> GO111</span>
+                  <span class="bm-badge"><i class="fa-solid fa-water"></i> FTL Zone</span>
+                  <span class="bm-badge"><i class="fa-solid fa-tree"></i> Buffer</span>
+                </div>
+                <p class="bm-thumb-title">GO111 Status Check</p>
+              </div>
+            </div>
+            <div class="bm-card-body">
+              <div class="bm-card-meta">
+                <span class="bm-cat bm-cat-government"><i class="fa-solid fa-landmark"></i> Government Records</span>
+                <span class="bm-read-time"><i class="fa-regular fa-clock"></i> 7 min</span>
+              </div>
+              <h3 class="bm-card-title">GO111 Status: How to Check if Your Property Is in a Restricted Zone</h3>
+              <p class="bm-card-excerpt">Learn how to verify GO111 status for any survey number and understand the construction, resale, and investment risks involved.</p>
+              <div class="bm-card-footer">
+                <span class="bm-date"><i class="fa-regular fa-calendar"></i> 25 April 2026</span>
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /blog-grid -->
       </div>
 
     </div><!-- /au-body -->
@@ -3285,6 +3293,70 @@ function showPaymentComingSoon() {
   50%      { opacity:.45; transform:scale(.65); }
 }
 .blog-modal-inner { max-width: 1000px; }
+
+/* New blog grid & cards */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 860px) { .blog-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .blog-grid { grid-template-columns: 1fr; } }
+
+.blog-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 24px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.22s, transform 0.22s, border-color 0.22s;
+}
+.blog-card:hover {
+  box-shadow: 0 10px 32px rgba(20,30,58,.10);
+  border-color: rgba(20,30,58,.18);
+  transform: translateY(-3px);
+}
+.blog-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(20,30,58,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--primary, #141E3A);
+  flex-shrink: 0;
+}
+.blog-card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #141E3A);
+  line-height: 1.3;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.blog-card p {
+  position: relative;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted, #6b7280);
+  line-height: 1.6;
+  padding-left: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.blog-card p::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--primary, #141E3A);
+}
 
 .bm-filters {
   display: flex;

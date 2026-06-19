@@ -374,7 +374,13 @@ function updateUI(data) {
     const infra = data.infrastructure || data.social_infrastructure || data.amenities || {};
 
     setText("resZone", firstValue(data.zoning, data.zone, data.master_plan_zone) || "Loading...");
-    setText("resMetro", firstValue(data.metro, data.metro_connectivity, data.nearest_metro) || "Checking Connectivity...");
+    const metroRaw = firstValue(data.metro, data.metro_connectivity, data.nearest_metro);
+    const metroText = Array.isArray(metroRaw)
+        ? metroRaw.join(" • ")
+        : (metroRaw && typeof metroRaw === "object")
+            ? [metroRaw.name || metroRaw.station, metroRaw.distance].filter(Boolean).join(" – ")
+            : metroRaw;
+    setText("resMetro", metroText || "Checking Connectivity...");
 
     const renderInfra = (id, list) => {
         const container = document.getElementById(id);
@@ -390,11 +396,6 @@ function updateUI(data) {
                 `<li class="infra-item">${escapeHtml(item)}</li>`
             ).join("");
 
-            const hiddenHTML = hidden.map(item =>
-                `<li class="infra-item infra-extra" hidden>${escapeHtml(item)}</li>`
-            ).join("");
-
-            // Remove any existing view-more btn to avoid duplicates on re-render
             const existingBtn = container.parentElement.querySelector(".infra-view-more");
             if (existingBtn) existingBtn.remove();
 
@@ -402,28 +403,24 @@ function updateUI(data) {
             btn.className = "infra-view-more";
             btn.type = "button";
             btn.textContent = "View More";
-            btn.setAttribute("data-expanded", "false");
             if (hidden.length === 0) {
                 btn.disabled = true;
                 btn.style.opacity = "0.4";
                 btn.style.cursor = "default";
             } else {
+                const cardHead = container.closest(".grid-item");
+                const titleEl = cardHead ? cardHead.querySelector(".head-title") : null;
+                const iconEl = cardHead ? cardHead.querySelector(".card-head .icon") : null;
+                const modalTitle = titleEl ? titleEl.textContent.trim() : "Details";
+                const iconClass = iconEl ? iconEl.className : "";
+                const iconInner = iconEl ? iconEl.innerHTML : "";
+                const allItems = [...visible, ...hidden];
                 btn.addEventListener("click", function () {
-                    const extraItems = container.querySelectorAll(".infra-extra");
-                    const expanded = this.getAttribute("data-expanded") === "true";
-                    if (expanded) {
-                        extraItems.forEach((item) => { item.hidden = true; });
-                        this.textContent = "View More";
-                        this.setAttribute("data-expanded", "false");
-                    } else {
-                        extraItems.forEach((item) => { item.hidden = false; });
-                        this.textContent = "View Less";
-                        this.setAttribute("data-expanded", "true");
-                    }
+                    openInfraModal(modalTitle, iconClass, iconInner, allItems);
                 });
             }
 
-            container.innerHTML = `<ul class="infra-list">${visibleHTML}${hiddenHTML}</ul>`;
+            container.innerHTML = `<ul class="infra-list">${visibleHTML}</ul>`;
             container.appendChild(btn);
         } else {
             container.innerHTML = `<div class="empty-note">No major facilities within 10km radius identified.</div>`;
@@ -438,9 +435,36 @@ function updateUI(data) {
             container.innerHTML = `<div class="empty-note">Checking connectivity...</div>`;
             return;
         }
+        const SHOW_T = 2;
+        const visibleItems = items.slice(0, SHOW_T);
+        const hiddenItems  = items.slice(SHOW_T);
+
         container.innerHTML = `<ul class="transport-list">${
-            items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
+            visibleItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
         }</ul>`;
+
+        if (hiddenItems.length > 0) {
+            const transportItem = container.closest(".transport-item");
+            const existingBtn = transportItem ? transportItem.querySelector(".infra-view-more") : null;
+            if (existingBtn) existingBtn.remove();
+
+            const btn = document.createElement("button");
+            btn.className = "infra-view-more";
+            btn.type = "button";
+            btn.textContent = "View More";
+
+            const metaEl = transportItem ? transportItem.querySelector(".meta") : null;
+            const iconEl = transportItem ? transportItem.querySelector(".icon") : null;
+            const modalTitle = metaEl ? metaEl.textContent.trim() : "Transport";
+            const iconClass = iconEl ? iconEl.className : "";
+            const iconInner = iconEl ? iconEl.innerHTML : "";
+
+            btn.addEventListener("click", function () {
+                openInfraModal(modalTitle, iconClass, iconInner, items);
+            });
+
+            container.after(btn);
+        }
     };
 
     renderInfra("resHospitals", normalizeList(firstValue(
@@ -554,6 +578,51 @@ function escapeHtml(input) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function openInfraModal(title, iconClass, iconInner, items) {
+    let modal = document.getElementById("infra-modal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "infra-modal";
+        modal.className = "infra-modal-overlay";
+        modal.innerHTML = `
+            <div class="infra-modal-box" role="dialog" aria-modal="true">
+                <div class="infra-modal-header">
+                    <div class="infra-modal-title-wrap">
+                        <span class="infra-modal-icon" id="infraModalIcon"></span>
+                        <h3 class="infra-modal-title" id="infraModalTitle"></h3>
+                    </div>
+                    <button class="infra-modal-close" type="button" onclick="closeInfraModal()" aria-label="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <ul class="infra-modal-list" id="infraModalList"></ul>
+            </div>`;
+        modal.addEventListener("click", function(e) {
+            if (e.target === modal) closeInfraModal();
+        });
+        document.body.appendChild(modal);
+    }
+
+    const iconEl = document.getElementById("infraModalIcon");
+    iconEl.className = iconClass + " infra-modal-icon";
+    iconEl.innerHTML = iconInner;
+    document.getElementById("infraModalTitle").textContent = title;
+    document.getElementById("infraModalList").innerHTML = items.map((item, i) =>
+        `<li class="infra-modal-item"><span class="infra-modal-num">${i + 1}</span><span>${escapeHtml(item)}</span></li>`
+    ).join("");
+
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+
+function closeInfraModal() {
+    const modal = document.getElementById("infra-modal");
+    if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+    }
 }
 
 function showStep(n) {
