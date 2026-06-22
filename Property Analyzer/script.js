@@ -236,12 +236,22 @@ function buildPrompt(loc, budget) {
     return `Analyze market intelligence for the locality: ${loc}, Hyderabad. User Budget: ${budget}.
 Return ONLY a valid JSON with these keys:
 "price" (approx price range per sqft/sqyd),
-"appreciation" (3-year growth %),
+"appreciation" (3-year growth % as a number),
+"appreciation_potential" (one of: Strong / Moderate-High / Moderate — based on infrastructure, growth corridors and connectivity for this specific locality),
+"appreciation_desc" (1 sentence explaining why appreciation is strong or moderate for this locality),
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
 "metro" (nearest metro station and distance),
 "hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
+"rental_demand" (one of: Strong / Moderate-High / Moderate — based on proximity to IT hubs, offices, colleges and transit for this specific locality),
+"rental_desc" (1 sentence explaining the rental demand drivers for this locality),
+"risk_indicators" (one of: Low / Low-Medium / Medium-High — based on GO111, legal history and land restrictions for this locality),
+"risk_desc" (1 sentence explaining the key risk factor or safety of this locality),
+"connectivity" (one of: Strong / Moderate-High / Moderate — based on metro, highway, ORR and rail access for this locality),
+"investment_confidence" (one of: Strong / Good / Moderate — overall investment confidence for this locality based on all factors),
+"confidence_desc" (1 sentence summarising why this locality is or isn't a strong investment),
+"locality_score" (a number from 1 to 100 reflecting overall investment potential of this locality — be accurate, not always high),
 "malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
 "gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
 "tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
@@ -355,6 +365,9 @@ function updateUI(data) {
     const priceEl = document.getElementById("resPrice");
     if (priceEl) priceEl.innerText = data.price || "₹ Market Rate";
     setText("resApp", data.appreciation || "0%");
+
+    // ── Populate Investment Return Snapshot ──
+    updateIRS(data);
 
     const goEl = document.getElementById("resGoStatus");
     const goVal = data.go111 || "VERIFYING";
@@ -965,5 +978,226 @@ function toggleTestimonialMarquee() {
         grid.classList.add('marquee-active');
         btn.classList.add('open');
         btn.querySelector('span').textContent = 'Show Less';
+    }
+}
+
+// ── Trust Path & Audit Coverage — Scroll Reveal ─────────────────────────────
+(function () {
+    function initAPReveal() {
+        var els = document.querySelectorAll('.ap-reveal');
+        if (!els.length) return;
+
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('ap-visible');
+                    // Animate donut segments when audit section enters view
+                    var segs = entry.target.querySelectorAll('.audit-donut-seg');
+                    segs.forEach(function (seg, i) {
+                        seg.style.transition = 'none';
+                        var origDA = seg.getAttribute('data-orig-da') || seg.style.strokeDasharray || getComputedStyle(seg).strokeDasharray;
+                        // store original
+                        if (!seg.getAttribute('data-orig-da')) {
+                            seg.setAttribute('data-orig-da', seg.getAttribute('stroke-dasharray'));
+                        }
+                        // start collapsed
+                        seg.style.strokeDasharray = '0 441.8';
+                        seg.style.opacity = '0';
+                        // animate in with staggered delay
+                        setTimeout(function () {
+                            seg.style.transition = 'stroke-dasharray 0.8s cubic-bezier(0.23,1,0.32,1) ' + (i * 0.1) + 's, opacity 0.4s ease ' + (i * 0.1) + 's';
+                            var da = seg.getAttribute('data-orig-da') || '73.3 366.5';
+                            seg.style.strokeDasharray = da;
+                            seg.style.opacity = '1';
+                        }, 60);
+                    });
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.18 });
+
+        els.forEach(function (el) { io.observe(el); });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAPReveal);
+    } else {
+        initAPReveal();
+    }
+})();
+
+
+// ── Investment Return Snapshot — bar + ring animation on scroll ──────────────
+(function () {
+    function initIRS() {
+        var section = document.getElementById('irs-section');
+        if (!section) return;
+        var bars = section.querySelectorAll('.irs-bar');
+        var ring = section.querySelector('.irs-ring-progress');
+        var animated = false;
+
+        new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting && !animated) {
+                animated = true;
+                // Animate bars (widths already set inline)
+                bars.forEach(function (b) {
+                    var target = b.style.width;
+                    b.style.width = '0';
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            b.style.width = target;
+                        });
+                    });
+                });
+                // Animate ring: full = 314, offset 69 = 78%
+                if (ring) {
+                    ring.style.strokeDashoffset = '314';
+                    setTimeout(function () {
+                        ring.style.strokeDashoffset = '69';
+                    }, 120);
+                }
+            }
+        }, { threshold: 0.2 }).observe(section);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initIRS);
+    } else {
+        initIRS();
+    }
+})();
+
+
+// ── Investment Return Snapshot — dynamic population ──────────────────────────
+function updateIRS(data) {
+    // ── helpers ──
+    function el(id) { return document.getElementById(id); }
+
+    function setBadge(id, label, type) {
+        var b = el(id);
+        if (!b) return;
+        b.textContent = label;
+        b.className = 'irs-badge';
+        var map = { strong: 'irs-badge-strong', good: 'irs-badge-good', 'moderate-high': 'irs-badge-modhigh', 'low-medium': 'irs-badge-lowmed', moderate: 'irs-badge-modhigh', low: 'irs-badge-lowmed' };
+        b.classList.add(map[type] || 'irs-badge-strong');
+    }
+
+    function setBar(barId, valId, pct, label, valClass) {
+        var b = el(barId);
+        if (b) { b.style.width = '0%'; setTimeout(function() { b.style.width = pct + '%'; }, 120); }
+        var v = el(valId);
+        if (v) { v.textContent = label; v.className = 'irs-analysis-val ' + (valClass || ''); }
+    }
+
+    // ── Locality name ──
+    var loc = userData.locality || '—';
+    var locDisplay = loc.charAt(0).toUpperCase() + loc.slice(1);
+    ['irsLocalityName', 'irsLocalityNameDash'].forEach(function(id) {
+        var e = el(id); if (e) e.textContent = locDisplay;
+    });
+
+    // ── Derive scores from API data (all fields now returned by AI) ──
+
+    // Appreciation
+    var appLabel = data.appreciation_potential || 'Moderate-High';
+    var appType  = appLabel.toLowerCase().replace(/\s+/g, '-');
+    var appPct   = appType === 'strong' ? 85 : appType === 'moderate-high' ? 68 : 50;
+    // fallback: if no appreciation_potential, derive from raw % number
+    if (!data.appreciation_potential) {
+        var appNum = parseFloat(data.appreciation || '0');
+        if (appNum >= 10)      { appLabel = 'Strong';        appType = 'strong';        appPct = 85; }
+        else if (appNum >= 6)  { appLabel = 'Moderate-High'; appType = 'moderate-high'; appPct = 68; }
+        else if (appNum > 0)   { appLabel = 'Moderate';      appType = 'moderate';      appPct = 50; }
+    }
+
+    // Rental demand — now comes directly from AI
+    var rentalLabel = data.rental_demand || 'Moderate-High';
+    var rentalType  = rentalLabel.toLowerCase().replace(/\s+/g, '-');
+    var rentalPct   = rentalType === 'strong' ? 85 : rentalType === 'high' ? 88 : rentalType === 'moderate-high' ? 68 : 50;
+
+    // Risk — now comes directly from AI; fallback to GO111
+    var go111     = (data.go111 || 'SAFE').toUpperCase();
+    var riskLabel = data.risk_indicators || (go111 === 'SAFE' ? 'Low-Medium' : 'Medium-High');
+    var riskType  = riskLabel.toLowerCase().replace(/\s+/g, '-');
+    var riskPct   = riskType === 'low' ? 25 : riskType === 'low-medium' ? 42 : riskType === 'medium' ? 58 : 72;
+
+    // Connectivity — now comes directly from AI; fallback to metro distance
+    var connLabel = data.connectivity || '';
+    var metroRaw2 = data.metro || data.metro_connectivity || '';
+    var metroStr  = typeof metroRaw2 === 'string' ? metroRaw2 : (Array.isArray(metroRaw2) ? metroRaw2[0] : '');
+    var metroKm   = parseFloat(String(metroStr).match(/[\d.]+/)?.[0] || '5');
+    if (!connLabel) {
+        if (metroKm <= 3)      connLabel = 'Strong';
+        else if (metroKm <= 7) connLabel = 'Moderate-High';
+        else                   connLabel = 'Moderate';
+    }
+    var connType = connLabel.toLowerCase().replace(/\s+/g, '-');
+    var connPct  = connType === 'strong' ? 85 : connType === 'moderate-high' ? 70 : 52;
+
+    // Investment confidence — now comes directly from AI
+    var confLabel = data.investment_confidence || 'Good';
+    var confType  = confLabel.toLowerCase();
+
+    // Overall score — AI now returns an accurate locality_score
+    var score = data.locality_score
+        ? Math.min(Math.max(parseInt(data.locality_score), 10), 99)
+        : Math.min(Math.max(Math.round((appPct * 0.3 + rentalPct * 0.25 + (100 - riskPct) * 0.2 + connPct * 0.25)), 10), 99);
+
+    // ── Populate cards ──
+    setBadge('irsBadgeAppreciation', appLabel, appType);
+    var descApp = data.appreciation_desc || (appType === 'strong'
+        ? 'Infrastructure and connectivity strongly support future growth.'
+        : 'Moderate growth expected based on current development activity.');
+    if (el('irsDescAppreciation')) el('irsDescAppreciation').textContent = descApp;
+
+    setBadge('irsBadgeRental', rentalLabel, rentalType);
+    var descRental = data.rental_desc || 'Rental interest driven by nearby offices, schools and transit.';
+    if (el('irsDescRental')) el('irsDescRental').textContent = descRental;
+
+    setBadge('irsBadgeRisk', riskLabel, riskType);
+    var descRisk = data.risk_desc || (go111 === 'AFFECTED'
+        ? 'GO111 status flagged. Legal and land restriction review recommended.'
+        : 'GO111 clear. Standard legal and land record checks advised.');
+    if (el('irsDescRisk')) el('irsDescRisk').textContent = descRisk;
+
+    setBadge('irsBadgeConfidence', confLabel, confType === 'good' ? 'good' : confType === 'strong' ? 'strong' : 'modhigh');
+    var descConf = data.confidence_desc || 'A promising locality. Order the full ₹299 audit for complete clarity.';
+    if (el('irsDescConfidence')) el('irsDescConfidence').textContent = descConf;
+
+    // ── Score ring ──
+    var scoreEl = el('irsScoreNum');
+    if (scoreEl) scoreEl.textContent = score;
+    var ring = el('irsRingProgress');
+    if (ring) {
+        var offset = Math.round(314 - (score / 100) * 314);
+        ring.style.strokeDashoffset = '314';
+        setTimeout(function() {
+            ring.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.23,1,0.32,1)';
+            ring.style.strokeDashoffset = offset;
+        }, 200);
+    }
+
+    // ── Analysis bars ──
+    setBar('irsBarGrowth',  'irsValGrowth',  appPct,    appLabel,   'irs-val-strong');
+    setBar('irsBarRental',  'irsValRental',  rentalPct, rentalLabel,'irs-val-modhigh');
+    setBar('irsBarSafety',  'irsValSafety',  riskPct,   riskLabel,  'irs-val-lowmed');
+    setBar('irsBarConnect', 'irsValConnect', connPct,   connLabel,  'irs-val-strong');
+
+    // ── Key highlights (dynamic) ──
+    var highlights = [];
+    if (metroKm <= 6) highlights.push({ icon: 'fa-train-subway', label: 'Metro Access' });
+    if ((data.schools_list || []).length) highlights.push({ icon: 'fa-graduation-cap', label: 'School Zone' });
+    if (appType === 'strong') highlights.push({ icon: 'fa-rocket', label: 'Growth Corridor' });
+    if (riskType === 'low' || riskType === 'low-medium') highlights.push({ icon: 'fa-shield-halved', label: 'Low Legal Risk' });
+    if ((data.malls_list || []).length) highlights.push({ icon: 'fa-store', label: 'Commercial Hub' });
+    if (!highlights.length) highlights = [
+        { icon: 'fa-location-dot', label: locDisplay },
+        { icon: 'fa-chart-line', label: 'Investment Zone' }
+    ];
+    var hEl = el('irsHighlights');
+    if (hEl) {
+        hEl.innerHTML = highlights.slice(0, 5).map(function(h) {
+            return '<span class="irs-highlight-pill"><i class="fa-solid ' + h.icon + '"></i> ' + h.label + '</span>';
+        }).join('');
     }
 }
