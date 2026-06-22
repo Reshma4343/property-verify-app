@@ -36,7 +36,8 @@
     <nav class="nav">
         <div class="container nav-inner">
             <button class="brand" type="button" onclick="location.reload()">
-                <img src="assets/logo_nav.png" alt="AsliProperty" class="brand-logo">
+                <img src="assets/logo_icon.png" alt="AsliProperty Icon" class="brand-logo-icon">
+                <img src="assets/logo_text.png" alt="AsliProperty" class="brand-logo-text">
             </button>
 
             <div class="nav-actions">
@@ -585,7 +586,7 @@
 
             </div><!-- /hpw-layout -->
 
-            <!-- CTA strip -->
+            <!-- CTA strip — merged into HPW section -->
             <div class="hpw-cta-strip hpw-reveal">
               <p class="hpw-cta-text">Ready to verify your property?</p>
               <button class="btn btn-primary" type="button" onclick="document.getElementById('step-1').scrollIntoView({behavior:'smooth'});return false;">
@@ -708,10 +709,10 @@
                     <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                   </div>
 
-                  <!-- 5: Builder Registration (RERA) -->
+                  <!-- 5: Registration (RERA) -->
                   <div class="gov-card">
                     <span class="gov-card-icon"><i class="fa-solid fa-building"></i></span>
-                    <span class="gov-title">Builder Registration (RERA)</span>
+                    <span class="gov-title">Registration (RERA)</span>
                     <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                   </div>
 
@@ -722,21 +723,13 @@
                     <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                   </div>
 
-                  <!-- 7 & 8: Appreciation + GO111 — centred last row -->
-                  <div style="grid-column: 1 / -1; display: flex; justify-content: center; gap: 20px;">
-
-                    <div class="gov-card" style="width: calc(33.333% - 7px);">
+                  <!-- 7 & 8: Last row — centred across full grid width -->
+                  <div class="gov-last-row">
+                    <div class="gov-card">
                       <span class="gov-card-icon"><i class="fa-solid fa-chart-line"></i></span>
                       <span class="gov-title">Appreciation (3Y)</span>
                       <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                     </div>
-
-                    <div class="gov-card" style="width: calc(33.333% - 7px);">
-                      <span class="gov-card-icon" style="background: linear-gradient(145deg, #ec4899, rgba(236,72,153,0.72));"><i class="fa-solid fa-leaf"></i></span>
-                      <span class="gov-title">GO111 Status</span>
-                      <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
-                    </div>
-
                   </div>
 
                 </div>
@@ -754,8 +747,6 @@
 
           </div>
         </section>
-
-
 
         <section id="step-1-continued" class="section">
             <!-- COMPARISON -->
@@ -968,7 +959,7 @@
                             <span class="pill pill-muted" id="resBudgetPill">Budget: Loading...</span>
                         </div>
                         <h2 class="results-title" id="resAnalysisTitle">Locality Market Profile</h2>
-                        <p class="results-sub">Market insights generated for your investment profile.</p>
+                        <p class="results-sub">Property insights made easy for you.</p>
                     </div>
 
                     <div class="audit-cta-header">
@@ -1080,6 +1071,262 @@
                     </div>
                 </div>
 
+                <!-- ══ INVESTMENT RETURN SNAPSHOT (dynamic) ══ -->
+                <div class="irs-wrap">
+                  <div class="irs-layout">
+
+                    <!-- LEFT -->
+                    <div class="irs-left">
+                      <div class="irs-header">
+                        <span class="irs-label">INVESTMENT INSIGHTS</span>
+                        <h2 class="irs-title">Investment Return<br>Snapshot</h2>
+                        <p class="irs-subtitle">Know whether this locality has real growth potential before you invest.</p>
+                        <div class="irs-location-pill">
+                          <i class="fa-solid fa-location-dot"></i>
+                          <span id="irsLocalityName">—</span>, Hyderabad
+                        </div>
+                      </div>
+
+                      <div class="irs-cards">
+                        <!-- Card 1: Appreciation -->
+                        <div class="irs-card">
+                          <div class="irs-card-top">
+                            <span class="irs-card-icon irs-icon-indigo"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                            <span class="irs-badge" id="irsBadgeAppreciation">—</span>
+                          </div>
+                          <h4 class="irs-card-title">Appreciation Potential</h4>
+                          <p class="irs-card-desc" id="irsDescAppreciation">Analysing infrastructure and connectivity...</p>
+                        </div>
+                        <!-- Card 2: Rental Demand -->
+                        <div class="irs-card">
+                          <div class="irs-card-top">
+                            <span class="irs-card-icon irs-icon-teal"><i class="fa-solid fa-house-user"></i></span>
+                            <span class="irs-badge" id="irsBadgeRental">—</span>
+                          </div>
+                          <h4 class="irs-card-title">Rental Demand</h4>
+                          <p class="irs-card-desc" id="irsDescRental">Evaluating rental interest near offices and transit...</p>
+                        </div>
+                        <!-- Card 3: Investment Confidence -->
+                        <div class="irs-card">
+                          <div class="irs-card-top">
+                            <span class="irs-card-icon irs-icon-green"><i class="fa-solid fa-gauge-high"></i></span>
+                            <span class="irs-badge" id="irsBadgeConfidence">—</span>
+                          </div>
+                          <h4 class="irs-card-title">Investment Confidence</h4>
+                          <p class="irs-card-desc" id="irsDescConfidence">Scoring locality potential for your budget...</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- RIGHT — Dashboard -->
+                    <div class="irs-right">
+                      <div class="irs-dashboard">
+                        <div class="irs-dash-header">
+                          <h3 class="irs-dash-title">Locality Score</h3>
+                          <div class="irs-location-pill irs-location-pill--dark">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span id="irsLocalityNameDash">—</span>
+                          </div>
+                        </div>
+
+                        <div class="irs-score-wrap">
+                          <div class="irs-score-ring">
+                            <svg class="irs-ring-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+                              <circle cx="60" cy="60" r="50" fill="none" stroke="url(#irsGrad2)" stroke-width="10"
+                                stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+                                transform="rotate(-90 60 60)" id="irsRingProgress" class="irs-ring-progress"/>
+                              <defs>
+                                <linearGradient id="irsGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                  <stop offset="0%" stop-color="#5B4FCF"/>
+                                  <stop offset="100%" stop-color="#10B981"/>
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <div class="irs-score-center">
+                              <span class="irs-score-num" id="irsScoreNum">—</span>
+                              <span class="irs-score-denom">/100</span>
+                            </div>
+                          </div>
+                          <p class="irs-score-caption">Overall locality potential for property investment</p>
+                        </div>
+
+                        <div class="irs-analysis">
+                          <div class="irs-analysis-row">
+                            <span class="irs-analysis-icon" style="color:#5B4FCF;"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                            <span class="irs-analysis-label">Growth Outlook</span>
+                            <div class="irs-bar-wrap"><div class="irs-bar" id="irsBarGrowth" style="width:0%; background:#5B4FCF;"></div></div>
+                            <span class="irs-analysis-val" id="irsValGrowth">—</span>
+                          </div>
+                          <div class="irs-analysis-row">
+                            <span class="irs-analysis-icon" style="color:#0CA8A8;"><i class="fa-solid fa-house-user"></i></span>
+                            <span class="irs-analysis-label">Rental Strength</span>
+                            <div class="irs-bar-wrap"><div class="irs-bar" id="irsBarRental" style="width:0%; background:#0CA8A8;"></div></div>
+                            <span class="irs-analysis-val" id="irsValRental">—</span>
+                          </div>
+                          <div class="irs-analysis-row">
+                            <span class="irs-analysis-icon" style="color:#F59E0B;"><i class="fa-solid fa-shield-halved"></i></span>
+                            <span class="irs-analysis-label">Safety Check</span>
+                            <div class="irs-bar-wrap"><div class="irs-bar" id="irsBarSafety" style="width:0%; background:#F59E0B;"></div></div>
+                            <span class="irs-analysis-val" id="irsValSafety">—</span>
+                          </div>
+                          <div class="irs-analysis-row">
+                            <span class="irs-analysis-icon" style="color:#10B981;"><i class="fa-solid fa-train-subway"></i></span>
+                            <span class="irs-analysis-label">Connectivity</span>
+                            <div class="irs-bar-wrap"><div class="irs-bar" id="irsBarConnect" style="width:0%; background:#10B981;"></div></div>
+                            <span class="irs-analysis-val" id="irsValConnect">—</span>
+                          </div>
+                        </div>
+
+                        <div class="irs-highlights" id="irsHighlights"></div>
+
+                        <button class="btn btn-primary irs-cta-btn" type="button"
+                          onclick="initAuditFlow()">
+                          Get Full Audit ₹299 <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <p class="irs-cta-sub">Fast • Secure • Data-driven insights</p>
+
+                        <div class="irs-dash-footer">
+                          <i class="fa-solid fa-file-shield"></i>
+                          Full audit available for <strong>₹299</strong> — In-depth legal, ownership &amp; planning by   AsliProperty experts.
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <!-- ══ END INVESTMENT RETURN SNAPSHOT ══ -->
+
+                <!-- ══ TRUST STATS SECTION ══ -->
+                <div class="trust-path-section ap-reveal">
+                    <div class="trust-path-left">
+                        <h3 class="trust-path-title">Your path to<br>safe investment</h3>
+                        <div class="trust-path-rule"></div>
+                    </div>
+                    <div class="trust-path-divider" aria-hidden="true"></div>
+                    <div class="trust-path-steps">
+                        <div class="trust-path-step ap-reveal-step" style="--step-delay:0.05s">
+                            <div class="trust-step-circle" style="background:#5B4FCF;">
+                                <i class="fa-solid fa-credit-card"></i>
+                                <span class="trust-step-check"><i class="fa-solid fa-circle-check"></i></span>
+                            </div>
+                            <p class="trust-step-title">Pay ₹299</p>
+                            <p class="trust-step-sub">One-time, secure</p>
+                        </div>
+                        <div class="trust-path-connector" aria-hidden="true">
+                            <div class="trust-connector-glow"></div>
+                        </div>
+                        <div class="trust-path-step ap-reveal-step" style="--step-delay:0.15s">
+                            <div class="trust-step-circle" style="background:#0CA8A8;">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <p class="trust-step-title">We verify</p>
+                            <p class="trust-step-sub">15+ gov. sources</p>
+                        </div>
+                        <div class="trust-path-connector" aria-hidden="true">
+                            <div class="trust-connector-glow"></div>
+                        </div>
+                        <div class="trust-path-step ap-reveal-step" style="--step-delay:0.25s">
+                            <div class="trust-step-circle" style="background:#F59E0B;">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <p class="trust-step-title">Get report</p>
+                            <p class="trust-step-sub">In 15 minutes</p>
+                        </div>
+                        <div class="trust-path-connector" aria-hidden="true">
+                            <div class="trust-connector-glow"></div>
+                        </div>
+                        <div class="trust-path-step ap-reveal-step" style="--step-delay:0.35s">
+                            <div class="trust-step-circle" style="background:#10B981;">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <p class="trust-step-title">Invest safely</p>
+                            <p class="trust-step-sub">With full clarity</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ AUDIT COVERAGE PIE CHART ══ -->
+                <div class="audit-coverage-section ap-reveal" style="--reveal-delay:0.1s">
+                    <div class="audit-coverage-inner">
+                        <h3 class="audit-coverage-title">What's covered in your <span class="audit-price-accent">₹299</span> audit</h3>
+
+                        <div class="audit-coverage-body">
+                            <!-- Donut -->
+                            <div class="audit-donut-wrap">
+                                <svg class="audit-donut-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Audit coverage donut chart">
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#5B4FCF" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="109.95" data-seg="0"/>
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#10B981" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="36.65" data-seg="1"/>
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#F59E0B" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="-36.65" data-seg="2"/>
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#EC4899" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="-109.95" data-seg="3"/>
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#8B5CF6" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="-183.25" data-seg="4"/>
+                                    <circle class="audit-donut-seg" cx="100" cy="100" r="70" fill="none" stroke="#0CA8A8" stroke-width="36" stroke-dasharray="73.3 366.5" stroke-dashoffset="-256.55" data-seg="5"/>
+                                </svg>
+                                <div class="audit-donut-center">
+                                    <span class="audit-donut-num">6</span>
+                                    <span class="audit-donut-lbl">Checks</span>
+                                </div>
+                            </div>
+
+                            <!-- Stats beside donut -->
+                            <div class="audit-stats-grid">
+                                <div class="audit-stat-box">
+                                    <span class="audit-stat-num">15+</span>
+                                    <span class="audit-stat-lbl">Gov. Sources</span>
+                                </div>
+                                <div class="audit-stat-box">
+                                    <span class="audit-stat-num">6</span>
+                                    <span class="audit-stat-lbl">Deep Checks</span>
+                                </div>
+                                <div class="audit-stat-box">
+                                    <span class="audit-stat-num">15 min</span>
+                                    <span class="audit-stat-lbl">Report Ready</span>
+                                </div>
+                                <div class="audit-stat-box">
+                                    <span class="audit-stat-num">100%</span>
+                                    <span class="audit-stat-lbl">Secure</span>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <ul class="audit-legend">
+                                <li class="audit-legend-item ap-reveal-step" style="--step-delay:0.05s">
+                                    <span class="audit-legend-dot" style="background:#5B4FCF;"></span>
+                                    <span class="audit-legend-name">Ownership &amp; Loan</span>
+                                </li>
+                                <li class="audit-legend-item ap-reveal-step" style="--step-delay:0.10s">
+                                    <span class="audit-legend-dot" style="background:#10B981;"></span>
+                                    <span class="audit-legend-name">Legal &amp; Court</span>
+                                </li>
+                                <li class="audit-legend-item ap-reveal-step" style="--step-delay:0.15s">
+                                    <span class="audit-legend-dot" style="background:#F59E0B;"></span>
+                                    <span class="audit-legend-name">RERA / Builder</span>
+                                </li>
+                                <li class="audit-legend-item ap-reveal-step" style="--step-delay:0.20s">
+                                    <span class="audit-legend-dot" style="background:#EC4899;"></span>
+                                    <span class="audit-legend-name">Land Records</span>
+                                </li>
+                                <li class="audit-legend-item ap-reveal-step" style="--step-delay:0.25s">
+                                    <span class="audit-legend-dot" style="background:#0CA8A8;"></span>
+                                    <span class="audit-legend-name">Appreciation</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Marketing CTA -->
+                        <div class="audit-cta-block">
+                            <div class="audit-cta-text">
+                                <p class="audit-cta-tagline">Don't guess. Know before you invest.</p>
+                                <p class="audit-cta-sub">Get a complete legal, ownership &amp; planning audit — verified across 15+ government sources. One report. Full clarity.</p>
+                            </div>
+                            <button class="audit-cta-btn" type="button" onclick="initAuditFlow()">
+                                <span class="audit-cta-price">₹299</span>
+                                Get Full Audit
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             </div>
