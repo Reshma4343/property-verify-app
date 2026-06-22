@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isFreeInsightPayload() {
+      return request.resource.data.keys().hasOnly([
+        'name',
+        'phone',
+        'email',
+        'locality',
+        'budget',
+        'aiInsights',
+        'paymentStatus',
+        'convertedToPaid',
+        'createdAt',
+        'updatedAt'
+      ])
+      && request.resource.data.paymentStatus == 'free'
+      && request.resource.data.convertedToPaid is bool
+      && request.resource.data.name is string
+      && request.resource.data.phone is string
+      && request.resource.data.email is string
+      && request.resource.data.locality is string
+      && request.resource.data.budget is string
+      && request.resource.data.aiInsights is map;
+    }
+
+    function isAuditOrderPayload() {
+      return request.resource.data.keys().hasOnly([
+        'trackId',
+        'createdAt',
+        'status',
+        'paymentStatus',
+        'user',
+        'property',
+        'notes',
+        'documents',
+        'client'
+      ])
+      && request.resource.data.trackId is string
+      && request.resource.data.status is string
+      && request.resource.data.paymentStatus is string
+      && request.resource.data.user is map
+      && request.resource.data.property is map
+      && request.resource.data.notes is string
+      && request.resource.data.documents is list
+      && request.resource.data.client is map;
+    }
+
+    match /freeInsights/{docId} {
+      allow create, update: if docId.matches('^FREE-[a-z0-9-]+$') && isFreeInsightPayload();
+      allow read, delete: if false;
+    }
+
+    match /auditOrders/{docId} {
+      allow create, update: if docId.matches('^PV-[0-9]{4}$') && isAuditOrderPayload();
+      allow read, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

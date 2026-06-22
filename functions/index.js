@@ -1,14 +1,116 @@
-import crypto from "node:crypto";
-
 import "dotenv/config";
 import express from "express";
 import functions from "firebase-functions";
-import Razorpay from "razorpay";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-function getRazorpayConfig() {
+const GEMINI_REQUEST_INTERVAL_MS = Math.max(0, Number(process.env.GEMINI_REQUEST_INTERVAL_MS || 1000));
+const BREVO_API_KEY = String(process.env.BREVO_API_KEY || "").trim();
+const CONTACT_TO_EMAIL = String(process.env.CONTACT_TO_EMAIL || "info@asliproperty.in").trim();
+const CONTACT_FROM_EMAIL = String(process.env.CONTACT_FROM_EMAIL || CONTACT_TO_EMAIL).trim();
+const CONTACT_FROM_NAME = String(process.env.CONTACT_FROM_NAME || "AsliProperty Website").trim();
+const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 30000));
+const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
+const contactRateLimits = new Map();
+
+function parseCsv(value, fallback = "") {
+  return String(value ?? fallback)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function getNumberedGeminiKeys(env) {
+  const keys = [];
+  for (let index = 1; index <= 100; index += 1) {
+    const key = String(env[`GEMINI_API_KEY_${index}`] || "").trim();
+    if (key) keys.push(key);
+  }
+  return keys;
+}
+
+const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+function summarizeGeminiError(err) {
+  return String(err?.message || err || "Unknown Gemini error").split("\n")[0];
+}
+
+function getGeminiAttemptSummary(attempts) {
+  return attempts
+    .map((attempt) => `model ${attempt.model}, key #${attempt.keyIndex}: HTTP ${attempt.status || "error"} - ${attempt.message}`)
+    .join(" | ");
+}
+
+function escapeHtml(input) {
+  return String(input || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function getClientIp(req) {
+  return String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown")
+    .split(",")[0]
+    .trim();
+}
+
+function isContactRateLimited(req) {
+  const ip = getClientIp(req);
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000;
+  const maxSubmissions = 5;
+  const current = contactRateLimits.get(ip) || [];
+  const recent = current.filter((timestamp) => now - timestamp < windowMs);
+  if (recent.length >= maxSubmissions) {
+    contactRateLimits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  contactRateLimits.set(ip, recent);
+  return false;
+}
+
+async function sendBrevoEmail(payload) {
+  let lastError;
+  for (let attempt = 1; attempt <= BREVO_MAX_RETRIES + 1; attempt += 1) {
+    try {
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        signal: AbortSignal.timeout(BREVO_TIMEOUT_MS),
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": BREVO_API_KEY,
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const messageText = result?.message || result?.error || `Brevo request failed (HTTP ${response.status}).`;
+        const error = new Error(messageText);
+        error.status = response.status;
+        error.result = result;
+        throw error;
+      }
+      return result;
+    } catch (err) {
+      lastError = err;
+      const isNetworkError = err?.name === "TimeoutError" || err?.cause?.code === "UND_ERR_CONNECT_TIMEOUT" || err?.cause?.code === "UND_ERR_HEADERS_TIMEOUT" || err?.cause?.code === "ECONNRESET";
+      const retryableStatus = [408, 429, 500, 502, 503, 504].includes(Number(err?.status));
+      if (attempt > BREVO_MAX_RETRIES || (!isNetworkError && !retryableStatus)) break;
+      await sleep(1000 * attempt);
+    }
+  }
+  throw lastError;
+}
+
+function getFirebaseConfig() {
   const cfg = (() => {
     try {
       return functions.config?.() || {};
@@ -17,35 +119,20 @@ function getRazorpayConfig() {
     }
   })();
 
-  const keyId = process.env.RAZORPAY_KEY_ID || cfg?.razorpay?.key_id;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET || cfg?.razorpay?.key_secret;
-  return { keyId, keySecret };
-}
-
-function getRazorpayClient() {
-  const { keyId, keySecret } = getRazorpayConfig();
-  if (!keyId || !keySecret) {
-    throw new Error("Missing Razorpay credentials. Set env vars or Firebase functions config.");
-  }
-  return {
-    keyId,
-    keySecret,
-    client: new Razorpay({ key_id: keyId, key_secret: keySecret }),
-  };
+  return cfg;
 }
 
 function getGeminiConfig() {
-  const cfg = (() => {
-    try {
-      return functions.config?.() || {};
-    } catch {
-      return {};
-    }
-  })();
+  const cfg = getFirebaseConfig();
+  const numberedKeys = getNumberedGeminiKeys(process.env);
+  const csvKeys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || cfg?.gemini?.api_keys || cfg?.gemini?.api_key);
+  const keys = [...new Set([...numberedKeys, ...csvKeys])];
+  const fallbackModels = parseCsv(process.env.GEMINI_FALLBACK_MODELS || cfg?.gemini?.fallback_models);
 
   return {
-    apiKey: process.env.GEMINI_API_KEY || cfg?.gemini?.api_key,
+    keys,
     model: process.env.GEMINI_MODEL || cfg?.gemini?.model || "gemini-2.5-flash",
+    fallbackModels,
   };
 }
 
@@ -57,13 +144,16 @@ Return ONLY a valid JSON with these keys:
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
 "metro" (nearest metro station and distance),
-"hospitals_list" (array of exactly 3-4 top hospitals with distance in KM),
-"schools_list" (array of exactly 3-4 top schools with distance in KM),
-"malls_list" (array of exactly 3-4 top malls/markets with distance in KM),
-"highway" (nearest NH highway connectivity),
-"orr_access" (nearest ORR Exit and distance),
-"rail_access" (nearest MMTS or Railway station),
-"local_transport" (General bus/transit availability)`;
+"hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
+"schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
+"malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
+"gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
+"tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
+"restaurants_list" (array of exactly 10 nearby restaurants, cafes, or popular food places, sorted nearest first; each item must include "name" and "distance_km"),
+"highway" (array of at least 3 nearest main highways/NH/SH roads, sorted nearest first; each item must include "name" and "distance_km"),
+"orr_access" (array of at least 2 nearest ORR exits/gates/interchanges, sorted nearest first; each item must include "name" and "distance_km"),
+"rail_access" (array that must include Secunderabad Railway Station with "distance_km", plus nearby main MMTS stations and railway stations with "name" and "distance_km"),
+"local_transport" (array of nearby proper bus stands, TSRTC stops, bus depots, and public transport hubs, sorted nearest first; each item must include "name" and "distance_km")`;
 }
 
 function parseGeminiJson(text) {
@@ -120,29 +210,37 @@ function findGo111Village(locality) {
   );
 }
 
+let geminiQueue = Promise.resolve();
+let lastGeminiCallAt = 0;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runGeminiQueued(task) {
+  const run = geminiQueue.then(async () => {
+    const elapsed = Date.now() - lastGeminiCallAt;
+    const waitMs = GEMINI_REQUEST_INTERVAL_MS - elapsed;
+    if (waitMs > 0) await sleep(waitMs);
+    lastGeminiCallAt = Date.now();
+    return task();
+  });
+  geminiQueue = run.catch(() => {});
+  return run;
+}
+
 app.get("/api/config", (_req, res) => {
-  try {
-    const { keyId } = getRazorpayClient();
-    res.json({ razorpayKeyId: keyId });
-  } catch (e) {
-    res.status(500).json({ error: e?.message || "Config error" });
-  }
+  const { keys, model, fallbackModels } = getGeminiConfig();
+  res.json({
+    geminiKeyCount: keys.length,
+    geminiModels: [...new Set([model, ...fallbackModels])],
+    geminiRequestIntervalMs: GEMINI_REQUEST_INTERVAL_MS,
+  });
 });
 
-app.post("/api/analyze", async (req, res) => {
-  try {
-    const { apiKey, model } = getGeminiConfig();
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing Gemini API key on backend." });
-    }
-
-    const locality = String(req.body?.locality || "").trim();
-    const budget = String(req.body?.budget || "").trim();
-    if (!locality) {
-      return res.status(400).json({ error: "Locality is required." });
-    }
-
-    const response = await fetch(
+async function callGeminiModel(model, apiKey, locality, budget) {
+  const response = await runGeminiQueued(() =>
+    fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
@@ -151,20 +249,124 @@ app.post("/api/analyze", async (req, res) => {
           contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
         }),
       }
-    );
+    )
+  );
 
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
-      return res.status(response.status).json({ error: message });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!rawText) {
+    const error = new Error("Empty Gemini response.");
+    error.status = 502;
+    throw error;
+  }
+
+  return parseGeminiJson(rawText);
+}
+
+app.post("/api/contact", async (req, res) => {
+  try {
+    if (!BREVO_API_KEY || BREVO_API_KEY === "PASTE_BREVO_API_KEY_HERE") {
+      return res.status(500).json({ error: "Contact mail service is not configured." });
+    }
+    if (isContactRateLimited(req)) {
+      return res.status(429).json({ error: "Too many contact submissions. Please try again later." });
     }
 
-    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) {
-      return res.status(502).json({ error: "Empty Gemini response." });
+    const name = String(req.body?.name || "").trim();
+    const email = String(req.body?.email || "").trim();
+    const phone = String(req.body?.phone || "").trim();
+    const subject = String(req.body?.subject || "").trim();
+    const message = String(req.body?.message || "").trim();
+
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ error: "Name, email, subject, and message are required." });
+    }
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: "Enter a valid email address." });
     }
 
-    const data = parseGeminiJson(rawText);
+    const htmlContent = `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
+      <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+      <p><strong>Message:</strong></p>
+      <p>${escapeHtml(message).replaceAll("\n", "<br>")}</p>
+    `;
+
+    const result = await sendBrevoEmail({
+      sender: { email: CONTACT_FROM_EMAIL, name: CONTACT_FROM_NAME },
+      to: [{ email: CONTACT_TO_EMAIL, name: "AsliProperty" }],
+      replyTo: { email, name },
+      subject: `Website Contact - ${subject}`,
+      htmlContent,
+    });
+
+    res.json({ ok: true, messageId: result?.messageId || null });
+  } catch (err) {
+    console.error("Contact email failed:", err);
+    const isTimeout = err?.name === "TimeoutError" || err?.cause?.code === "UND_ERR_CONNECT_TIMEOUT";
+    res.status(isTimeout ? 504 : 500).json({
+      error: isTimeout
+        ? "Brevo email service timed out. Please try again."
+        : "Failed to send contact email.",
+    });
+  }
+});
+
+app.post("/api/analyze", async (req, res) => {
+  try {
+    const { keys, model, fallbackModels } = getGeminiConfig();
+    if (!keys.length) {
+      return res.status(500).json({ error: "Missing Gemini API keys on backend." });
+    }
+
+    const locality = String(req.body?.locality || "").trim();
+    const budget = String(req.body?.budget || "").trim();
+    if (!locality) {
+      return res.status(400).json({ error: "Locality is required." });
+    }
+
+    let data;
+    let lastError;
+    const attempts = [];
+    for (const modelCandidate of [...new Set([model, ...fallbackModels])]) {
+      for (const [keyIndex, apiKey] of keys.entries()) {
+        try {
+          data = await callGeminiModel(modelCandidate, apiKey, locality, budget);
+          console.log(`Analyze succeeded with Gemini model ${modelCandidate} using key #${keyIndex + 1}`);
+          break;
+        } catch (err) {
+          lastError = err;
+          attempts.push({
+            model: modelCandidate,
+            keyIndex: keyIndex + 1,
+            status: err?.status,
+            message: summarizeGeminiError(err),
+            retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
+          });
+          console.warn(`Analyze failed with Gemini model ${modelCandidate}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
+        }
+      }
+      if (data) break;
+    }
+
+    if (!data) {
+      return res.status(lastError?.status || 500).json({
+        error: "All Gemini keys failed for this request.",
+        lastError: summarizeGeminiError(lastError),
+        attempts: getGeminiAttemptSummary(attempts),
+      });
+    }
+
     const go111Match = findGo111Village(locality);
     data.go111 = go111Match ? "AFFECTED" : "SAFE";
     data.go111_details = go111Match
@@ -179,66 +381,6 @@ app.post("/api/analyze", async (req, res) => {
   } catch (e) {
     console.error("Analyze failed:", e);
     res.status(500).json({ error: "Failed to analyze locality." });
-  }
-});
-
-app.post("/api/order", async (req, res) => {
-  try {
-    const { client, keyId } = getRazorpayClient();
-    const amount = Number(req.body?.amount);
-    const currency = (req.body?.currency || "INR").toUpperCase();
-    const receipt = String(req.body?.receipt || `rcpt_${Date.now()}`).slice(0, 40);
-    const notes = typeof req.body?.notes === "object" && req.body?.notes ? req.body.notes : undefined;
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return res.status(400).json({ error: "Invalid amount (expected integer paise)." });
-    }
-    if (!/^[A-Z]{3}$/.test(currency)) {
-      return res.status(400).json({ error: "Invalid currency." });
-    }
-
-    const order = await client.orders.create({
-      amount: Math.round(amount),
-      currency,
-      receipt,
-      notes,
-    });
-
-    res.json({
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId,
-    });
-  } catch (e) {
-    console.error("Order create failed:", e);
-    res.status(500).json({ error: "Failed to create order." });
-  }
-});
-
-app.post("/api/verify", (req, res) => {
-  try {
-    const { keySecret } = getRazorpayClient();
-    const orderId = String(req.body?.razorpay_order_id || "");
-    const paymentId = String(req.body?.razorpay_payment_id || "");
-    const signature = String(req.body?.razorpay_signature || "");
-
-    if (!orderId || !paymentId || !signature) {
-      return res.status(400).json({ ok: false, error: "Missing verification fields." });
-    }
-
-    const expected = crypto
-      .createHmac("sha256", keySecret)
-      .update(`${orderId}|${paymentId}`)
-      .digest("hex");
-
-    const ok = crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(signature, "hex"));
-    if (!ok) return res.status(400).json({ ok: false, error: "Invalid signature." });
-
-    res.json({ ok: true });
-  } catch (e) {
-    console.error("Verify failed:", e);
-    res.status(500).json({ ok: false, error: "Verification error." });
   }
 });
 
