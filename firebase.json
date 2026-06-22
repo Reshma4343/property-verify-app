@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "Property Analyzer",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
@@ -6,4 +9,3 @@
   },
   "functions": [{ "source": "functions" }]
 }
-
