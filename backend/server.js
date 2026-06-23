@@ -16,6 +16,10 @@ const CONTACT_FROM_EMAIL = String(process.env.CONTACT_FROM_EMAIL || CONTACT_TO_E
 const CONTACT_FROM_NAME = String(process.env.CONTACT_FROM_NAME || "AsliProperty Website").trim();
 const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 30000));
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
+const FRONTEND_ORIGINS = parseCsv(
+  process.env.FRONTEND_ORIGINS,
+  "https://asliproperty.in,https://www.asliproperty.in,https://property-1b194.web.app,https://property-1b194.firebaseapp.com,http://localhost:4242,http://localhost:4243,http://127.0.0.1:4242,http://127.0.0.1:4243"
+);
 const contactRateLimits = new Map();
 
 function parseCsv(value, fallback = "") {
@@ -158,6 +162,18 @@ const repoRoot = path.resolve(__dirname, "..");
 const frontendDir = path.join(repoRoot, "Property Analyzer");
 const uploadsDir = path.join(repoRoot, "uploads");
 const maxUploadBytes = 10 * 1024 * 1024;
+
+app.use((req, res, next) => {
+  const origin = String(req.headers.origin || "");
+  if (origin && (FRONTEND_ORIGINS.includes("*") || FRONTEND_ORIGINS.includes(origin))) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-file-name,x-file-type");
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  return next();
+});
 
 app.use(express.json({ limit: "1mb" }));
 
