@@ -16,6 +16,7 @@ const CONTACT_FROM_EMAIL = String(process.env.CONTACT_FROM_EMAIL || CONTACT_TO_E
 const CONTACT_FROM_NAME = String(process.env.CONTACT_FROM_NAME || "AsliProperty Website").trim();
 const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 30000));
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
+const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 1));
 const FRONTEND_ORIGINS = parseCsv(
   process.env.FRONTEND_ORIGINS,
   "https://asliproperty.in,https://www.asliproperty.in,https://property-1b194.web.app,https://property-1b194.firebaseapp.com,http://localhost:4242,http://localhost:4243,http://127.0.0.1:4242,http://127.0.0.1:4243"
@@ -46,7 +47,10 @@ function getGeminiApiKeys() {
 
 const GEMINI_API_KEYS = getGeminiApiKeys();
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GEMINI_FALLBACK_MODELS = parseCsv(process.env.GEMINI_FALLBACK_MODELS);
+const GEMINI_FALLBACK_MODELS = parseCsv(
+  process.env.GEMINI_FALLBACK_MODELS,
+  "gemini-2.5-flash-lite,gemini-3.5-flash"
+);
 
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
@@ -333,35 +337,51 @@ function getGeminiModelCandidates() {
 }
 
 async function callGeminiModel(model, apiKey, locality, budget) {
-  const response = await runGeminiQueued(() =>
-    fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
-        }),
+  let lastError;
+  for (let attempt = 0; attempt <= GEMINI_MAX_RETRIES; attempt += 1) {
+    if (attempt > 0) await sleep(1000 * attempt);
+
+    const response = await runGeminiQueued(() =>
+      fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
+            generationConfig: {
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      )
+    );
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
+      const error = new Error(message);
+      error.status = response.status;
+      lastError = error;
+      if (!GEMINI_RETRYABLE_STATUSES.has(Number(response.status)) || attempt >= GEMINI_MAX_RETRIES) {
+        throw error;
       }
-    )
-  );
+      continue;
+    }
 
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const message = result?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
-    const error = new Error(message);
-    error.status = response.status;
-    throw error;
+    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      const error = new Error("Empty Gemini response.");
+      error.status = 502;
+      lastError = error;
+      if (attempt >= GEMINI_MAX_RETRIES) throw error;
+      continue;
+    }
+
+    return parseGeminiJson(rawText);
   }
 
-  const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!rawText) {
-    const error = new Error("Empty Gemini response.");
-    error.status = 502;
-    throw error;
-  }
-
-  return parseGeminiJson(rawText);
+  throw lastError || new Error("Gemini request failed.");
 }
 
 app.post("/api/analyze", async (req, res) => {

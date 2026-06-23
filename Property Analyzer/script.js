@@ -282,7 +282,11 @@ async function fetchAI(loc, budget) {
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const message = result?.error || `HTTP ${response.status}`;
+        console.error("[analyze] API error detail", result);
+        const details = [result?.lastError, result?.attempts].filter(Boolean).join(" | ");
+        const message = details
+            ? `${result?.error || `HTTP ${response.status}`}: ${details}`
+            : result?.error || `HTTP ${response.status}`;
         throw new Error(message);
     }
 
