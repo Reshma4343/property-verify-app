@@ -14,6 +14,36 @@ const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 3
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
 const contactRateLimits = new Map();
 
+function isAllowedCorsOrigin(origin) {
+  if (!origin) return false;
+  const configuredOrigins = String(process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+function applyCors(req, res, next) {
+  const origin = req.headers.origin;
+  if (isAllowedCorsOrigin(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-file-name,x-file-type");
+  }
+  if (req.method === "OPTIONS") return res.status(204).end();
+  return next();
+}
+
+app.use(applyCors);
+
 function parseCsv(value, fallback = "") {
   return String(value ?? fallback)
     .split(",")
@@ -40,6 +70,21 @@ function getGeminiAttemptSummary(attempts) {
   return attempts
     .map((attempt) => `model ${attempt.model}, key #${attempt.keyIndex}: HTTP ${attempt.status || "error"} - ${attempt.message}`)
     .join(" | ");
+}
+
+function getGeminiClientMessage(lastError) {
+  const status = Number(lastError?.status);
+  const message = summarizeGeminiError(lastError);
+  if (status === 429) {
+    return "Gemini quota/rate limit was reached. Wait for quota reset or add a valid key with available quota.";
+  }
+  if (status === 400 || status === 403) {
+    return "Gemini rejected one or more backend keys. Check that every configured key is a Google AI Studio API key with Gemini API access.";
+  }
+  if (status === 404) {
+    return "Gemini model was not found for the configured key/project. Check GEMINI_MODEL and fallback models.";
+  }
+  return message;
 }
 
 function escapeHtml(input) {
@@ -362,6 +407,7 @@ app.post("/api/analyze", async (req, res) => {
     if (!data) {
       return res.status(lastError?.status || 500).json({
         error: "All Gemini keys failed for this request.",
+        clientMessage: getGeminiClientMessage(lastError),
         lastError: summarizeGeminiError(lastError),
         attempts: getGeminiAttemptSummary(attempts),
       });

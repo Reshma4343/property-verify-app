@@ -18,6 +18,31 @@ const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 3
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
 const contactRateLimits = new Map();
 
+function isAllowedCorsOrigin(origin) {
+  if (!origin) return false;
+  const configuredOrigins = parseCsv(process.env.CORS_ORIGINS);
+  if (configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+function applyCors(req, res, next) {
+  const origin = req.headers.origin;
+  if (isAllowedCorsOrigin(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-file-name,x-file-type");
+  }
+  if (req.method === "OPTIONS") return res.status(204).end();
+  return next();
+}
+
 function parseCsv(value, fallback = "") {
   return String(value ?? fallback)
     .split(",")
@@ -56,13 +81,28 @@ function getGeminiAttemptSummary(attempts) {
     .join(" | ");
 }
 
+function getGeminiClientMessage(lastError) {
+  const status = Number(lastError?.status);
+  const message = summarizeGeminiError(lastError);
+  if (status === 429) {
+    return "Gemini quota/rate limit was reached. Wait for quota reset or add a valid key with available quota.";
+  }
+  if (status === 400 || status === 403) {
+    return "Gemini rejected one or more backend keys. Check that every configured key is a Google AI Studio API key with Gemini API access.";
+  }
+  if (status === 404) {
+    return "Gemini model was not found for the configured key/project. Check GEMINI_MODEL and fallback models.";
+  }
+  return message;
+}
+
 const GEMINI_KEY_FORMAT_WARNINGS = GEMINI_API_KEYS
   .map((key, index) => ({ key, index: index + 1 }))
-  .filter(({ key }) => !key.startsWith("AIza") && !key.startsWith("AQ."))
+  .filter(({ key }) => !key.startsWith("AIza"))
   .map(({ index }) => `#${index}`);
 
 if (GEMINI_KEY_FORMAT_WARNINGS.length) {
-  console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}`);
+  console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}. REST API keys usually start with "AIza".`);
 }
 
 let geminiQueue = Promise.resolve();
@@ -159,11 +199,16 @@ const frontendDir = path.join(repoRoot, "Property Analyzer");
 const uploadsDir = path.join(repoRoot, "uploads");
 const maxUploadBytes = 10 * 1024 * 1024;
 
+app.use(applyCors);
 app.use(express.json({ limit: "1mb" }));
 
 // Serve the existing frontend so it runs on http://localhost:<PORT>/ (no CORS issues).
 app.use(express.static(frontendDir));
 app.use("/uploads", express.static(uploadsDir));
+
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
 
 app.get("/api/config", (_req, res) => {
   res.json({
@@ -387,6 +432,7 @@ app.post("/api/analyze", async (req, res) => {
     if (!data) {
       return res.status(lastError?.status || 500).json({
         error: "All Gemini keys failed for this request.",
+        clientMessage: getGeminiClientMessage(lastError),
         lastError: summarizeGeminiError(lastError),
         attempts: getGeminiAttemptSummary(attempts),
       });
