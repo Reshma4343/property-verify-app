@@ -903,22 +903,23 @@ function initFirebaseIfNeeded() {
 
     // TODO: Replace with your Firebase web app config:
     // Firebase Console → Project settings → General → Your apps → Web app → SDK setup & config
-    const firebaseConfig = {
-        apiKey: "AIzaSyAV2whuhVhfME4oKuTXAlt4v4iOLg_2rIY",
-        authDomain: "property-1b194.firebaseapp.com",
-        projectId: "property-1b194",
-        storageBucket: "property-1b194.firebasestorage.app",
-        messagingSenderId: "982652657169",
-        appId: "1:982652657169:web:441563b3a3667757401bb0",
-        measurementId: "G-73ZL6L3DB9",
-    };
+    // const firebaseConfig = {
+    //     apiKey: "AIzaSyAV2whuhVhfME4oKuTXAlt4v4iOLg_2rIY",
+    //     authDomain: "property-1b194.firebaseapp.com",
+    //     projectId: "property-1b194",
+    //     storageBucket: "property-1b194.firebasestorage.app",
+    //     messagingSenderId: "982652657169",
+    //     appId: "1:982652657169:web:441563b3a3667757401bb0",
+    //     measurementId: "G-73ZL6L3DB9",
+    // };
+    
 
-    const missing = Object.values(firebaseConfig).some((v) => !v || String(v).includes("PASTE_"));
+    const missing = Object.values(window.FIREBASE_CONFIG).some((v) => !v || String(v).includes("PASTE_"));
     if (missing) {
         throw new Error("Firebase config missing. Paste your Firebase web config in `Property Analyzer/script.js`.");
     }
 
-    window.firebase.initializeApp(firebaseConfig);
+    window.firebase.initializeApp(window.FIREBASE_CONFIG);
     try {
         window.firebase.analytics?.();
     } catch {}
