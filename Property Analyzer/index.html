@@ -1513,8 +1513,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
-
-     <script src="config.qa.js"></script>
+    <script src="config.qa.js"></script>
+    <script src="config.js"></script>
     <script src="script.js" defer></script>
     <script src="animations.js" defer></script>
     <script>
@@ -3242,7 +3242,7 @@ async function handleContactSubmit(e) {
   btn.disabled = true;
   btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
   try {
-    const apiBaseUrl = String(window.ASLI_API_BASE_URL || '').trim().replace(/\/+$/, '');
+    const apiBaseUrl = String(window.APP_CONFIG?.apiBaseUrl || '').trim().replace(/\/+$/, '');
     const response = await fetch(`${apiBaseUrl}/api/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

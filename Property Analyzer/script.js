@@ -5,18 +5,13 @@ let firebaseConfirmationResult = null;
 let selectedAuditFiles = [];
 let currentAuditTrackId = null;
 let fakeOtp = null;
-const USE_FAKE_OTP = true;
+const USE_FAKE_OTP = Boolean(window.APP_CONFIG?.useFakeOtp);
 let lastFreeInsightDocId = null;
 
-function getApiBaseUrl() {
-    return String(window.ASLI_API_BASE_URL || "")
-        .trim()
-        .replace(/\/+$/, "");
-}
-
-function apiUrl(path) {
-    const baseUrl = getApiBaseUrl();
-    return baseUrl ? `${baseUrl}${path}` : path;
+function getApiUrl(path) {
+    const baseUrl = String(window.APP_CONFIG?.apiBaseUrl || "").replace(/\/+$/, "");
+    const cleanPath = String(path || "").startsWith("/") ? String(path || "") : `/${path || ""}`;
+    return `${baseUrl}${cleanPath}`;
 }
 
 // Embedded sample report PDF (base64, non-editable, opens in all browsers)
@@ -274,7 +269,7 @@ Return ONLY a valid JSON with these keys:
 }
 
 async function fetchAI(loc, budget) {
-    const response = await fetch(apiUrl("/api/analyze"), {
+    const response = await fetch(getApiUrl("/api/analyze"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locality: loc, budget }),
@@ -282,11 +277,17 @@ async function fetchAI(loc, budget) {
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-        console.error("[analyze] API error detail", result);
-        const details = [result?.lastError, result?.attempts].filter(Boolean).join(" | ");
-        const message = details
-            ? `${result?.error || `HTTP ${response.status}`}: ${details}`
-            : result?.error || `HTTP ${response.status}`;
+        console.error("[analyze] backend error", {
+            apiUrl: getApiUrl("/api/analyze"),
+            envName: window.APP_CONFIG?.envName,
+            status: response.status,
+            error: result?.error,
+            clientMessage: result?.clientMessage,
+            lastError: result?.lastError,
+            attempts: result?.attempts,
+        });
+        const detail = result?.clientMessage || result?.lastError || "";
+        const message = result?.error ? `${result.error}${detail ? ` ${detail}` : ""}` : `HTTP ${response.status}`;
         throw new Error(message);
     }
 
@@ -706,7 +707,7 @@ async function uploadAuditDocuments(trackId) {
     try {
         return await Promise.all(
             selectedAuditFiles.map(async (file, index) => {
-                const response = await fetch(apiUrl(`/api/upload-document/${encodeURIComponent(trackId)}?i=${index + 1}`), {
+                const response = await fetch(getApiUrl(`/api/upload-document/${encodeURIComponent(trackId)}?i=${index + 1}`), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/octet-stream",
@@ -913,13 +914,14 @@ function initFirebaseIfNeeded() {
     //     measurementId: "G-73ZL6L3DB9",
     // };
     
+    const firebaseConfig = window.APP_CONFIG?.firebase || {};
 
-    const missing = Object.values(window.FIREBASE_CONFIG).some((v) => !v || String(v).includes("PASTE_"));
+    const missing = Object.values(firebaseConfig).some((v) => !v || String(v).includes("PASTE_") || String(v).includes("YOUR_"));
     if (missing) {
-        throw new Error("Firebase config missing. Paste your Firebase web config in `Property Analyzer/script.js`.");
+        throw new Error("Firebase config missing. Check `Property Analyzer/config.js`.");
     }
 
-    window.firebase.initializeApp(window.FIREBASE_CONFIG);
+    window.firebase.initializeApp(firebaseConfig);
     try {
         window.firebase.analytics?.();
     } catch {}

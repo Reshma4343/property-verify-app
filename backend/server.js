@@ -23,6 +23,35 @@ const FRONTEND_ORIGINS = parseCsv(
 );
 const contactRateLimits = new Map();
 
+function isAllowedCorsOrigin(origin) {
+  if (!origin) return false;
+  const configuredOrigins = [
+    ...parseCsv(process.env.CORS_ORIGINS),
+    ...FRONTEND_ORIGINS,
+  ];
+  if (configuredOrigins.includes("*")) return true;
+  if (configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+function applyCors(req, res, next) {
+  const origin = req.headers.origin;
+  if (isAllowedCorsOrigin(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-file-name,x-file-type");
+  }
+  if (req.method === "OPTIONS") return res.status(204).end();
+  return next();
+}
+
 function parseCsv(value, fallback = "") {
   return String(value ?? fallback)
     .split(",")
@@ -46,6 +75,26 @@ function getGeminiApiKeys() {
 }
 
 const GEMINI_API_KEYS = getGeminiApiKeys();
+function getNumberedKeys(prefix, env) {
+  const keys = [];
+
+  for (let i = 1; i <= 100; i++) {
+    const key = String(env[`${prefix}_${i}`] || "").trim();
+
+    if (key) {
+      keys.push(key);
+    }
+  }
+
+  return keys;
+}
+
+const GROQ_API_KEYS = getNumberedKeys("GROQ_API_KEY", process.env);
+
+const OPENROUTER_API_KEYS = getNumberedKeys(
+  "OPENROUTER_API_KEY",
+  process.env
+);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const GEMINI_FALLBACK_MODELS = parseCsv(
   process.env.GEMINI_FALLBACK_MODELS,
@@ -53,6 +102,11 @@ const GEMINI_FALLBACK_MODELS = parseCsv(
 );
 
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+const GROQ_MODEL =
+  process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+const OPENROUTER_MODEL =
+  process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
 function summarizeGeminiError(err) {
   return String(err?.message || err || "Unknown Gemini error").split("\n")[0];
@@ -64,13 +118,28 @@ function getGeminiAttemptSummary(attempts) {
     .join(" | ");
 }
 
+function getGeminiClientMessage(lastError) {
+  const status = Number(lastError?.status);
+  const message = summarizeGeminiError(lastError);
+  if (status === 429) {
+    return "Gemini quota/rate limit was reached. Wait for quota reset or add a valid key with available quota.";
+  }
+  if (status === 400 || status === 403) {
+    return "Gemini rejected one or more backend keys. Check that every configured key is a Google AI Studio API key with Gemini API access.";
+  }
+  if (status === 404) {
+    return "Gemini model was not found for the configured key/project. Check GEMINI_MODEL and fallback models.";
+  }
+  return message;
+}
+
 const GEMINI_KEY_FORMAT_WARNINGS = GEMINI_API_KEYS
   .map((key, index) => ({ key, index: index + 1 }))
-  .filter(({ key }) => !key.startsWith("AIza") && !key.startsWith("AQ."))
+  .filter(({ key }) => !key.startsWith("AIza"))
   .map(({ index }) => `#${index}`);
 
 if (GEMINI_KEY_FORMAT_WARNINGS.length) {
-  console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}`);
+  console.warn(`Gemini key format warning for keys: ${GEMINI_KEY_FORMAT_WARNINGS.join(", ")}. REST API keys usually start with "AIza".`);
 }
 
 let geminiQueue = Promise.resolve();
@@ -167,23 +236,16 @@ const frontendDir = path.join(repoRoot, "Property Analyzer");
 const uploadsDir = path.join(repoRoot, "uploads");
 const maxUploadBytes = 10 * 1024 * 1024;
 
-app.use((req, res, next) => {
-  const origin = String(req.headers.origin || "");
-  if (origin && (FRONTEND_ORIGINS.includes("*") || FRONTEND_ORIGINS.includes(origin))) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-file-name,x-file-type");
-  }
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  return next();
-});
-
+app.use(applyCors);
 app.use(express.json({ limit: "1mb" }));
 
 // Serve the existing frontend so it runs on http://localhost:<PORT>/ (no CORS issues).
 app.use(express.static(frontendDir));
 app.use("/uploads", express.static(uploadsDir));
+
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
 
 app.get("/api/config", (_req, res) => {
   res.json({
@@ -336,6 +398,106 @@ function getGeminiModelCandidates() {
   return [...new Set([GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS])];
 }
 
+async function callGroqModel(apiKey, locality, budget) {
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: buildPrompt(locality, budget),
+          },
+        ],
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  const text =
+    result?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("Groq returned empty response");
+  }
+
+  return parseGeminiJson(text);
+}
+
+async function callOpenRouterModel(apiKey, locality, budget) {
+  const response = await fetch(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: buildPrompt(locality, budget),
+          },
+        ],
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  const text =
+    result?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("OpenRouter returned empty response");
+  }
+
+  return parseGeminiJson(text);
+}
+
+async function callAI(locality, budget) {
+
+  // 1. Try Gemini first
+  for (const model of getGeminiModelCandidates()) {
+    for (const apiKey of GEMINI_API_KEYS) {
+      try {
+        return await callGeminiModel(model, apiKey, locality, budget);
+      } catch (err) {
+        console.log("Gemini failed:", err.message);
+      }
+    }
+  }
+
+  // 2. Try Groq
+  for (const apiKey of GROQ_API_KEYS) {
+    try {
+      return await callGroqModel(apiKey, locality, budget);
+    } catch (err) {
+      console.log("Groq failed:", err.message);
+    }
+  }
+
+  // 3. Try OpenRouter
+  for (const apiKey of OPENROUTER_API_KEYS) {
+    try {
+      return await callOpenRouterModel(apiKey, locality, budget);
+    } catch (err) {
+      console.log("OpenRouter failed:", err.message);
+    }
+  }
+
+  throw new Error("All AI providers failed");
+}
+
 async function callGeminiModel(model, apiKey, locality, budget) {
   let lastError;
   for (let attempt = 0; attempt <= GEMINI_MAX_RETRIES; attempt += 1) {
@@ -386,8 +548,8 @@ async function callGeminiModel(model, apiKey, locality, budget) {
 
 app.post("/api/analyze", async (req, res) => {
   try {
-    if (!GEMINI_API_KEYS.length) {
-      return res.status(500).json({ error: "Missing Gemini API keys on backend." });
+    if (!GEMINI_API_KEYS.length && !GROQ_API_KEYS.length && !OPENROUTER_API_KEYS.length) {
+      return res.status(500).json({ error: "Missing AI provider API keys on backend." });
     }
 
     const locality = String(req.body?.locality || "").trim();
@@ -397,34 +559,11 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     let data;
-    let lastError;
-    const attempts = [];
-    for (const model of getGeminiModelCandidates()) {
-      for (const [keyIndex, apiKey] of GEMINI_API_KEYS.entries()) {
-        try {
-          data = await callGeminiModel(model, apiKey, locality, budget);
-          console.log(`Analyze succeeded with Gemini model ${model} using key #${keyIndex + 1}`);
-          break;
-        } catch (err) {
-          lastError = err;
-          attempts.push({
-            model,
-            keyIndex: keyIndex + 1,
-            status: err?.status,
-            message: summarizeGeminiError(err),
-            retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
-          });
-          console.warn(`Analyze failed with Gemini model ${model}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
-        }
-      }
-      if (data) break;
-    }
-
-    if (!data) {
-      return res.status(lastError?.status || 500).json({
-        error: "All Gemini keys failed for this request.",
-        lastError: summarizeGeminiError(lastError),
-        attempts: getGeminiAttemptSummary(attempts),
+    try {
+      data = await callAI(locality, budget);
+    } catch (err) {
+      return res.status(500).json({
+        error: err?.message || "All AI providers failed",
       });
     }
 
@@ -455,3 +594,6 @@ app.use((err, _req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Backend running: http://localhost:${PORT}/`);
 });
+console.log("Gemini Keys:", GEMINI_API_KEYS.length);
+console.log("Groq Keys:", GROQ_API_KEYS.length);
+console.log("OpenRouter Keys:", OPENROUTER_API_KEYS.length);
