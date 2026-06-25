@@ -66,10 +66,35 @@ function getGeminiApiKeys() {
 }
 
 const GEMINI_API_KEYS = getGeminiApiKeys();
+function getNumberedKeys(prefix, env) {
+  const keys = [];
+
+  for (let i = 1; i <= 100; i++) {
+    const key = String(env[`${prefix}_${i}`] || "").trim();
+
+    if (key) {
+      keys.push(key);
+    }
+  }
+
+  return keys;
+}
+
+const GROQ_API_KEYS = getNumberedKeys("GROQ_API_KEY", process.env);
+
+const OPENROUTER_API_KEYS = getNumberedKeys(
+  "OPENROUTER_API_KEY",
+  process.env
+);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const GEMINI_FALLBACK_MODELS = parseCsv(process.env.GEMINI_FALLBACK_MODELS);
 
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+const GROQ_MODEL =
+  process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+const OPENROUTER_MODEL =
+  process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
 function summarizeGeminiError(err) {
   return String(err?.message || err || "Unknown Gemini error").split("\n")[0];
@@ -361,6 +386,106 @@ function getGeminiModelCandidates() {
   return [...new Set([GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS])];
 }
 
+async function callGroqModel(apiKey, locality, budget) {
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content: buildPrompt(locality, budget),
+          },
+        ],
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  const text =
+    result?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("Groq returned empty response");
+  }
+
+  return parseGeminiJson(text);
+}
+
+async function callOpenRouterModel(apiKey, locality, budget) {
+  const response = await fetch(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "deepseek/deepseek-chat-v3",
+        messages: [
+          {
+            role: "user",
+            content: buildPrompt(locality, budget),
+          },
+        ],
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  const text =
+    result?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("OpenRouter returned empty response");
+  }
+
+  return parseGeminiJson(text);
+}
+
+async function callAI(locality, budget) {
+
+  // 1. Try Gemini first
+  for (const model of getGeminiModelCandidates()) {
+    for (const apiKey of GEMINI_API_KEYS) {
+      try {
+        return await callGeminiModel(model, apiKey, locality, budget);
+      } catch (err) {
+        console.log("Gemini failed:", err.message);
+      }
+    }
+  }
+
+  // 2. Try Groq
+  for (const apiKey of GROQ_API_KEYS) {
+    try {
+      return await callGroqModel(apiKey, locality, budget);
+    } catch (err) {
+      console.log("Groq failed:", err.message);
+    }
+  }
+
+  // 3. Try OpenRouter
+  for (const apiKey of OPENROUTER_API_KEYS) {
+    try {
+      return await callOpenRouterModel(apiKey, locality, budget);
+    } catch (err) {
+      console.log("OpenRouter failed:", err.message);
+    }
+  }
+
+  throw new Error("All AI providers failed");
+}
+
 async function callGeminiModel(model, apiKey, locality, budget) {
   const response = await runGeminiQueued(() =>
     fetch(
@@ -405,29 +530,39 @@ app.post("/api/analyze", async (req, res) => {
       return res.status(400).json({ error: "Locality is required." });
     }
 
+    // let data;
+    // let lastError;
+    // const attempts = [];
+    // for (const model of getGeminiModelCandidates()) {
+    //   for (const [keyIndex, apiKey] of GEMINI_API_KEYS.entries()) {
+    //     try {
+    //       data = await callGeminiModel(model, apiKey, locality, budget);
+    //       console.log(`Analyze succeeded with Gemini model ${model} using key #${keyIndex + 1}`);
+    //       break;
+    //     } catch (err) {
+    //       lastError = err;
+    //       attempts.push({
+    //         model,
+    //         keyIndex: keyIndex + 1,
+    //         status: err?.status,
+    //         message: summarizeGeminiError(err),
+    //         retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
+    //       });
+    //       console.warn(`Analyze failed with Gemini model ${model}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
+    //     }
+    //   }
+    //   if (data) break;
+    // }
+
     let data;
-    let lastError;
-    const attempts = [];
-    for (const model of getGeminiModelCandidates()) {
-      for (const [keyIndex, apiKey] of GEMINI_API_KEYS.entries()) {
-        try {
-          data = await callGeminiModel(model, apiKey, locality, budget);
-          console.log(`Analyze succeeded with Gemini model ${model} using key #${keyIndex + 1}`);
-          break;
-        } catch (err) {
-          lastError = err;
-          attempts.push({
-            model,
-            keyIndex: keyIndex + 1,
-            status: err?.status,
-            message: summarizeGeminiError(err),
-            retryable: GEMINI_RETRYABLE_STATUSES.has(Number(err?.status)),
-          });
-          console.warn(`Analyze failed with Gemini model ${model}, key #${keyIndex + 1}:`, summarizeGeminiError(err));
-        }
-      }
-      if (data) break;
-    }
+
+try {
+  data = await callAI(locality, budget);
+} catch (err) {
+  return res.status(500).json({
+    error: err.message
+  });
+}
 
     if (!data) {
       return res.status(lastError?.status || 500).json({
@@ -465,3 +600,6 @@ app.use((err, _req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Backend running: http://localhost:${PORT}/`);
 });
+console.log("Gemini Keys:", GEMINI_API_KEYS.length);
+console.log("Groq Keys:", GROQ_API_KEYS.length);
+console.log("OpenRouter Keys:", OPENROUTER_API_KEYS.length);
