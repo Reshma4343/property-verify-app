@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AsliProperty  Hyderabad | AI Property Intelligence</title>
-<link rel="icon" type="image/png" href="assets/logo_icon.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -68,7 +68,7 @@
             <!-- HEADER -->
             <div class="hpw-header hpw-reveal">
            
-              <h2 class="hpw-title">How <span class="hpw-title-accent">AsliProperty</span> Works</h2>
+              <h2 class="hpw-title">How <span class="hpw-title-asli">Asli</span><span class="hpw-title-property">Property</span> Works</h2>
               <p class="hpw-subtitle">From Property Search to Verified Property Intelligence in Minutes</p>
             </div>
 
@@ -574,16 +574,6 @@
 
               </div><!-- /hpw-panels -->
 
-              <!-- Mobile dots -->
-              <div class="hpw-mobile-dots" aria-label="Mobile step navigation">
-                <button class="hpw-dot-btn hpw-dot-btn-active" type="button" onclick="hpwGoToStep(0)" aria-label="Go to step 1"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Go to step 2"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Go to step 3"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Go to step 4"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Go to step 5"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Go to step 6"></button>
-              </div>
-
             </div><!-- /hpw-layout -->
 
             <!-- CTA strip — merged into HPW section -->
@@ -595,6 +585,16 @@
             </div>
 
           </div><!-- /hpw-inner -->
+
+          <!-- Mobile dots — completely outside hpw-inner -->
+          <div class="hpw-mobile-dots" aria-label="Mobile step navigation">
+              <button class="hpw-dot-btn hpw-dot-btn-active" type="button" onclick="hpwGoToStep(0)" aria-label="Go to step 1"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Go to step 2"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Go to step 3"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Go to step 4"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Go to step 5"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Go to step 6"></button>
+          </div>
 
           <div class="hpw-divider-bot" aria-hidden="true">
             <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -1513,8 +1513,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
-    <script src="config.qa.js"></script>
-    <script src="config.js"></script>
+
     <script src="script.js" defer></script>
     <script src="animations.js" defer></script>
     <script>
@@ -1567,6 +1566,30 @@
 
     goToStep(0, true);
     if (autoplayEnabled) startAutoplay();
+
+    /* On mobile: measure tallest panel and lock container height to prevent layout shift */
+    function lockMobilePanelHeight() {
+      const panelsWrap = document.getElementById('hpwPanels');
+      if (!panelsWrap || window.innerWidth > 640) return;
+      // Temporarily show all panels to measure
+      panels.forEach(p => {
+        p.style.position = 'relative';
+        p.style.opacity = '0';
+        p.style.pointerEvents = 'none';
+      });
+      let maxH = 0;
+      panels.forEach(p => { maxH = Math.max(maxH, p.offsetHeight); });
+      // Restore
+      panels.forEach(p => {
+        p.style.position = '';
+        p.style.opacity = '';
+        p.style.pointerEvents = '';
+      });
+      panelsWrap.style.height = maxH + 'px';
+    }
+
+    lockMobilePanelHeight();
+    window.addEventListener('resize', lockMobilePanelHeight);
   }
 
   function initInteraction() {
@@ -1875,7 +1898,7 @@
                     </button>
                 </div>
             </div>
-        </div> --> -->
+        </div> -->
 
         <!-- MAIN FOOTER -->
         <div class="footer-main">
@@ -3242,8 +3265,7 @@ async function handleContactSubmit(e) {
   btn.disabled = true;
   btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
   try {
-    const apiBaseUrl = String(window.APP_CONFIG?.apiBaseUrl || '').trim().replace(/\/+$/, '');
-    const response = await fetch(`${apiBaseUrl}/api/contact`, {
+    const response = await fetch('/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
