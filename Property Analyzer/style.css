@@ -139,7 +139,7 @@ body {
 /* LAYOUT */
 .main { padding: 68px 0 24px; }
 .section { padding: 32px 0; }
-#step-1-continued { padding: 32px 0 0; margin-bottom: 0; }
+#step-1-continued { padding: 12px 0 0; margin-bottom: 0; }
 #step-1 { padding-top: 10px; }
 .card {
     background: var(--surface);
@@ -1161,6 +1161,15 @@ label[for="userBudget"], label[for="userLocality"] {
     margin-right: auto;
     box-sizing: border-box;
 }
+@media (max-width: 600px) {
+    .gov-integrations-wrap.gov-v2 {
+        padding: 0 12px;
+    }
+    .gov-integrations-panel {
+        padding: 28px 16px 28px;
+        border-radius: 18px;
+    }
+}
 .gov-integrations-panel {
     position: relative;
     border-radius: 28px;
@@ -1227,7 +1236,7 @@ label[for="userBudget"], label[for="userLocality"] {
     color: rgba(255, 255, 255, 0.62);
 }
 .comparison-wrap {
-    margin-top: 56px;
+    margin-top: 16px;
     max-width: 1600px;
     margin-left: auto;
     margin-right: auto;
@@ -1354,8 +1363,8 @@ label[for="userBudget"], label[for="userLocality"] {
     z-index: 1;
     flex: 1;
     font-weight: 800;
-    font-size: 13px;
-    line-height: 1.45;
+    font-size: 12.5px;
+    line-height: 1.4;
     letter-spacing: -0.01em;
 }
 .gov-badge {
@@ -2252,6 +2261,16 @@ a.footer-contact-text:hover { color: #C9A84C; }
   color: #141E3A;
   margin: 0 0 16px;
   line-height: 1.05;
+}
+.hpw-title-asli {
+  color: #141E3A;
+  position: relative;
+  display: inline-block;
+}
+.hpw-title-property {
+  color: #1a7a35;
+  position: relative;
+  display: inline-block;
 }
 .hpw-title-accent {
   position: relative;
@@ -3240,7 +3259,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 @keyframes hpwFloatCardBR { from { transform: translateY(0px) rotate(1deg); } to { transform: translateY(-6px) rotate(-1deg); } }
 
 /* ── MOBILE DOTS ──────────────────────────────────────────────────── */
-.hpw-mobile-dots { display: none; justify-content: center; gap: 8px; margin-top: 28px; grid-column: 1 / -1; }
+.hpw-mobile-dots { display: none; justify-content: center; gap: 8px; margin-top: 20px; margin-bottom: 8px; position: relative; z-index: 10; }
 .hpw-dot-btn {
   width: 8px; height: 8px; border-radius: 50%; border: none;
   background: rgba(20,30,58,0.18); cursor: pointer; padding: 0;
@@ -3276,7 +3295,9 @@ a.footer-contact-text:hover { color: #C9A84C; }
   .hpw-cta-strip { margin-top: 24px; padding: 24px; flex-direction: column; text-align: center; }
 }
 @media (max-width: 640px) {
-  .hpw-panels { min-height: 560px; }
+  .hpw-panels { min-height: 560px; height: 560px; }
+  .hpw-panel { position: absolute; inset: 0; }
+  .hpw-mobile-dots { margin-top: 12px; }
   .hpw-inner { width: calc(100% - 32px); padding: 40px 0 28px; }
   .hpw-title { font-size: 26px; }
   .hpw-subtitle { font-size: 14px; }
@@ -3367,11 +3388,12 @@ a.footer-contact-text:hover { color: #C9A84C; }
     overflow-y:auto; display:flex; flex-direction:column; gap:10px;
 }
 .infra-modal-item {
-    display:flex; align-items:flex-start; gap:12px;
-    padding:11px 14px; border-radius:12px;
+    display:flex; align-items:center; gap:12px;
+    padding:18px 14px; border-radius:12px;
     background:rgba(20,30,58,0.025); border:1px solid rgba(20,30,58,0.07);
     font-size:13.5px; font-weight:600; color:#141E3A;
     line-height:1.45; transition:background 0.15s;
+    min-height:56px;
 }
 .infra-modal-item:hover { background:rgba(20,30,58,0.055); }
 .infra-modal-num {
@@ -4234,3 +4256,200 @@ a.footer-contact-text:hover { color: #C9A84C; }
     .audit-stat-box { padding: 10px 8px; }
     .audit-stat-box .audit-stat-num { font-size: 15px; }
 }
+/* ══════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVENESS FIX
+   ══════════════════════════════════════════════ */
+
+/* ── Hero title wrapping on mobile ── */
+@media (max-width: 600px) {
+    .hero-title {
+        white-space: normal !important;
+        word-break: break-word;
+    }
+}
+
+/* ── Step 1 glass card full width on mobile ── */
+@media (max-width: 520px) {
+    #step-1 .glass-card {
+        padding: 24px 16px;
+        border-radius: 18px;
+    }
+    .glass-card { padding: 16px; }
+}
+
+/* ── Nav on very small screens ── */
+@media (max-width: 400px) {
+    .nav-inner { padding: 8px 0; }
+    .brand-logo { height: 36px; }
+}
+
+/* ── Results / Step 2 full width ── */
+@media (max-width: 600px) {
+    .results-title {
+        font-size: clamp(18px, 5.5vw, 26px);
+        word-break: break-word;
+        white-space: normal;
+    }
+    .results-head { flex-direction: column; align-items: flex-start; }
+    .results-sub { font-size: 13px; }
+    .audit-cta-header { width: 100%; }
+    .btn-audit-header { width: 100%; text-align: center; justify-content: center; }
+    #step-2 .glass-card { padding: 0 16px; }
+    .pills { flex-wrap: wrap; gap: 6px; }
+    .pill { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* ── Trust path steps — smaller circles on very small screens ── */
+@media (max-width: 400px) {
+    .trust-path-steps { gap: 0; }
+    .trust-step-circle { width: 40px; height: 40px; font-size: 15px; }
+    .trust-path-step { min-width: 56px; }
+    .trust-step-title { font-size: 10px; }
+    .trust-step-sub { font-size: 9px; }
+    .trust-path-connector { min-width: 8px; }
+}
+
+/* ── Audit coverage dark card ── */
+@media (max-width: 600px) {
+    .audit-coverage-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .audit-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+        height: auto;
+    }
+    .audit-donut-wrap { width: 140px; height: 140px; }
+    .audit-donut-svg { width: 140px; height: 140px; }
+    .audit-donut-num { font-size: 28px; }
+    .audit-legend { width: 100%; }
+    .audit-cta-block { flex-direction: column; align-items: flex-start; padding: 16px; }
+    .audit-cta-btn { width: 100%; justify-content: center; }
+}
+
+/* ── IRS wrap (Investment Insights) ── */
+@media (max-width: 600px) {
+    .irs-wrap { padding: 16px 12px; margin-top: 20px; }
+    .irs-layout { grid-template-columns: 1fr; gap: 20px; }
+    .irs-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .irs-title { font-size: 20px; }
+    .irs-card { padding: 14px 12px; }
+    .irs-dashboard { padding: 18px 14px; }
+    .irs-score-ring { width: 100px; height: 100px; }
+    .irs-ring-svg { width: 100px; height: 100px; }
+    .irs-score-num { font-size: 30px; }
+    .irs-analysis-label { width: 72px; font-size: 11px; }
+    .irs-analysis-val { width: 52px; font-size: 9px; }
+    .irs-highlights { gap: 6px; }
+    .irs-highlight-pill { font-size: 10px; padding: 4px 9px; }
+}
+@media (max-width: 380px) {
+    .irs-cards { grid-template-columns: 1fr; }
+}
+
+/* ── Gov integration grid ── */
+@media (max-width: 600px) {
+    .gov-grid { grid-template-columns: 1fr; gap: 10px; }
+    .gov-card { padding: 14px 16px 14px 18px; gap: 12px; }
+    .gov-grid .gov-card:nth-child(6) .gov-title { font-size: 11px; }
+}
+@media (max-width: 380px) {
+    .gov-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Comparison section ── */
+@media (max-width: 640px) {
+    .compare-wrap { gap: 16px; flex-direction: column; }
+    .compare-card { min-width: 0; width: 100%; }
+}
+
+/* ── HPW section ── */
+@media (max-width: 600px) {
+    .hpw-cta-strip { flex-direction: column; text-align: center; padding: 16px; gap: 14px; }
+    .hpw-cta-text { font-size: 16px; }
+}
+
+/* ── Testimonials ── */
+@media (max-width: 600px) {
+    .testimonials-wrap { padding: 0 10px 16px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Footer ── */
+@media (max-width: 600px) {
+    .footer-main { padding: 32px 0; }
+    .footer-trust-inner { flex-direction: column; gap: 12px; align-items: stretch; }
+    .trust-item { 
+        flex: 1 1 100%; 
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.07);
+        gap: 12px;
+        align-items: center;
+    }
+    .trust-icon { width: 38px; height: 38px; flex-shrink: 0; }
+    .trust-title { font-size: 13px; }
+    .trust-sub { font-size: 11px; }
+    .trust-divider { display: none; }
+    .footer-cols { grid-template-columns: 1fr 1fr; gap: 20px; }
+}
+@media (max-width: 380px) {
+    .footer-cols { grid-template-columns: 1fr; }
+}
+
+/* ── General overflow guard (mobile only) ── */
+@media (max-width: 600px) {
+    body, .main, .container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+}
+
+/* ── TRANSLATE BUTTON ─────────────────────────────────────── */
+.nav-translate-btn {
+    background: rgba(20,30,58,0.06) !important;
+    border: 1px solid rgba(20,30,58,0.15) !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+    gap: 6px !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap;
+}
+.nav-translate-btn:hover {
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: var(--primary) !important;
+}
+.nav-translate-btn.te-active {
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: var(--primary) !important;
+}
+/* ── TELUGU TRANSLATED CONTENT DISPLAY ─────────────────────── */
+.te-text { display: none; }
+.te-mode .te-text { display: inline; }
+.te-mode .en-text { display: none; }
+/* For block-level elements */
+.te-block { display: none; }
+.te-mode .te-block { display: block; }
+.te-mode .en-block { display: none; }
+/* Notification bar for translate mode */
+.te-notify-bar {
+    display: none;
+    background: var(--primary);
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 16px;
+    letter-spacing: 0.02em;
+    z-index: 201;
+    position: relative;
+}
+.te-mode .te-notify-bar { display: block; }

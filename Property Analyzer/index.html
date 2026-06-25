@@ -32,6 +32,10 @@
     </style>
 </head>
 <body>
+    <!-- TELUGU TRANSLATE NOTIFICATION BAR -->
+    <div class="te-notify-bar" id="teNotifyBar">
+        🌐 తెలుగు అనువాద మోడ్ యాక్టివ్ — Telugu Translation Mode Active &nbsp;|&nbsp; <a href="#" onclick="toggleTranslate();return false;" style="color:#f97316;text-decoration:underline;">వెనక్కి వెళ్ళు / Back to English</a>
+    </div>
     <!-- NAV -->
     <nav class="nav">
         <div class="container nav-inner">
@@ -48,6 +52,10 @@
                 <button class="nav-link" type="button" onclick="openTracker()">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     Track Audit
+                </button>
+                <button class="nav-link nav-translate-btn" type="button" id="btnTranslate" onclick="toggleTranslate()" title="తెలుగులో చదవండి / Read in Telugu">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="translateBtnLabel">తెలుగు</span>
                 </button>
             </div>
         </div>
@@ -68,7 +76,7 @@
             <!-- HEADER -->
             <div class="hpw-header hpw-reveal">
            
-              <h2 class="hpw-title">How <span class="hpw-title-accent">AsliProperty</span> Works</h2>
+              <h2 class="hpw-title">How <span class="hpw-title-asli">Asli</span><span class="hpw-title-property">Property</span> Works</h2>
               <p class="hpw-subtitle">From Property Search to Verified Property Intelligence in Minutes</p>
             </div>
 
@@ -574,16 +582,6 @@
 
               </div><!-- /hpw-panels -->
 
-              <!-- Mobile dots -->
-              <div class="hpw-mobile-dots" aria-label="Mobile step navigation">
-                <button class="hpw-dot-btn hpw-dot-btn-active" type="button" onclick="hpwGoToStep(0)" aria-label="Go to step 1"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Go to step 2"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Go to step 3"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Go to step 4"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Go to step 5"></button>
-                <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Go to step 6"></button>
-              </div>
-
             </div><!-- /hpw-layout -->
 
             <!-- CTA strip — merged into HPW section -->
@@ -595,6 +593,16 @@
             </div>
 
           </div><!-- /hpw-inner -->
+
+          <!-- Mobile dots — completely outside hpw-inner -->
+          <div class="hpw-mobile-dots" aria-label="Mobile step navigation">
+              <button class="hpw-dot-btn hpw-dot-btn-active" type="button" onclick="hpwGoToStep(0)" aria-label="Go to step 1"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(1)" aria-label="Go to step 2"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(2)" aria-label="Go to step 3"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(3)" aria-label="Go to step 4"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(4)" aria-label="Go to step 5"></button>
+              <button class="hpw-dot-btn" type="button" onclick="hpwGoToStep(5)" aria-label="Go to step 6"></button>
+          </div>
 
           <div class="hpw-divider-bot" aria-hidden="true">
             <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -1566,6 +1574,30 @@
 
     goToStep(0, true);
     if (autoplayEnabled) startAutoplay();
+
+    /* On mobile: measure tallest panel and lock container height to prevent layout shift */
+    function lockMobilePanelHeight() {
+      const panelsWrap = document.getElementById('hpwPanels');
+      if (!panelsWrap || window.innerWidth > 640) return;
+      // Temporarily show all panels to measure
+      panels.forEach(p => {
+        p.style.position = 'relative';
+        p.style.opacity = '0';
+        p.style.pointerEvents = 'none';
+      });
+      let maxH = 0;
+      panels.forEach(p => { maxH = Math.max(maxH, p.offsetHeight); });
+      // Restore
+      panels.forEach(p => {
+        p.style.position = '';
+        p.style.opacity = '';
+        p.style.pointerEvents = '';
+      });
+      panelsWrap.style.height = maxH + 'px';
+    }
+
+    lockMobilePanelHeight();
+    window.addEventListener('resize', lockMobilePanelHeight);
   }
 
   function initInteraction() {
@@ -1874,7 +1906,7 @@
                     </button>
                 </div>
             </div>
-        </div> --> -->
+        </div> -->
 
         <!-- MAIN FOOTER -->
         <div class="footer-main">
@@ -3823,6 +3855,319 @@ function handleBlogBackdropClick(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('blogModal').classList.contains('au-open')) closeBlogModal();
 });
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TELUGU TRANSLATION SYSTEM
+     All modal content is translated inline using data-en / data-te
+     attributes toggled by toggleTranslate()
+═══════════════════════════════════════════════════════════════ -->
+<script>
+// ─── Translation Data ────────────────────────────────────────────
+const TRANSLATIONS = {
+
+  /* ── TERMS & CONDITIONS ────────────────────────────────────── */
+  'terms-title':           { en: 'Terms &amp; <span class="au-accent">Conditions</span>', te: 'నిబంధనలు &amp; <span class="au-accent">షరతులు</span>' },
+  'terms-date':            { en: 'Effective Date: 05 June 2026 &nbsp;·&nbsp; Last Updated: 05 June 2026', te: 'అమలు తేదీ: 05 జూన్ 2026 &nbsp;·&nbsp; చివరిగా నవీకరించబడింది: 05 జూన్ 2026' },
+  'terms-intro':           { en: 'Welcome to <strong>AsliProperty</strong> ("Website", "Platform", "We", "Us", or "Our"). These Terms and Conditions govern your use of our website and property verification services. By accessing or using our platform, you agree to comply with and be bound by these terms. If you disagree with any part of these terms, please do not use our services.', te: '<strong>AsliProperty</strong> ("వెబ్‌సైట్", "ప్లాట్‌ఫారమ్", "మేము")కి స్వాగతం. ఈ నిబంధనలు మరియు షరతులు మా వెబ్‌సైట్ మరియు ఆస్తి ధృవీకరణ సేవలను మీరు ఉపయోగించుకోవడాన్ని నియంత్రిస్తాయి. మా ప్లాట్‌ఫారమ్‌ను యాక్సెస్ చేయడం లేదా ఉపయోగించడం ద్వారా, మీరు ఈ నిబంధనలకు కట్టుబడి ఉండటానికి అంగీకరిస్తున్నారు.' },
+  'terms-s1-title':        { en: 'Nature of Service', te: 'సేవ యొక్క స్వభావం' },
+  'terms-s1-p1':           { en: 'Our platform provides automated technology tools to fetch, aggregate, and present property-related data, including RERA status and Land Survey Numbers, from publicly available government records and official databases.', te: 'మా ప్లాట్‌ఫారమ్ RERA స్థితి మరియు భూమి సర్వే నంబర్లతో సహా ఆస్తి-సంబంధిత డేటాను ప్రభుత్వ రికార్డుల నుండి స్వయంచాలకంగా తీసుకొని అందిస్తుంది.' },
+  'terms-s1-p2':           { en: 'We provide this data strictly for <strong>informational and educational purposes</strong>. We do not sell real estate, provide legal titles, or act as real estate brokers, agents, or legal advisors.', te: 'మేము ఈ డేటాను కేవలం <strong>సమాచార మరియు విద్యా ప్రయోజనాల కోసం</strong> మాత్రమే అందిస్తాము. మేము రియల్ ఎస్టేట్ అమ్మడం, చట్టపరమైన హక్కులు అందించడం లేదా బ్రోకర్లుగా వ్యవహరించడం చేయము.' },
+  'terms-s2-title':        { en: 'Accuracy of Government Data &amp; Third-Party Sources', te: 'ప్రభుత్వ డేటా &amp; థర్డ్-పార్టీ మూలాల ఖచ్చితత్వం' },
+  'terms-s2-p1':           { en: '<strong>No Warranty:</strong> The information generated in our reports is fetched directly from third-party government portals. We do not modify this data and, therefore, do not guarantee its absolute accuracy, completeness, or real-time updates.', te: '<strong>వారంటీ లేదు:</strong> మా నివేదికలలోని సమాచారం నేరుగా ప్రభుత్వ పోర్టల్‌ల నుండి తీసుకోబడింది. మేము ఈ డేటాను సవరించము, కాబట్టి దాని ఖచ్చితత్వాన్ని హామీ ఇవ్వడం లేదు.' },
+  'terms-s2-p2':           { en: '<strong>Server Issues:</strong> We are not liable for any delays, errors, or failure in generating reports caused by downtime, maintenance, or technical glitches on government registry websites or servers.', te: '<strong>సర్వర్ సమస్యలు:</strong> ప్రభుత్వ నమోదు వెబ్‌సైట్‌లు లేదా సర్వర్‌లలో సమస్యల వల్ల నివేదికలు రాకపోతే మేము బాధ్యులం కాదు.' },
+  'terms-s3-title':        { en: 'Limitation of Liability', te: 'బాధ్యత పరిమితి' },
+  'terms-s3-p1':           { en: 'AsliProperty shall not be liable for any direct, indirect, incidental, or consequential damages arising from the use of our reports, including but not limited to financial losses, legal disputes, or property purchase decisions made on the basis of our data.', te: 'మా నివేదికల ఆధారంగా తీసుకున్న ఆస్తి కొనుగోలు నిర్ణయాల వల్ల కలిగే ఆర్థిక నష్టాలకు AsliProperty బాధ్యత వహించదు.' },
+  'terms-s4-title':        { en: 'User Responsibilities', te: 'వినియోగదారు బాధ్యతలు' },
+  'terms-s4-p1':           { en: 'Users are responsible for verifying the accuracy of information independently before making any property purchase or investment decision. Our platform is a supplementary tool and should not replace professional legal, financial, or real estate advice.', te: 'ఏదైనా ఆస్తి కొనుగోలు నిర్ణయం తీసుకునే ముందు వినియోగదారులు స్వతంత్రంగా సమాచారాన్ని ధృవీకరించాలి. మా ప్లాట్‌ఫారమ్ ఒక అదనపు సాధనం మాత్రమే.' },
+  'terms-s5-title':        { en: 'Payment &amp; Refund', te: 'చెల్లింపు &amp; రీఫండ్' },
+  'terms-s5-p1':           { en: 'All payments for our property due-diligence report services are final and non-refundable once the report has been generated and delivered, except in cases where the report could not be generated due to a technical error on our part. Please refer to our Refund Policy for full details.', te: 'నివేదిక రూపొందించబడి మరియు డెలివరీ చేయబడిన తర్వాత చెల్లింపులు తిరిగి ఇవ్వబడవు. పూర్తి వివరాల కోసం మా రీఫండ్ పాలసీని చూడండి.' },
+  'terms-s6-title':        { en: 'Intellectual Property', te: 'మేధో సంపత్తి' },
+  'terms-s6-p1':           { en: 'All content, reports, methodologies, and technology on the AsliProperty platform are the exclusive intellectual property of AsliProperty. Unauthorized copying, reproduction, or distribution of our reports or platform content is strictly prohibited.', te: 'AsliProperty ప్లాట్‌ఫారమ్‌లోని అన్ని కంటెంట్, నివేదికలు, మరియు టెక్నాలజీ AsliProperty యొక్క మేధో సంపత్తి. అనధికారిక కాపీ చేయడం నిషేధించబడింది.' },
+  'terms-s7-title':        { en: 'Governing Law', te: 'నియంత్రణ చట్టం' },
+  'terms-s7-p1':           { en: 'These Terms and Conditions shall be governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts located in <strong>Hyderabad, Telangana</strong>.', te: 'ఈ నిబంధనలు భారత చట్టాల ప్రకారం పాలించబడతాయి. ఏదైనా వివాదాలు <strong>హైదరాబాద్, తెలంగాణ</strong> న్యాయస్థానాల అధికార పరిధికి లోబడి ఉంటాయి.' },
+  'terms-s8-title':        { en: 'Contact for Legal Queries', te: 'చట్టపరమైన ప్రశ్నలకు సంప్రదింపు' },
+
+  /* ── PRIVACY POLICY ────────────────────────────────────────── */
+  'privacy-title':         { en: 'Privacy <span class="au-accent">Policy</span>', te: 'గోప్యతా <span class="au-accent">విధానం</span>' },
+  'privacy-date':          { en: 'Effective Date: 05 June 2026 &nbsp;·&nbsp; Last Updated: 05 June 2026', te: 'అమలు తేదీ: 05 జూన్ 2026 &nbsp;·&nbsp; చివరిగా నవీకరించబడింది: 05 జూన్ 2026' },
+  'privacy-intro':         { en: 'At <strong>AsliProperty</strong>, your privacy is our priority. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our website and property verification services.', te: '<strong>AsliProperty</strong>లో మీ గోప్యత మా ప్రాధాన్యత. ఈ విధానం మీ వ్యక్తిగత సమాచారాన్ని మేము ఎలా సేకరిస్తాము, ఉపయోగిస్తాము మరియు రక్షిస్తాము అని వివరిస్తుంది.' },
+  'privacy-s1-title':      { en: 'Information We Collect', te: 'మేము సేకరించే సమాచారం' },
+  'privacy-s1-p1':         { en: 'We collect the following types of personal information when you use our platform: <strong>Contact Details</strong> (name, phone number, email address), <strong>Property Information</strong> (survey number, locality, village, district), <strong>Payment Information</strong> (processed securely via Razorpay; we do not store card details), and <strong>Usage Data</strong> (browser type, IP address, pages visited).', te: 'మేము <strong>సంప్రదింపు వివరాలు</strong> (పేరు, ఫోన్ నంబర్, ఇమెయిల్), <strong>ఆస్తి సమాచారం</strong> (సర్వే నంబర్, లొకాలిటీ), <strong>చెల్లింపు సమాచారం</strong> (Razorpay ద్వారా సురక్షితంగా; మేము కార్డ్ వివరాలు నిల్వ చేయము) సేకరిస్తాము.' },
+  'privacy-s2-title':      { en: 'How We Use Your Information', te: 'మీ సమాచారాన్ని ఎలా ఉపయోగిస్తాము' },
+  'privacy-s2-p1':         { en: 'We use your information to: generate and deliver property due-diligence reports, process payments and send invoices, provide customer support and respond to queries, improve our platform and services, send service updates and important notifications, and comply with legal obligations.', te: 'మేము మీ సమాచారాన్ని ఆస్తి నివేదికలు రూపొందించడానికి, చెల్లింపులు ప్రాసెస్ చేయడానికి, కస్టమర్ సపోర్ట్ అందించడానికి మరియు మా ప్లాట్‌ఫారమ్‌ను మెరుగుపరచడానికి ఉపయోగిస్తాము.' },
+  'privacy-s3-title':      { en: 'Data Sharing &amp; Third Parties', te: 'డేటా షేరింగ్ &amp; థర్డ్ పార్టీలు' },
+  'privacy-s3-p1':         { en: 'We do not sell or rent your personal information to third parties. We may share your data with trusted service providers (such as payment gateways, cloud hosting, and SMS providers) solely to deliver our services, and only to the extent necessary.', te: 'మేము మీ వ్యక్తిగత సమాచారాన్ని థర్డ్ పార్టీలకు విక్రయించము. సేవలు అందించడానికి అవసరమైన మేరకు మాత్రమే విశ్వసనీయ సేవా ప్రదాతలతో పంచుకోవచ్చు.' },
+  'privacy-s4-title':      { en: 'Data Security', te: 'డేటా భద్రత' },
+  'privacy-s4-p1':         { en: 'We implement industry-standard security measures including SSL encryption, secure cloud storage, and access controls to protect your personal information from unauthorized access, disclosure, or misuse.', te: 'మేము SSL ఎన్‌క్రిప్షన్, సురక్షిత క్లౌడ్ స్టోరేజ్ మరియు యాక్సెస్ కంట్రోల్స్ వంటి పరిశ్రమ-ప్రమాణ భద్రతా చర్యలు అమలు చేస్తాము.' },
+  'privacy-s5-title':      { en: 'Your Rights', te: 'మీ హక్కులు' },
+  'privacy-s5-p1':         { en: 'You have the right to: access the personal data we hold about you, request correction of inaccurate data, request deletion of your data (subject to legal obligations), opt out of marketing communications, and lodge a complaint with the relevant data protection authority.', te: 'మీకు మీ డేటాను యాక్సెస్ చేసే హక్కు, తప్పు డేటాను సరిచేయమని అభ్యర్థించే హక్కు, మీ డేటాను తొలగించమని అభ్యర్థించే హక్కు మరియు మార్కెటింగ్ కమ్యూనికేషన్‌ల నుండి నిరాకరించే హక్కు ఉన్నాయి.' },
+  'privacy-s6-title':      { en: 'Cookies', te: 'కుకీలు' },
+  'privacy-s6-p1':         { en: 'We use cookies and similar technologies to enhance your browsing experience, analyze platform usage, and remember your preferences. You can control cookie settings through your browser preferences.', te: 'మేము మీ బ్రౌజింగ్ అనుభవాన్ని మెరుగుపరచడానికి కుకీలు ఉపయోగిస్తాము. మీ బ్రౌజర్ సెట్టింగ్‌ల ద్వారా కుకీ సెట్టింగ్‌లను నియంత్రించవచ్చు.' },
+  'privacy-s7-title':      { en: 'Contact for Privacy Queries', te: 'గోప్యతా ప్రశ్నలకు సంప్రదింపు' },
+
+  /* ── REFUND POLICY ─────────────────────────────────────────── */
+  'refund-title':          { en: 'Refund <span class="au-accent">Policy</span>', te: 'రీఫండ్ <span class="au-accent">విధానం</span>' },
+  'refund-date':           { en: 'Effective Date: 05 June 2026 &nbsp;·&nbsp; Last Updated: 05 June 2026', te: 'అమలు తేదీ: 05 జూన్ 2026 &nbsp;·&nbsp; చివరిగా నవీకరించబడింది: 05 జూన్ 2026' },
+  'refund-intro':          { en: 'At <strong>AsliProperty</strong>, we are committed to delivering accurate and timely property due-diligence reports. Please read our Refund Policy carefully before making a purchase.', te: '<strong>AsliProperty</strong>లో మేము ఖచ్చితమైన ఆస్తి నివేదికలు అందించడానికి కట్టుబడి ఉన్నాము. కొనుగోలు చేయడానికి ముందు మా రీఫండ్ విధానాన్ని జాగ్రత్తగా చదవండి.' },
+  'refund-s1-title':       { en: 'Non-Refundable Services', te: 'రీఫండ్ చేయబడని సేవలు' },
+  'refund-s1-p1':          { en: 'Once a property due-diligence report has been <strong>successfully generated and delivered</strong> to the registered email or made available in your account dashboard, the payment is final and non-refundable. This is because our services involve real-time data fetching from government portals, and the costs are incurred at the time of report generation.', te: 'ఆస్తి నివేదిక <strong>విజయవంతంగా రూపొందించబడి మరియు డెలివరీ చేయబడిన</strong> తర్వాత చెల్లింపు తిరిగి ఇవ్వబడదు. ఎందుకంటే మా సేవలు రియల్-టైమ్ ప్రభుత్వ పోర్టల్‌ల నుండి డేటాను తీసుకుంటాయి.' },
+  'refund-s2-title':       { en: 'Eligible Refund Scenarios', te: 'అర్హమైన రీఫండ్ పరిస్థితులు' },
+  'refund-s2-p1':          { en: 'We will process a full refund in the following cases: <strong>Technical Failure</strong> — The report could not be generated due to a technical error on our end and the issue was not resolved within 72 hours. <strong>Duplicate Payment</strong> — A payment was made twice for the same report due to a payment gateway error. <strong>Invalid Property Data</strong> — The report could not be generated because the property details provided did not return any results from government portals, and this was confirmed by our team.', te: 'కింది సందర్భాలలో పూర్తి రీఫండ్ ప్రాసెస్ చేయబడుతుంది: <strong>సాంకేతిక వైఫల్యం</strong> — మా వైపున సాంకేతిక లోపం వల్ల నివేదిక రూపొందించబడలేదు. <strong>డూప్లికేట్ చెల్లింపు</strong> — ఒకే నివేదికకు రెండుసార్లు చెల్లింపు జరిగింది. <strong>చెల్లని ఆస్తి డేటా</strong> — అందించిన ఆస్తి వివరాలు ఏ ఫలితాలను అందించలేదు.' },
+  'refund-s3-title':       { en: 'Refund Process', te: 'రీఫండ్ ప్రక్రియ' },
+  'refund-s3-p1':          { en: 'To request a refund, email us at <strong>info@asliproperty.in</strong> within <strong>7 days</strong> of the report delivery date with your Order ID and the reason for the refund request. Our team will review your request within 3–5 business days. Approved refunds will be credited to the original payment method within 7–10 business days.', te: 'రీఫండ్ అభ్యర్థించడానికి, నివేదిక డెలివరీ తేదీ నుండి <strong>7 రోజులలోపు</strong> <strong>info@asliproperty.in</strong>కు ఇమెయిల్ చేయండి. మా టీమ్ 3–5 వ్యాపార రోజులలో మీ అభ్యర్థనను సమీక్షిస్తుంది. ఆమోదించిన రీఫండ్‌లు 7–10 వ్యాపార రోజులలో జమ అవుతాయి.' },
+  'refund-s4-title':       { en: 'Partial Refunds', te: 'పాక్షిక రీఫండ్‌లు' },
+  'refund-s4-p1':          { en: 'Partial refunds may be considered at our sole discretion in cases where only a portion of the report could be generated due to incomplete data availability on government portals. The refund amount, if any, will be determined by AsliProperty based on the extent of service delivered.', te: 'ప్రభుత్వ పోర్టల్‌లలో అసంపూర్ణ డేటా కారణంగా నివేదికలో కొంత భాగం మాత్రమే రూపొందించబడిన సందర్భాలలో పాక్షిక రీఫండ్‌లు పరిగణించబడవచ్చు.' },
+  'refund-s5-title':       { en: 'Non-Eligible Refund Cases', te: 'అర్హత లేని రీఫండ్ సందర్భాలు' },
+  'refund-s5-p1':          { en: 'Refunds will NOT be processed for: reports successfully generated and delivered; dissatisfaction with government data that was accurately fetched; user errors such as incorrect property details submitted; change of mind after report generation; delays caused by government portal downtime beyond our control.', te: 'కింది సందర్భాలలో రీఫండ్‌లు ప్రాసెస్ చేయబడవు: విజయవంతంగా రూపొందించిన నివేదికలు; తప్పు ఆస్తి వివరాలు సమర్పించడం; నివేదిక రూపొందించిన తర్వాత మనసు మార్చుకోవడం.' },
+  'refund-s6-title':       { en: 'Contact for Refund Queries', te: 'రీఫండ్ ప్రశ్నలకు సంప్రదింపు' },
+
+  /* ── CONTACT US ────────────────────────────────────────────── */
+  'contact-pill':          { en: "We're Here to Help", te: 'మేము సహాయం చేయడానికి ఇక్కడ ఉన్నాము' },
+  'contact-title':         { en: 'Get in <span style="color:#f97316">Touch</span>', te: '<span style="color:#f97316">సంప్రదింపు</span> చేయండి' },
+  'contact-sub':           { en: "Have questions about property verification, our reports, or anything else? Fill out the form and we'll get back to you as soon as possible.", te: 'ఆస్తి ధృవీకరణ, మా నివేదికల గురించి ప్రశ్నలు ఉన్నాయా? ఫారమ్ పూరించండి, మేము వీలైనంత త్వరగా మీకు తిరిగి మాట్లాడతాము.' },
+  'contact-name-label':    { en: 'Full Name', te: 'పూర్తి పేరు' },
+  'contact-name-ph':       { en: 'Your full name', te: 'మీ పూర్తి పేరు' },
+  'contact-email-label':   { en: 'Email Address', te: 'ఇమెయిల్ చిరునామా' },
+  'contact-email-ph':      { en: 'your@email.com', te: 'మీ@ఇమెయిల్.కామ్' },
+  'contact-phone-label':   { en: 'Phone Number', te: 'ఫోన్ నంబర్' },
+  'contact-phone-ph':      { en: '+91 XXXXX XXXXX', te: '+91 XXXXX XXXXX' },
+  'contact-subject-label': { en: 'Subject', te: 'విషయం' },
+  'contact-subject-ph':    { en: 'e.g. Report Issue, Payment Query…', te: 'ఉదా. నివేదిక సమస్య, చెల్లింపు ప్రశ్న...' },
+  'contact-msg-label':     { en: 'Message', te: 'సందేశం' },
+  'contact-msg-ph':        { en: 'How can we help you?', te: 'మేము మీకు ఎలా సహాయపడగలం?' },
+  'contact-send-btn':      { en: 'Send Message', te: 'సందేశం పంపు' },
+  'contact-right-title':   { en: 'Contact <span class="au-accent">Information</span>', te: 'సంప్రదింపు <span class="au-accent">సమాచారం</span>' },
+  'contact-right-sub':     { en: "Reach out to us through any of the channels below. We're available to assist you with property verification, report issues, and all other queries.", te: 'దిగువ మార్గాల ద్వారా మాకు సంప్రదించండి. మేము ఆస్తి ధృవీకరణ, నివేదిక సమస్యలు మరియు అన్ని ప్రశ్నలకు సహాయం చేయడానికి అందుబాటులో ఉన్నాము.' },
+  'contact-hours-title':   { en: 'Business Hours', te: 'వ్యాపార వేళలు' },
+  'contact-hours-val':     { en: 'Mon – Sat: 9:00 AM – 7:00 PM IST', te: 'సోమ – శని: ఉ.9:00 – సా.7:00 IST' },
+  'contact-loc-title':     { en: 'Location', te: 'స్థానం' },
+  'contact-response-title':{ en: 'Response Time', te: 'స్పందన సమయం' },
+  'contact-response-val':  { en: 'Within 24–48 hours', te: '24–48 గంటలలోపు' },
+
+  /* ── BLOG ──────────────────────────────────────────────────── */
+  'blog-pill':             { en: 'Property Knowledge', te: 'ఆస్తి జ్ఞానం' },
+  'blog-title':            { en: 'Expert Guides &amp; Insights', te: 'నిపుణుల మార్గదర్శకాలు &amp; అంతర్దృష్టులు' },
+  'blog-sub':              { en: 'Guides on property verification, RERA checks, legal due diligence, GO111, land records, and home buying in Hyderabad.', te: 'ఆస్తి ధృవీకరణ, RERA చెక్కులు, చట్టపరమైన పరీక్షలు, GO111, భూమి రికార్డులు మరియు హైదరాబాద్‌లో ఇల్లు కొనుగోలుపై మార్గదర్శకాలు.' },
+  // Blog card titles
+  'blog-c1-title':         { en: 'How to Verify Ownership &amp; Loan Records Before Buying', te: 'కొనుగోలు ముందు యాజమాన్యం &amp; రుణ రికార్డులను ఎలా ధృవీకరించాలి' },
+  'blog-c1-excerpt':       { en: "Confirm the seller's legal ownership and check for any mortgage or financial charge on the property to avoid costly disputes.", te: 'ఖర్చుతో కూడిన వివాదాలను నివారించడానికి విక్రేత యొక్క చట్టపరమైన యాజమాన్యాన్ని నిర్ధారించండి మరియు ఆస్తిపై ఏదైనా తనఖా ఉందా అని తనిఖీ చేయండి.' },
+  'blog-c2-title':         { en: 'Court Case Search Before Buying Land', te: 'భూమి కొనుగోలు ముందు కోర్టు కేసు శోధన' },
+  'blog-c2-excerpt':       { en: 'Identify pending legal disputes on the property, seller, or builder to avoid litigation risks and ownership complications.', te: 'వ్యాజ్యం నష్టాలను నివారించడానికి ఆస్తి, విక్రేత లేదా నిర్మాతపై పెండింగ్ చట్టపరమైన వివాదాలను గుర్తించండి.' },
+  'blog-c3-title':         { en: 'GO111 Explained: The Environmental Order Every Hyderabad Buyer Must Understand', te: 'GO111 వివరణ: ప్రతి హైదరాబాద్ కొనుగోలుదారు అర్థం చేసుకోవలసిన పర్యావరణ ఉత్తర్వు' },
+  'blog-c3-excerpt':       { en: "Government Order 111 prohibits construction near Hyderabad's reservoir catchment areas. Learn how to check if your survey number falls within the restricted zone.", te: 'ప్రభుత్వ ఉత్తర్వు 111 హైదరాబాద్ జలాశయాల సమీపంలో నిర్మాణాన్ని నిషేధిస్తుంది. మీ సర్వే నంబర్ నిషేధిత మండలంలో ఉందా అని ఎలా తనిఖీ చేయాలో తెలుసుకోండి.' },
+  'blog-c4-title':         { en: 'Property Tax Verification Guide for Hyderabad Buyers', te: 'హైదరాబాద్ కొనుగోలుదారులకు ఆస్తి పన్ను ధృవీకరణ గైడ్' },
+  'blog-c4-excerpt':       { en: 'Confirm tax payment status and municipal records to avoid inheriting unpaid dues and ownership disputes after purchase.', te: 'కొనుగోలు తర్వాత చెల్లించని బకాయిలు మరియు యాజమాన్య వివాదాలను నివారించడానికి పన్ను చెల్లింపు స్థితిని నిర్ధారించండి.' },
+  'blog-c5-title':         { en: 'DTCP vs HMDA: Which Approval Matters for Your Property?', te: 'DTCP vs HMDA: మీ ఆస్తికి ఏ అనుమతి ముఖ్యమైనది?' },
+  'blog-c5-excerpt':       { en: 'Understand the critical difference between DTCP and HMDA approvals, and why getting this wrong can make your property unloanable.', te: 'DTCP మరియు HMDA అనుమతుల మధ్య కీలకమైన తేడాను అర్థం చేసుకోండి.' },
+  'blog-c6-title':         { en: 'How to Read Government Land Records in Telangana', te: 'తెలంగాణలో ప్రభుత్వ భూమి రికార్డులను ఎలా చదవాలి' },
+  'blog-c6-excerpt':       { en: 'A step-by-step guide to understanding survey numbers, Pattadar passbooks, and Dharani records before buying a plot.', te: 'స్థలం కొనుగోలు ముందు సర్వే నంబర్లు, పట్టాదార్ పాస్‌పుస్తకాలు మరియు ధరణి రికార్డులను అర్థం చేసుకోవడానికి దశల వారీ గైడ్.' },
+  'blog-c7-title':         { en: 'Complete Property Due Diligence Checklist (2026)', te: 'పూర్తి ఆస్తి యుక్తసహాయం చెక్‌లిస్ట్ (2026)' },
+  'blog-c7-excerpt':       { en: 'A comprehensive 25-step checklist covering title, legal, survey, and government checks every buyer must complete before investing.', te: 'పెట్టుబడి ముందు ప్రతి కొనుగోలుదారు పూర్తి చేయవలసిన శీర్షిక, చట్టపరమైన, సర్వే మరియు ప్రభుత్వ తనిఖీలను కవర్ చేసే 25-దశల చెక్‌లిస్ట్.' },
+  'blog-c8-title':         { en: 'GO111 Status: How to Check if Your Property Is in a Restricted Zone', te: 'GO111 స్థితి: మీ ఆస్తి నిషేధిత మండలంలో ఉందా అని ఎలా తనిఖీ చేయాలి' },
+  'blog-c8-excerpt':       { en: 'Learn how to verify GO111 status for any survey number and understand the construction, resale, and investment risks involved.', te: 'ఏదైనా సర్వే నంబర్ కోసం GO111 స్థితిని ధృవీకరించడం మరియు నిర్మాణ, పునఃవిక్రయ మరియు పెట్టుబడి నష్టాలను అర్థం చేసుకోవడం నేర్చుకోండి.' },
+};
+
+// ─── IDs → selector map ──────────────────────────────────────────
+// Maps translation key → CSS selector for the element to update
+const SELECTOR_MAP = {
+  // Terms
+  'terms-title':           '#legalContent-terms .au-hero-title',
+  'terms-date':            '#legalContent-terms .au-hero-sub',
+  'terms-intro':           '#legalContent-terms .au-body > p.au-para:first-of-type',
+  // Privacy
+  'privacy-title':         '#legalContent-privacy .au-hero-title',
+  'privacy-date':          '#legalContent-privacy .au-hero-sub',
+  'privacy-intro':         '#legalContent-privacy .au-body > p.au-para:first-of-type',
+  // Refund
+  'refund-title':          '#legalContent-refund .au-hero-title',
+  'refund-date':           '#legalContent-refund .au-hero-sub',
+  'refund-intro':          '#legalContent-refund .au-body > p.au-para:first-of-type',
+  // Blog header
+  'blog-title':            '#blogModal .au-hero h1',
+  'blog-sub':              '#blogModal .au-hero > div > p',
+};
+
+// ─── Section-based translations (legal sections by index) ────────
+// Terms sections
+const TERMS_SECTIONS = [
+  { title: 'terms-s1-title', paras: ['terms-s1-p1','terms-s1-p2'] },
+  { title: 'terms-s2-title', paras: ['terms-s2-p1','terms-s2-p2'] },
+  { title: 'terms-s3-title', paras: ['terms-s3-p1'] },
+  { title: 'terms-s4-title', paras: ['terms-s4-p1'] },
+  { title: 'terms-s5-title', paras: ['terms-s5-p1'] },
+  { title: 'terms-s6-title', paras: ['terms-s6-p1'] },
+  { title: 'terms-s7-title', paras: ['terms-s7-p1'] },
+  { title: 'terms-s8-title', paras: [] },
+];
+const PRIVACY_SECTIONS = [
+  { title: 'privacy-s1-title', paras: ['privacy-s1-p1'] },
+  { title: 'privacy-s2-title', paras: ['privacy-s2-p1'] },
+  { title: 'privacy-s3-title', paras: ['privacy-s3-p1'] },
+  { title: 'privacy-s4-title', paras: ['privacy-s4-p1'] },
+  { title: 'privacy-s5-title', paras: ['privacy-s5-p1'] },
+  { title: 'privacy-s6-title', paras: ['privacy-s6-p1'] },
+  { title: 'privacy-s7-title', paras: [] },
+];
+const REFUND_SECTIONS = [
+  { title: 'refund-s1-title', paras: ['refund-s1-p1'] },
+  { title: 'refund-s2-title', paras: ['refund-s2-p1'] },
+  { title: 'refund-s3-title', paras: ['refund-s3-p1'] },
+  { title: 'refund-s4-title', paras: ['refund-s4-p1'] },
+  { title: 'refund-s5-title', paras: ['refund-s5-p1'] },
+  { title: 'refund-s6-title', paras: [] },
+];
+
+let isTeluguMode = false;
+
+function toggleTranslate() {
+  isTeluguMode = !isTeluguMode;
+  const btn = document.getElementById('btnTranslate');
+  const label = document.getElementById('translateBtnLabel');
+  const body = document.body;
+
+  if (isTeluguMode) {
+    body.classList.add('te-mode');
+    btn.classList.add('te-active');
+    label.textContent = 'English';
+    applyTranslations('te');
+  } else {
+    body.classList.remove('te-mode');
+    btn.classList.remove('te-active');
+    label.textContent = 'తెలుగు';
+    applyTranslations('en');
+  }
+}
+
+function t(key, lang) {
+  return TRANSLATIONS[key] ? TRANSLATIONS[key][lang] : '';
+}
+
+function applyTranslations(lang) {
+  // ── Simple selector-based updates ────────────────────────────
+  Object.keys(SELECTOR_MAP).forEach(function(key) {
+    var el = document.querySelector(SELECTOR_MAP[key]);
+    if (el && TRANSLATIONS[key]) el.innerHTML = TRANSLATIONS[key][lang];
+  });
+
+  // ── Legal section titles & paragraphs ────────────────────────
+  function applyLegalSections(contentId, sections) {
+    var container = document.getElementById(contentId);
+    if (!container) return;
+    var sectionEls = container.querySelectorAll('.legal-section');
+    sections.forEach(function(sec, i) {
+      var secEl = sectionEls[i];
+      if (!secEl) return;
+      // Title
+      var titleEl = secEl.querySelector('.legal-title');
+      if (titleEl && TRANSLATIONS[sec.title]) titleEl.innerHTML = TRANSLATIONS[sec.title][lang];
+      // Paras
+      var paraEls = secEl.querySelectorAll('.au-para');
+      sec.paras.forEach(function(pKey, j) {
+        if (paraEls[j] && TRANSLATIONS[pKey]) paraEls[j].innerHTML = TRANSLATIONS[pKey][lang];
+      });
+    });
+  }
+  applyLegalSections('legalContent-terms',   TERMS_SECTIONS);
+  applyLegalSections('legalContent-privacy', PRIVACY_SECTIONS);
+  applyLegalSections('legalContent-refund',  REFUND_SECTIONS);
+
+  // ── Blog pill ────────────────────────────────────────────────
+  var blogPill = document.querySelector('#blogModal .au-hero [style*="letter-spacing"]');
+  if (blogPill) {
+    var span = blogPill.querySelector('span') || blogPill;
+    blogPill.lastChild.textContent = ' ' + TRANSLATIONS['blog-pill'][lang];
+  }
+
+  // ── Blog card titles & excerpts ──────────────────────────────
+  var blogCards = document.querySelectorAll('#bmGrid .bm-card');
+  var blogKeys = [
+    { title: 'blog-c1-title', excerpt: 'blog-c1-excerpt' },
+    { title: 'blog-c2-title', excerpt: 'blog-c2-excerpt' },
+    { title: 'blog-c3-title', excerpt: 'blog-c3-excerpt' },
+    { title: 'blog-c4-title', excerpt: 'blog-c4-excerpt' },
+    { title: 'blog-c5-title', excerpt: 'blog-c5-excerpt' },
+    { title: 'blog-c6-title', excerpt: 'blog-c6-excerpt' },
+    { title: 'blog-c7-title', excerpt: 'blog-c7-excerpt' },
+    { title: 'blog-c8-title', excerpt: 'blog-c8-excerpt' },
+  ];
+  blogCards.forEach(function(card, i) {
+    if (!blogKeys[i]) return;
+    var titleEl = card.querySelector('.bm-card-title');
+    var excerptEl = card.querySelector('.bm-card-excerpt');
+    if (titleEl && TRANSLATIONS[blogKeys[i].title]) titleEl.innerHTML = TRANSLATIONS[blogKeys[i].title][lang];
+    if (excerptEl && TRANSLATIONS[blogKeys[i].excerpt]) excerptEl.innerHTML = TRANSLATIONS[blogKeys[i].excerpt][lang];
+  });
+
+  // ── Blog thumb titles ─────────────────────────────────────────
+  var thumbTitles = document.querySelectorAll('#bmGrid .bm-thumb-title');
+  var thumbKeys = [
+    lang === 'te' ? 'యాజమాన్యం &amp; రుణ రికార్డులు' : 'Ownership &amp; Loan Records',
+    lang === 'te' ? 'కోర్టు కేసు శోధన' : 'Court Case Search',
+    lang === 'te' ? 'GO111 వివరణ' : 'GO111 Explained',
+    lang === 'te' ? 'ఆస్తి పన్ను ధృవీకరణ' : 'Property Tax Verification Guide',
+    lang === 'te' ? 'DTCP vs HMDA' : 'DTCP vs HMDA: Which Approval Matters?',
+    lang === 'te' ? 'ప్రభుత్వ భూమి రికార్డులు గైడ్' : 'Government Land Records Guide',
+    lang === 'te' ? 'పూర్తి యుక్తసహాయం చెక్‌లిస్ట్ (2026)' : 'Complete Property Due Diligence Checklist (2026)',
+    lang === 'te' ? 'GO111 స్థితి తనిఖీ' : 'GO111 Status Check',
+  ];
+  thumbTitles.forEach(function(el, i) {
+    if (thumbKeys[i]) el.innerHTML = thumbKeys[i];
+  });
+
+  // ── Contact modal ────────────────────────────────────────────
+  _setInner('#contactModal .contact-left-title', TRANSLATIONS['contact-title'][lang]);
+  _setInner('#contactModal .contact-left-sub', TRANSLATIONS['contact-sub'][lang]);
+  _setInner('#contactModal .contact-right-title', TRANSLATIONS['contact-right-title'][lang]);
+  _setInner('#contactModal .contact-right-sub', TRANSLATIONS['contact-right-sub'][lang]);
+  // Contact pill
+  var cpill = document.querySelector('#contactModal .au-pill');
+  if (cpill) cpill.innerHTML = '<i class="fa-solid fa-headset"></i> ' + TRANSLATIONS['contact-pill'][lang];
+  // Labels & placeholders
+  _setLabelText('contactName',    TRANSLATIONS['contact-name-label'][lang]);
+  _setLabelText('contactEmail',   TRANSLATIONS['contact-email-label'][lang]);
+  _setLabelText('contactPhone',   TRANSLATIONS['contact-phone-label'][lang]);
+  _setLabelText('contactSubject', TRANSLATIONS['contact-subject-label'][lang]);
+  _setLabelText('contactMessage', TRANSLATIONS['contact-msg-label'][lang]);
+  _setPlaceholder('contactName',    TRANSLATIONS['contact-name-ph'][lang]);
+  _setPlaceholder('contactEmail',   TRANSLATIONS['contact-email-ph'][lang]);
+  _setPlaceholder('contactPhone',   TRANSLATIONS['contact-phone-ph'][lang]);
+  _setPlaceholder('contactSubject', TRANSLATIONS['contact-subject-ph'][lang]);
+  _setPlaceholder('contactMessage', TRANSLATIONS['contact-msg-ph'][lang]);
+  // Send button
+  var sendBtn = document.getElementById('contactBtnText');
+  if (sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ' + TRANSLATIONS['contact-send-btn'][lang];
+  // Right panel info items
+  var infoTitles = document.querySelectorAll('#contactModal .contact-info-title');
+  var infoVals   = document.querySelectorAll('#contactModal .contact-info-val');
+  if (infoTitles[1]) infoTitles[1].textContent = TRANSLATIONS['contact-hours-title'][lang];
+  if (infoVals[1])   infoVals[1].textContent   = TRANSLATIONS['contact-hours-val'][lang];
+  if (infoTitles[2]) infoTitles[2].textContent = TRANSLATIONS['contact-loc-title'][lang];
+  if (infoTitles[3]) infoTitles[3].textContent = TRANSLATIONS['contact-response-title'][lang];
+  if (infoVals[3])   infoVals[3].textContent   = TRANSLATIONS['contact-response-val'][lang];
+}
+
+// Helpers
+function _setInner(sel, html) {
+  var el = document.querySelector(sel);
+  if (el && html !== undefined) el.innerHTML = html;
+}
+function _setLabelText(inputId, text) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var label = document.querySelector('label[for="' + inputId + '"]');
+  if (label && text !== undefined) {
+    // Keep required asterisk if present
+    var req = label.querySelector('.req, .required, [aria-label="required"]');
+    label.textContent = text;
+    if (req) label.appendChild(req);
+  }
+}
+function _setPlaceholder(inputId, text) {
+  var el = document.getElementById(inputId);
+  if (el && text !== undefined) el.placeholder = text;
+}
 </script>
 
 </body>
