@@ -915,7 +915,6 @@ function initFirebaseIfNeeded() {
     // };
     
     const firebaseConfig = window.APP_CONFIG?.firebase || {};
-
     const missing = Object.values(firebaseConfig).some((v) => !v || String(v).includes("PASTE_") || String(v).includes("YOUR_"));
     if (missing) {
         throw new Error("Firebase config missing. Check `Property Analyzer/config.js`.");
