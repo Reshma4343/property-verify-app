@@ -319,7 +319,10 @@ label[for="userBudget"], label[for="userLocality"] {
     cursor: pointer;
     transition: 0.2s;
     margin-bottom: 20px;
+    margin-left: 0;
     box-shadow: 0 2px 8px rgba(20,30,58,0.07);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 .btn-back:hover {
     background: var(--primary);
@@ -892,6 +895,22 @@ label[for="userBudget"], label[for="userLocality"] {
     box-sizing: border-box;
 }
 
+@media (max-width: 600px) {
+    #step-2 {
+        width: 100%;
+        margin-left: 0;
+        padding: 20px 0 0 0;
+    }
+    .step2-content {
+        padding: 0 16px 32px 16px !important;
+    }
+    .btn-back {
+        margin-left: 0;
+        position: relative;
+        z-index: 1;
+    }
+}
+
 /* Strip the card look off the inner glass-card in step-2 */
 #step-2 .glass-card {
     background: transparent;
@@ -943,7 +962,7 @@ label[for="userBudget"], label[for="userLocality"] {
     .results-head { flex-direction: column; }
     .price-card { width: 100%; min-width: 0; }
     .ad-sidebar { display: none; }
-    .step2-content { padding: 0 16px 32px 16px; }
+    .step2-content { padding: 16px 16px 32px 16px; }
 }
 
 @media (max-width: 720px) {
@@ -3420,7 +3439,6 @@ a.footer-contact-text:hover { color: #C9A84C; }
     border-radius: 20px;
     padding: 28px 36px;
     box-shadow: 0 4px 24px rgba(20,30,58,0.06);
-    overflow: hidden;
     position: relative;
     min-height: 140px;
 }
@@ -3479,7 +3497,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 .trust-path-steps {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-evenly;
     gap: 0;
 }
@@ -3529,7 +3547,9 @@ a.footer-contact-text:hover { color: #C9A84C; }
     height: 3px;
     background: rgba(20,30,58,0.08);
     margin: 0 4px;
-    margin-bottom: 36px;
+    margin-bottom: 0;
+    align-self: flex-start;
+    margin-top: 30px;
     min-width: 24px;
     border-radius: 2px;
     position: relative;
@@ -3582,11 +3602,12 @@ a.footer-contact-text:hover { color: #C9A84C; }
     .trust-path-divider { display: none; }
     .trust-path-left { flex: none; padding-right: 0; }
     .trust-path-title { font-size: 20px; }
-    .trust-path-steps { width: 100%; gap: 0; justify-content: space-between; }
-    .trust-path-step { min-width: 70px; }
+    .trust-path-steps { width: 100%; gap: 0; justify-content: space-between; flex-wrap: nowrap; overflow: visible; }
+    .trust-path-step { min-width: 0; flex: 1 1 0; max-width: 80px; }
     .trust-step-circle { width: 48px; height: 48px; font-size: 18px; }
     .trust-step-title { font-size: 11px; }
     .trust-step-sub { font-size: 10px; }
+    .trust-path-connector { min-width: 6px; flex: 0 1 20px; }
 }
 
 /* ══════════════════════════════════════════════
@@ -4303,10 +4324,10 @@ a.footer-contact-text:hover { color: #C9A84C; }
 @media (max-width: 400px) {
     .trust-path-steps { gap: 0; }
     .trust-step-circle { width: 40px; height: 40px; font-size: 15px; }
-    .trust-path-step { min-width: 56px; }
+    .trust-path-step { min-width: 0; }
     .trust-step-title { font-size: 10px; }
     .trust-step-sub { font-size: 9px; }
-    .trust-path-connector { min-width: 8px; }
+    .trust-path-connector { min-width: 4px; flex: 0 1 12px; }
 }
 
 /* ── Audit coverage dark card ── */
@@ -4402,9 +4423,15 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── General overflow guard (mobile only) ── */
 @media (max-width: 600px) {
-    body, .main, .container {
+    body, .container {
         max-width: 100%;
         overflow-x: hidden;
+    }
+    .main {
+        max-width: 100%;
+    }
+    #step-2 {
+        padding-top: 16px;
     }
 }
 
