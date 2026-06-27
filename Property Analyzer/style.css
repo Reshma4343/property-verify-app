@@ -432,7 +432,7 @@ label[for="userBudget"], label[for="userLocality"] {
 #step-2 .grid-3 > .grid-item {
     display: flex;
     flex-direction: column;
-    min-height: 240px;
+    min-height: 0;
 }
 /* Blue pop on hover for infra cards (Hospitals, Schools, Malls) */
 .grid-item.bordered-left:hover {
@@ -909,6 +909,20 @@ label[for="userBudget"], label[for="userLocality"] {
         position: relative;
         z-index: 1;
     }
+    /* Stat card labels: prevent wrapping on small screens */
+    #step-2 .grid-item .meta {
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 6px;
+    }
+    #step-2 .grid-item .stat {
+        font-size: 18px;
+    }
+    .grid.stats { gap: 10px; }
+    .grid.stats .grid-item { padding: 14px 14px 12px; border-radius: 14px; }
 }
 
 /* Strip the card look off the inner glass-card in step-2 */
@@ -3335,6 +3349,28 @@ a.footer-contact-text:hover { color: #C9A84C; }
   .hpw-report-preview { grid-template-columns: 1fr; }
   .hpw-report-insights { grid-template-columns: 1fr; }
   .hpw-report-score { width: 90px; height: 90px; border-radius: 20px; }
+  /* Step 6: shrink report mockup so it doesn't overlap CTA strip */
+  .hpw-screen-report { padding: 6px 8px; gap: 4px; }
+  .hpw-report-top { gap: 6px; }
+  .hpw-report-chip { padding: 3px 7px; font-size: 8px; gap: 4px; }
+  .hpw-report-chip i { font-size: 9px; }
+  .hpw-report-score { width: 52px; height: 52px; border-radius: 10px; }
+  .hpw-report-score-val { font-size: 15px; }
+  .hpw-report-score-lbl { font-size: 4.5px; margin-top: 1px; }
+  .hpw-report-card { padding: 6px 8px; gap: 5px; border-radius: 10px; }
+  .hpw-report-card-head { gap: 4px; padding-bottom: 4px; }
+  .hpw-report-pill { font-size: 7px; padding: 2px 6px; }
+  .hpw-report-title { font-size: 9px; }
+  .hpw-report-sub { font-size: 7.5px; }
+  .hpw-report-preview { height: 22px; gap: 3px; margin: 0; }
+  .hpw-report-page { border-radius: 3px; }
+  .hpw-report-insights { gap: 4px; padding: 5px 6px; border-radius: 8px; }
+  .hpw-insight { gap: 3px; }
+  .hpw-insight-k { font-size: 6.5px; }
+  .hpw-insight-v { font-size: 8px; }
+  .hpw-report-actions { margin-top: 1px; }
+  .hpw-report-download { padding: 5px 8px; font-size: 8px; border-radius: 7px; gap: 4px; }
+  .hpw-report-glow { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gov-live-dot { animation: none; }
@@ -4352,22 +4388,28 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── IRS wrap (Investment Insights) ── */
 @media (max-width: 600px) {
-    .irs-wrap { padding: 16px 12px; margin-top: 20px; }
+    .irs-wrap { padding: 16px 12px; margin-top: 20px; overflow: hidden; }
     .irs-layout { grid-template-columns: 1fr; gap: 20px; }
-    .irs-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .irs-cards { grid-template-columns: 1fr; gap: 10px; }
     .irs-title { font-size: 20px; }
     .irs-card { padding: 14px 12px; }
-    .irs-dashboard { padding: 18px 14px; }
+    .irs-left { overflow: hidden; }
+    .irs-right { overflow: hidden; }
+    .irs-dashboard { padding: 18px 14px; overflow: hidden; }
     .irs-score-ring { width: 100px; height: 100px; }
     .irs-ring-svg { width: 100px; height: 100px; }
     .irs-score-num { font-size: 30px; }
-    .irs-analysis-label { width: 72px; font-size: 11px; }
-    .irs-analysis-val { width: 52px; font-size: 9px; }
+    .irs-analysis-row { gap: 4px; overflow: hidden; }
+    .irs-analysis-label { width: 76px; font-size: 10px; flex-shrink: 0; line-height: 1.2; }
+    .irs-bar-wrap { flex: 1; min-width: 0; }
+    .irs-analysis-val { width: 52px; font-size: 8.5px; flex-shrink: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .irs-highlights { gap: 6px; }
     .irs-highlight-pill { font-size: 10px; padding: 4px 9px; }
+    .irs-location-pill--dark { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 @media (max-width: 380px) {
     .irs-cards { grid-template-columns: 1fr; }
+    .irs-analysis-label { width: 70px; }
 }
 
 /* ── Gov integration grid ── */
