@@ -318,19 +318,21 @@
 }
 .compare-without.pv-visible,
 .compare-with.pv-visible {
-  opacity:1; transform:none;
+  opacity: 1;
+  transform: none !important;
+  transition: box-shadow 0.3s ease !important;
 }
 
 /* Compare card hover lift */
 .compare-without:hover {
   box-shadow: 0 16px 48px rgba(20,30,58,0.10) !important;
-  transform: translateY(-4px) !important;
-  transition: box-shadow 0.3s ease, transform 0.3s ease !important;
+  transform: none !important;
+  transition: box-shadow 0.3s ease !important;
 }
 .compare-with:hover {
   box-shadow: 0 20px 56px rgba(20,30,58,0.25) !important;
-  transform: translateY(-4px) !important;
-  transition: box-shadow 0.3s ease, transform 0.3s ease !important;
+  transform: none !important;
+  transition: box-shadow 0.3s ease !important;
 }
 
 /* Compare list items stagger */
@@ -464,23 +466,19 @@
 .grid-item {
   transition: background 0.28s ease,
               box-shadow 0.28s ease,
-              border-color 0.28s ease,
-              transform 0.28s cubic-bezier(0.34,1.2,0.64,1) !important;
+              border-color 0.28s ease !important;
 }
 .grid-item:hover {
   box-shadow: 0 12px 36px rgba(20,30,58,0.10) !important;
-  transform: translateY(-4px) !important;
 }
 
 /* Transport items */
 .transport-item {
   transition: background 0.28s ease,
               box-shadow 0.28s ease,
-              border-color 0.28s ease,
-              transform 0.28s cubic-bezier(0.34,1.2,0.64,1) !important;
+              border-color 0.28s ease !important;
 }
 .transport-item:hover {
-  transform: translateY(-4px) !important;
   box-shadow: 0 10px 30px rgba(20,30,58,0.10) !important;
 }
 

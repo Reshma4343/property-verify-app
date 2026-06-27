@@ -4547,3 +4547,13 @@ a.footer-contact-text:hover { color: #C9A84C; }
     position: relative;
 }
 .te-mode .te-notify-bar { display: block; }
+/* ── FIX: Prevent compare cards from moving on hover ── */
+.compare-card,
+.compare-card:hover,
+.compare-without,
+.compare-without:hover,
+.compare-with,
+.compare-with:hover {
+    transform: none !important;
+    transition: box-shadow 0.22s ease, border-color 0.22s ease !important;
+}
