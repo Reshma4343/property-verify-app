@@ -188,16 +188,7 @@ body {
     font-weight: 900;
     letter-spacing: -0.03em;
     color: var(--text);
-    white-space: normal;
-    word-break: break-word;
-}
-
-@media (max-width: 600px) {
-    .hero-title {
-        font-size: clamp(18px, 5.5vw, 28px);
-        line-height: 1.15;
-        letter-spacing: -0.02em;
-    }
+    white-space: nowrap;
 }
 
 .label {
@@ -441,7 +432,7 @@ label[for="userBudget"], label[for="userLocality"] {
 #step-2 .grid-3 > .grid-item {
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 240px;
 }
 /* Blue pop on hover for infra cards (Hospitals, Schools, Malls) */
 .grid-item.bordered-left:hover {
@@ -904,36 +895,6 @@ label[for="userBudget"], label[for="userLocality"] {
     box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
-    #step-2 {
-        width: 100%;
-        margin-left: 0;
-        padding: 20px 0 0 0;
-    }
-    .step2-content {
-        padding: 0 16px 32px 16px !important;
-    }
-    .btn-back {
-        margin-left: 0;
-        position: relative;
-        z-index: 1;
-    }
-    /* Stat card labels: prevent wrapping on small screens */
-    #step-2 .grid-item .meta {
-        font-size: 10px;
-        letter-spacing: 0.06em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-bottom: 6px;
-    }
-    #step-2 .grid-item .stat {
-        font-size: 18px;
-    }
-    .grid.stats { gap: 10px; }
-    .grid.stats .grid-item { padding: 14px 14px 12px; border-radius: 14px; }
-}
-
 /* Strip the card look off the inner glass-card in step-2 */
 #step-2 .glass-card {
     background: transparent;
@@ -985,18 +946,26 @@ label[for="userBudget"], label[for="userLocality"] {
     .results-head { flex-direction: column; }
     .price-card { width: 100%; min-width: 0; }
     .ad-sidebar { display: none; }
-    .step2-content { padding: 16px 16px 32px 16px; }
+    .step2-content { padding: 0 16px 32px 16px; }
 }
 
 @media (max-width: 720px) {
     .grid-2 { grid-template-columns: 1fr; }
-    .nav-inner { flex-wrap: nowrap; gap: 8px; }
-    .nav-actions { display: flex; gap: 4px; order: 2; width: auto; }
-    .nav-link { font-size: 0.6rem; padding: 5px 7px; }
-    .nav-link i { margin-right: 3px; font-size: 0.6rem; }
-    .main { padding-top: 68px; }
+    .nav-inner { gap: 8px; }
+    .nav-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .nav-link { padding: 8px 10px; font-size: 9px; letter-spacing: 0.08em; border-radius: 10px; white-space: nowrap; }
+    .nav-link i { margin-right: 4px; }
+    .brand-logo-icon { height: 34px; width: 34px; }
+    .brand-logo-text { height: 28px; }
     .glass-card { padding: 20px; }
     #step-1 .glass-card { padding: 36px; }
+}
+
+@media (max-width: 420px) {
+    .nav-link { padding: 7px 8px; font-size: 8px; letter-spacing: 0.04em; }
+    .nav-link i { margin-right: 3px; font-size: 11px; }
+    .brand-logo-icon { height: 30px; width: 30px; }
+    .brand-logo-text { height: 24px; }
 }
 /* Align step-1 pill and title with the card */
 .step1-header {
@@ -1253,7 +1222,7 @@ label[for="userBudget"], label[for="userLocality"] {
     margin: 0 auto;
 }
 .gov-v2 .section-label-wrap {
-    margin-bottom: 32px;
+    margin-bottom: 18px;
 }
 .gov-v2 .gov-pill {
     background: rgba(16, 185, 129, 0.14);
@@ -1265,7 +1234,7 @@ label[for="userBudget"], label[for="userLocality"] {
     font-size: clamp(24px, 3.2vw, 34px);
     font-weight: 900;
     letter-spacing: -0.02em;
-    margin-top: 0;
+    margin-top: 32px;
     margin-bottom: 14px;
 }
 .gov-v2 .gov-section-heading {
@@ -1297,7 +1266,7 @@ label[for="userBudget"], label[for="userLocality"] {
     margin-right: auto;
     padding: 0 24px 0;
 }
-.section-label-wrap { text-align: center; margin-bottom: 14px; }
+.section-label-wrap { text-align: center; margin-bottom: 32px; }
 .section-heading {
     text-align: center;
     font-size: clamp(22px, 3vw, 30px);
@@ -1371,6 +1340,17 @@ label[for="userBudget"], label[for="userLocality"] {
     display: flex;
     justify-content: center;
     gap: 20px;
+}
+@media (max-width: 480px) {
+  .gov-last-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .gov-last-row .gov-card {
+    flex: unset !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
 .gov-last-row .gov-card {
     flex: 0 0 calc((100% - 40px) / 3);
@@ -1453,17 +1433,24 @@ label[for="userBudget"], label[for="userLocality"] {
 }
 @media (max-width: 1024px) {
     .gov-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
+        overflow: hidden;
     }
+    .gov-card { overflow: hidden; }
+    .gov-grid .gov-card[style*="grid-column"] { grid-column: 1 !important; }
+    .gov-last-row { display: block; }
     .gov-last-row .gov-card {
-        flex: 0 0 calc((100% - 20px) / 2);
-        max-width: calc((100% - 20px) / 2);
+        flex: none;
+        width: 100%;
+        max-width: 100%;
     }
 }
 @media (max-width: 720px) {
     .gov-integrations-panel {
-        padding: 40px 22px 36px;
+        padding: 40px 16px 36px 16px;
         border-radius: 22px;
+        overflow: hidden;
+        isolation: isolate;
     }
     .gov-v2 .gov-section-sub {
         margin-bottom: 28px;
@@ -1471,12 +1458,19 @@ label[for="userBudget"], label[for="userLocality"] {
     }
 }
 @media (max-width: 480px) {
+    .gov-grid {
+        grid-template-columns: 1fr;
+    }
     .gov-card {
         padding: 16px 14px 16px 18px;
-        min-height: 72px;
     }
-    .gov-integrations-panel {
-        padding: 32px 16px 32px;
+    .gov-last-row {
+        display: block;
+    }
+    .gov-last-row .gov-card {
+        flex: none;
+        width: 100%;
+        max-width: 100%;
     }
 }
 
@@ -3354,31 +3348,11 @@ a.footer-contact-text:hover { color: #C9A84C; }
   .hpw-map-stats { flex-direction: column; gap: 6px; }
   .hpw-map-stat { border-right: none; border-bottom: 1px solid rgba(20,30,58,0.08); }
   .hpw-map-stat:last-child { border-bottom: none; }
-  .hpw-report-preview { grid-template-columns: 1fr; }
-  .hpw-report-insights { grid-template-columns: 1fr; }
+  .hpw-report-preview { display: none; }
+  .hpw-report-insights { grid-template-columns: repeat(3,1fr); gap: 6px; }
+  .hpw-screen-report { padding: 12px; gap: 8px; }
+  .hpw-report-card { padding: 10px; gap: 8px; }
   .hpw-report-score { width: 90px; height: 90px; border-radius: 20px; }
-  /* Step 6: shrink report mockup so it doesn't overlap CTA strip */
-  .hpw-screen-report { padding: 6px 8px; gap: 4px; }
-  .hpw-report-top { gap: 6px; }
-  .hpw-report-chip { padding: 3px 7px; font-size: 8px; gap: 4px; }
-  .hpw-report-chip i { font-size: 9px; }
-  .hpw-report-score { width: 52px; height: 52px; border-radius: 10px; }
-  .hpw-report-score-val { font-size: 15px; }
-  .hpw-report-score-lbl { font-size: 4.5px; margin-top: 1px; }
-  .hpw-report-card { padding: 6px 8px; gap: 5px; border-radius: 10px; }
-  .hpw-report-card-head { gap: 4px; padding-bottom: 4px; }
-  .hpw-report-pill { font-size: 7px; padding: 2px 6px; }
-  .hpw-report-title { font-size: 9px; }
-  .hpw-report-sub { font-size: 7.5px; }
-  .hpw-report-preview { height: 22px; gap: 3px; margin: 0; }
-  .hpw-report-page { border-radius: 3px; }
-  .hpw-report-insights { gap: 4px; padding: 5px 6px; border-radius: 8px; }
-  .hpw-insight { gap: 3px; }
-  .hpw-insight-k { font-size: 6.5px; }
-  .hpw-insight-v { font-size: 8px; }
-  .hpw-report-actions { margin-top: 1px; }
-  .hpw-report-download { padding: 5px 8px; font-size: 8px; border-radius: 7px; gap: 4px; }
-  .hpw-report-glow { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gov-live-dot { animation: none; }
@@ -3483,6 +3457,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
     border-radius: 20px;
     padding: 28px 36px;
     box-shadow: 0 4px 24px rgba(20,30,58,0.06);
+    overflow: hidden;
     position: relative;
     min-height: 140px;
 }
@@ -3646,12 +3621,11 @@ a.footer-contact-text:hover { color: #C9A84C; }
     .trust-path-divider { display: none; }
     .trust-path-left { flex: none; padding-right: 0; }
     .trust-path-title { font-size: 20px; }
-    .trust-path-steps { width: 100%; gap: 0; justify-content: space-between; flex-wrap: nowrap; overflow: visible; }
-    .trust-path-step { min-width: 0; flex: 1 1 0; max-width: 80px; }
+    .trust-path-steps { width: 100%; gap: 0; justify-content: space-between; }
+    .trust-path-step { min-width: 70px; }
     .trust-step-circle { width: 48px; height: 48px; font-size: 18px; }
     .trust-step-title { font-size: 11px; }
     .trust-step-sub { font-size: 10px; }
-    .trust-path-connector { min-width: 6px; flex: 0 1 20px; }
 }
 
 /* ══════════════════════════════════════════════
@@ -4368,10 +4342,10 @@ a.footer-contact-text:hover { color: #C9A84C; }
 @media (max-width: 400px) {
     .trust-path-steps { gap: 0; }
     .trust-step-circle { width: 40px; height: 40px; font-size: 15px; }
-    .trust-path-step { min-width: 0; }
+    .trust-path-step { min-width: 56px; }
     .trust-step-title { font-size: 10px; }
     .trust-step-sub { font-size: 9px; }
-    .trust-path-connector { min-width: 4px; flex: 0 1 12px; }
+    .trust-path-connector { min-width: 8px; }
 }
 
 /* ── Audit coverage dark card ── */
@@ -4396,55 +4370,33 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── IRS wrap (Investment Insights) ── */
 @media (max-width: 600px) {
-    .irs-wrap { padding: 16px 12px; margin-top: 20px; overflow: hidden; }
+    .irs-wrap { padding: 16px 12px; margin-top: 20px; }
     .irs-layout { grid-template-columns: 1fr; gap: 20px; }
-    .irs-cards { grid-template-columns: 1fr; gap: 10px; }
+    .irs-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
     .irs-title { font-size: 20px; }
     .irs-card { padding: 14px 12px; }
-    .irs-left { overflow: hidden; }
-    .irs-right { overflow: hidden; }
-    .irs-dashboard { padding: 18px 14px; overflow: hidden; }
+    .irs-dashboard { padding: 18px 14px; }
     .irs-score-ring { width: 100px; height: 100px; }
     .irs-ring-svg { width: 100px; height: 100px; }
     .irs-score-num { font-size: 30px; }
-    .irs-analysis-row { gap: 4px; overflow: hidden; }
-    .irs-analysis-label { width: 76px; font-size: 10px; flex-shrink: 0; line-height: 1.2; }
-    .irs-bar-wrap { flex: 1; min-width: 0; }
-    .irs-analysis-val { width: 52px; font-size: 8.5px; flex-shrink: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .irs-analysis-label { width: 72px; font-size: 11px; }
+    .irs-analysis-val { width: 52px; font-size: 9px; }
     .irs-highlights { gap: 6px; }
     .irs-highlight-pill { font-size: 10px; padding: 4px 9px; }
-    .irs-location-pill--dark { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 @media (max-width: 380px) {
     .irs-cards { grid-template-columns: 1fr; }
-    .irs-analysis-label { width: 70px; }
 }
 
 /* ── Gov integration grid ── */
 @media (max-width: 600px) {
-    .gov-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-    .gov-card {
-        padding: 14px 16px 14px 18px;
-        gap: 12px;
-        min-height: 68px;
-    }
+    .gov-grid { grid-template-columns: 1fr; gap: 10px; }
+    .gov-card { padding: 14px 16px 14px 18px; gap: 12px; }
     .gov-grid .gov-card:nth-child(6) .gov-title { font-size: 11px; }
-    .gov-last-row {
-        flex-direction: column;
-        gap: 14px;
-    }
-    .gov-last-row .gov-card {
-        flex: 1 1 auto;
-        max-width: 100%;
-        width: 100%;
-    }
+    .gov-grid .gov-card[style*="grid-column"] { grid-column: 1 !important; }
 }
 @media (max-width: 380px) {
-    .gov-grid { gap: 12px; }
-    .gov-last-row { gap: 12px; }
+    .gov-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Comparison section ── */
@@ -4490,15 +4442,9 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── General overflow guard (mobile only) ── */
 @media (max-width: 600px) {
-    body, .container {
+    body, .main, .container {
         max-width: 100%;
         overflow-x: hidden;
-    }
-    .main {
-        max-width: 100%;
-    }
-    #step-2 {
-        padding-top: 16px;
     }
 }
 
@@ -4547,13 +4493,3 @@ a.footer-contact-text:hover { color: #C9A84C; }
     position: relative;
 }
 .te-mode .te-notify-bar { display: block; }
-/* ── FIX: Prevent compare cards from moving on hover ── */
-.compare-card,
-.compare-card:hover,
-.compare-without,
-.compare-without:hover,
-.compare-with,
-.compare-with:hover {
-    transform: none !important;
-    transition: box-shadow 0.22s ease, border-color 0.22s ease !important;
-}

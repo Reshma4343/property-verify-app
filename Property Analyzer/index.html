@@ -723,13 +723,11 @@
                     <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
                   </div>
 
-                  <!-- 7 & 8: Last row — centred across full grid width -->
-                  <div class="gov-last-row">
-                    <div class="gov-card">
+                  <!-- 7: Appreciation (3Y) -->
+                  <div class="gov-card" style="grid-column: 2;">
                       <span class="gov-card-icon"><i class="fa-solid fa-chart-line"></i></span>
                       <span class="gov-title">Appreciation (3Y)</span>
                       <span class="gov-badge live"><span class="gov-live-dot"></span>LIVE</span>
-                    </div>
                   </div>
 
                 </div>
@@ -1573,7 +1571,6 @@
     function lockMobilePanelHeight() {
       const panelsWrap = document.getElementById('hpwPanels');
       if (!panelsWrap || window.innerWidth > 640) return;
-      // Temporarily show all panels to measure
       panels.forEach(p => {
         p.style.position = 'relative';
         p.style.opacity = '0';
@@ -1581,16 +1578,22 @@
       });
       let maxH = 0;
       panels.forEach(p => { maxH = Math.max(maxH, p.offsetHeight); });
-      // Restore
       panels.forEach(p => {
         p.style.position = '';
         p.style.opacity = '';
         p.style.pointerEvents = '';
       });
       panelsWrap.style.height = maxH + 'px';
+      // Reset CTA strip margin — let CSS handle spacing naturally
+      const ctaStrip = document.getElementById('hpwCtaStrip');
+      if (ctaStrip) { ctaStrip.style.marginTop = ''; }
     }
 
     lockMobilePanelHeight();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function() { lockMobilePanelHeight(); });
+    }
+    window.addEventListener('load', function() { lockMobilePanelHeight(); });
     window.addEventListener('resize', lockMobilePanelHeight);
   }
 
