@@ -4560,3 +4560,123 @@ a.footer-contact-text:hover { color: #C9A84C; }
     transform: none !important;
     transition: box-shadow 0.22s ease, border-color 0.22s ease !important;
 }
+
+/* Mobile HPW stability fix: reserve a fixed stage so step changes never push the form below. */
+@media (max-width: 640px) {
+    .hpw-layout {
+        display: block;
+    }
+
+    .hpw-panels {
+        position: relative;
+        height: 650px !important;
+        min-height: 650px !important;
+    }
+
+    .hpw-panel {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        opacity: 0;
+        transform: none !important;
+        pointer-events: none;
+        animation: none !important;
+    }
+
+    .hpw-panel.hpw-panel-active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .hpw-panel-content {
+        order: 2;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .hpw-mockup-wrap {
+        order: 1;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .hpw-browser {
+        width: 100%;
+        max-width: 100%;
+        animation: none;
+    }
+
+    .hpw-browser-body,
+    .hpw-screen {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .hpw-screen {
+        min-height: auto;
+    }
+
+    .hpw-feature-list li {
+        align-items: flex-start;
+        line-height: 1.35;
+    }
+
+    .hpw-cta-strip {
+        margin-top: 18px;
+        clear: both;
+    }
+
+    .gov-grid > .gov-card {
+        grid-column: auto !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .hpw-panels {
+        height: 700px !important;
+        min-height: 700px !important;
+    }
+
+    .hpw-inner {
+        width: calc(100% - 24px);
+    }
+
+    .hpw-browser-chrome {
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    .hpw-dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .hpw-url-bar {
+        min-width: 0;
+        padding: 5px 8px;
+        font-size: 9px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .hpw-track-header,
+    .hpw-download-row {
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .hpw-track-header {
+        flex-direction: column;
+    }
+
+    .hpw-download-row {
+        flex-wrap: wrap;
+    }
+
+    .hpw-dl-soon {
+        margin-left: 0;
+    }
+}
