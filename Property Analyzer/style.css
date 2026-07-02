@@ -64,10 +64,10 @@ body {
     padding: 0;
 }
 .brand-logo-icon {
-    height: 42px;
-    width: 42px;
+    height: 45px;
+    width: 55px;
     display: block;
-    object-fit: contain;
+    object-fit: fill;
     border-radius: 10px;
 }
 .brand-logo-text {
@@ -1366,11 +1366,13 @@ label[for="userBudget"], label[for="userLocality"] {
 .gov-card:nth-child(6) { --gov-accent: #6366f1; --gov-accent-rgb: 99, 102, 241; }
 .gov-last-row .gov-card:nth-child(1) { --gov-accent: #0ea5e9; --gov-accent-rgb: 14, 165, 233; }
 .gov-last-row .gov-card:nth-child(2) { --gov-accent: #ec4899; --gov-accent-rgb: 236, 72, 153; }
+.gov-last-row .gov-card:nth-child(3) { --gov-accent: #16a34a; --gov-accent-rgb: 22, 163, 74; }
 
 /* Last row: spans full grid width, flex-centers the 2 final cards at column width */
 .gov-last-row {
     grid-column: 1 / -1;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
 }
@@ -1455,11 +1457,22 @@ label[for="userBudget"], label[for="userLocality"] {
 }
 @media (max-width: 1024px) {
     .gov-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
+    }
+    .gov-last-row {
+        flex-direction: column;
     }
     .gov-last-row .gov-card {
-        flex: 0 0 calc((100% - 20px) / 2);
-        max-width: calc((100% - 20px) / 2);
+        flex: 1 1 auto;
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+    }
+}
+@media (min-width: 1025px) {
+    .gov-last-row .gov-card {
+        flex: 0 0 calc((100% - 40px) / 3);
+        max-width: calc((100% - 40px) / 3);
     }
 }
 @media (max-width: 720px) {
@@ -4426,7 +4439,6 @@ a.footer-contact-text:hover { color: #C9A84C; }
 /* ── Gov integration grid ── */
 @media (max-width: 600px) {
     .gov-grid {
-        grid-template-columns: 1fr;
         gap: 14px;
     }
     .gov-card {
@@ -4436,13 +4448,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
     }
     .gov-grid .gov-card:nth-child(6) .gov-title { font-size: 11px; }
     .gov-last-row {
-        flex-direction: column;
         gap: 14px;
-    }
-    .gov-last-row .gov-card {
-        flex: 1 1 auto;
-        max-width: 100%;
-        width: 100%;
     }
 }
 @media (max-width: 380px) {
