@@ -22,7 +22,7 @@ const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 
 const RAZORPAY_KEY_ID = String(process.env.RAZORPAY_KEY_ID || "").trim();
 const RAZORPAY_KEY_SECRET = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
 const PAYMENT_CURRENCY = String(process.env.PAYMENT_CURRENCY || "INR").trim().toUpperCase();
-const PAYMENT_BASE_AMOUNT_PAISE = Math.max(100, Number(process.env.PAYMENT_BASE_AMOUNT_PAISE || 29900));
+const PAYMENT_BASE_AMOUNT_PAISE = Math.max(100, Number(process.env.PAYMENT_BASE_AMOUNT_PAISE || 100));
 const PAYMENT_GST_PERCENT = Math.max(0, Number(process.env.PAYMENT_GST_PERCENT || 18));
 const FRONTEND_ORIGINS = parseCsv(
   process.env.FRONTEND_ORIGINS,

@@ -10,10 +10,10 @@ const USE_FAKE_OTP = Boolean(window.APP_CONFIG?.useFakeOtp);
 let lastFreeInsightDocId = null;
 let appRuntimeConfig = null;
 const DEFAULT_AUDIT_PAYMENT = {
-    baseAmount: 29900,
-    gstAmount: 5382,
+    baseAmount: 100,
+    gstAmount: 18,
     gstPercent: 18,
-    amount: 35282,
+    amount: 118,
     currency: "INR",
 };
 
