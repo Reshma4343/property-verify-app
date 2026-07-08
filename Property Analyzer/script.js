@@ -4,6 +4,7 @@ let userData = { name: "", phone: "", email: "", locality: "", budget: "" };
 let firebaseConfirmationResult = null;
 let selectedAuditFiles = [];
 let currentAuditTrackId = null;
+let currentPaymentDetails = null;
 let fakeOtp = null;
 const USE_FAKE_OTP = Boolean(window.APP_CONFIG?.useFakeOtp);
 let lastFreeInsightDocId = null;
@@ -719,6 +720,7 @@ function initAuditFlow() {
         return;
     }
     selectedAuditFiles = [];
+    currentPaymentDetails = null;
     currentAuditTrackId = "PV-" + Math.floor(1000 + Math.random() * 9000);
     renderSelectedFiles();
     document.getElementById("modal-container").classList.remove("hidden");
@@ -751,8 +753,9 @@ async function startRazorpayCheckout(button) {
 
         const config = await getAppRuntimeConfig();
         const payment = config.payment || DEFAULT_AUDIT_PAYMENT;
-        if (!config.razorpayKeyId) {
-            throw new Error("Razorpay key is missing from backend configuration.");
+        const razorpayKeyId = config.razorpayKeyId || window.APP_CONFIG?.razorpayKeyId;
+        if (!razorpayKeyId) {
+            throw new Error("Razorpay key is missing from QA/frontend configuration.");
         }
 
         const orderResponse = await fetch(getApiUrl("/api/create-order"), {
@@ -769,9 +772,9 @@ async function startRazorpayCheckout(button) {
             throw new Error(order?.error || "Could not create payment order.");
         }
 
-        await new Promise((resolve, reject) => {
+        const verifiedPayment = await new Promise((resolve, reject) => {
             const checkout = new window.Razorpay({
-                key: config.razorpayKeyId,
+                key: razorpayKeyId,
                 amount: order.amount,
                 currency: order.currency,
                 name: "AsliProperty",
@@ -806,7 +809,14 @@ async function startRazorpayCheckout(button) {
                         if (!verifyResponse.ok) {
                             throw new Error(verify?.error || "Payment verification failed.");
                         }
-                        resolve(verify);
+                        resolve({
+                            ...verify,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            amount: order.amount,
+                            currency: order.currency,
+                            receipt: order.receipt || "",
+                        });
                     } catch (error) {
                         reject(error);
                     }
@@ -820,6 +830,16 @@ async function startRazorpayCheckout(button) {
             checkout.open();
         });
 
+        currentPaymentDetails = {
+            status: "paid",
+            provider: "razorpay",
+            paymentId: verifiedPayment.razorpay_payment_id || verifiedPayment.payment_id || "",
+            orderId: verifiedPayment.razorpay_order_id || verifiedPayment.order_id || "",
+            amount: Number(verifiedPayment.amount || payment.amount),
+            currency: verifiedPayment.currency || payment.currency || "INR",
+            receipt: verifiedPayment.receipt || currentAuditTrackId || "",
+            verifiedAt: new Date().toISOString(),
+        };
         showModalStage("details");
     } catch (error) {
         console.error(error);
@@ -876,12 +896,19 @@ async function uploadAuditDocuments(trackId) {
 async function saveAuditOrderToFirestore(trackId, property, notes, documents) {
     const db = getFirestore();
     const FieldValue = window.firebase.firestore.FieldValue;
+    const paymentDetails = currentPaymentDetails || null;
 
     const payload = {
         trackId,
         createdAt: FieldValue.serverTimestamp(),
         status: "New Lead",
-        paymentStatus: "pending",
+        paymentStatus: paymentDetails?.status || "pending",
+        payment: paymentDetails
+            ? {
+                ...paymentDetails,
+                verifiedAt: FieldValue.serverTimestamp(),
+            }
+            : null,
         user: { ...userData },
         property: {
             rera: property?.rera || "",
