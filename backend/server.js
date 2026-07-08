@@ -1,9 +1,11 @@
 import fs from "node:fs/promises";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import "dotenv/config";
 import express from "express";
+import Razorpay from "razorpay";
 import { findGo111Village } from "./data/go111Villages.js";
 
 const app = express();
@@ -17,11 +19,19 @@ const CONTACT_FROM_NAME = String(process.env.CONTACT_FROM_NAME || "AsliProperty 
 const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 30000));
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
 const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 1));
+const RAZORPAY_KEY_ID = String(process.env.RAZORPAY_KEY_ID || "").trim();
+const RAZORPAY_KEY_SECRET = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
+const PAYMENT_CURRENCY = String(process.env.PAYMENT_CURRENCY || "INR").trim().toUpperCase();
+const PAYMENT_BASE_AMOUNT_PAISE = Math.max(100, Number(process.env.PAYMENT_BASE_AMOUNT_PAISE || 29900));
+const PAYMENT_GST_PERCENT = Math.max(0, Number(process.env.PAYMENT_GST_PERCENT || 18));
 const FRONTEND_ORIGINS = parseCsv(
   process.env.FRONTEND_ORIGINS,
   "https://asliproperty.in,https://www.asliproperty.in,https://property-1b194.web.app,https://property-1b194.firebaseapp.com,http://localhost:4242,http://localhost:4243,http://127.0.0.1:4242,http://127.0.0.1:4243"
 );
 const contactRateLimits = new Map();
+const razorpay = RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET
+  ? new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
+  : null;
 
 function isAllowedCorsOrigin(origin) {
   if (!origin) return false;
@@ -248,11 +258,108 @@ app.get("/favicon.ico", (_req, res) => {
 });
 
 app.get("/api/config", (_req, res) => {
+  const payment = getAuditPaymentBreakdown();
   res.json({
     geminiKeyCount: GEMINI_API_KEYS.length,
     geminiModels: getGeminiModelCandidates(),
     geminiRequestIntervalMs: GEMINI_REQUEST_INTERVAL_MS,
+    razorpayKeyId: RAZORPAY_KEY_ID,
+    payment,
   });
+});
+
+function getAuditPaymentBreakdown() {
+  const gstAmount = Math.round((PAYMENT_BASE_AMOUNT_PAISE * PAYMENT_GST_PERCENT) / 100);
+  return {
+    baseAmount: PAYMENT_BASE_AMOUNT_PAISE,
+    gstAmount,
+    gstPercent: PAYMENT_GST_PERCENT,
+    amount: PAYMENT_BASE_AMOUNT_PAISE + gstAmount,
+    currency: PAYMENT_CURRENCY,
+  };
+}
+
+function isMissingRazorpayConfig() {
+  return !razorpay || !RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET;
+}
+
+app.post("/api/create-order", async (req, res) => {
+  try {
+    if (isMissingRazorpayConfig()) {
+      return res.status(500).json({ error: "Razorpay is not configured on the backend." });
+    }
+
+    const payment = getAuditPaymentBreakdown();
+    const requestedAmount = Number(req.body?.amount || payment.amount);
+    const currency = String(req.body?.currency || payment.currency).trim().toUpperCase();
+    const receipt = safeSegment(req.body?.receipt || `audit_${Date.now()}`) || `audit_${Date.now()}`;
+
+    if (!Number.isInteger(requestedAmount) || requestedAmount < 100) {
+      return res.status(400).json({ error: "Amount must be at least 100 paise." });
+    }
+    if (requestedAmount !== payment.amount || currency !== payment.currency) {
+      return res.status(400).json({ error: "Invalid payment amount or currency." });
+    }
+
+    const order = await razorpay.orders.create({
+      amount: payment.amount,
+      currency: payment.currency,
+      receipt,
+      notes: {
+        service: "AsliProperty Full Audit",
+        baseAmount: String(payment.baseAmount),
+        gstAmount: String(payment.gstAmount),
+        gstPercent: String(payment.gstPercent),
+      },
+    });
+
+    return res.json({
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      receipt: order.receipt,
+      payment,
+    });
+  } catch (err) {
+    console.error("Razorpay order creation failed:", err);
+    const status = Number(err?.statusCode || err?.status || err?.error?.code);
+    if (status === 401 || /auth|credential/i.test(String(err?.message || ""))) {
+      return res.status(401).json({ error: "Razorpay authentication failed." });
+    }
+    return res.status(500).json({ error: "Failed to create Razorpay order." });
+  }
+});
+
+app.post("/api/verify-payment", (req, res) => {
+  try {
+    if (isMissingRazorpayConfig()) {
+      return res.status(500).json({ error: "Razorpay is not configured on the backend." });
+    }
+
+    const orderId = String(req.body?.razorpay_order_id || "").trim();
+    const paymentId = String(req.body?.razorpay_payment_id || "").trim();
+    const signature = String(req.body?.razorpay_signature || "").trim();
+
+    if (!orderId || !paymentId || !signature) {
+      return res.status(400).json({ error: "Payment ID, order ID, and signature are required." });
+    }
+
+    const generatedSignature = crypto
+      .createHmac("sha256", RAZORPAY_KEY_SECRET)
+      .update(`${orderId}|${paymentId}`)
+      .digest("hex");
+
+    const expected = Buffer.from(generatedSignature, "hex");
+    const received = Buffer.from(signature, "hex");
+    if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
+      return res.status(400).json({ error: "Payment signature verification failed." });
+    }
+
+    return res.json({ ok: true, payment_id: paymentId, order_id: orderId });
+  } catch (err) {
+    console.error("Razorpay signature verification failed:", err);
+    return res.status(500).json({ error: "Failed to verify Razorpay payment." });
+  }
 });
 
 function safeFileName(fileName) {

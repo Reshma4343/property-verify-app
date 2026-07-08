@@ -7,11 +7,54 @@ let currentAuditTrackId = null;
 let fakeOtp = null;
 const USE_FAKE_OTP = Boolean(window.APP_CONFIG?.useFakeOtp);
 let lastFreeInsightDocId = null;
+let appRuntimeConfig = null;
+const DEFAULT_AUDIT_PAYMENT = {
+    baseAmount: 29900,
+    gstAmount: 5382,
+    gstPercent: 18,
+    amount: 35282,
+    currency: "INR",
+};
 
 function getApiUrl(path) {
     const baseUrl = String(window.APP_CONFIG?.apiBaseUrl || "").replace(/\/+$/, "");
     const cleanPath = String(path || "").startsWith("/") ? String(path || "") : `/${path || ""}`;
     return `${baseUrl}${cleanPath}`;
+}
+
+function formatPaise(amount) {
+    return `₹${(Number(amount || 0) / 100).toFixed(2)}`;
+}
+
+async function getAppRuntimeConfig() {
+    if (appRuntimeConfig) return appRuntimeConfig;
+    const response = await fetch(getApiUrl("/api/config"));
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data?.error || "Unable to load payment configuration.");
+    }
+    appRuntimeConfig = data;
+    updateCheckoutAmount(data.payment || DEFAULT_AUDIT_PAYMENT);
+    return appRuntimeConfig;
+}
+
+function updateCheckoutAmount(payment = DEFAULT_AUDIT_PAYMENT) {
+    const totalEl = document.getElementById("checkoutTotal");
+    const baseEl = document.getElementById("checkoutBase");
+    const gstEl = document.getElementById("checkoutGst");
+    if (totalEl) totalEl.textContent = formatPaise(payment.amount);
+    if (baseEl) baseEl.textContent = `Base: ${formatPaise(payment.baseAmount)}`;
+    if (gstEl) gstEl.textContent = `GST (${payment.gstPercent || 18}%): ${formatPaise(payment.gstAmount)}`;
+}
+
+function showPaymentError(message) {
+    const errEl = document.getElementById("paymentError");
+    if (errEl) {
+        errEl.textContent = message || "";
+        errEl.style.display = message ? "block" : "none";
+    } else if (message) {
+        alert(message);
+    }
 }
 
 // Embedded sample report PDF (base64, non-editable, opens in all browsers)
@@ -683,14 +726,115 @@ function initAuditFlow() {
 }
 
 function showModalStage(stage) {
-    ["payment", "details", "success", "coming-soon"].forEach((s) => {
+    ["payment", "details", "success"].forEach((s) => {
         document.getElementById("modal-" + s).classList.add("hidden");
     });
     document.getElementById("modal-" + stage).classList.remove("hidden");
 }
 
+async function startRazorpayCheckout(button) {
+    if (button?.disabled) return;
+    const buttons = Array.from(document.querySelectorAll("#modal-payment .pay-btn"));
+    const originalLabels = new Map(buttons.map((btn) => [btn, btn.innerHTML]));
+    showPaymentError("");
+
+    buttons.forEach((btn) => {
+        btn.disabled = true;
+        btn.classList.add("is-loading");
+    });
+    if (button) button.innerHTML = `<span>Opening secure checkout...</span><i class="fa-solid fa-circle-notch fa-spin"></i>`;
+
+    try {
+        if (typeof window.Razorpay !== "function") {
+            throw new Error("Razorpay checkout script did not load. Please refresh and try again.");
+        }
+
+        const config = await getAppRuntimeConfig();
+        const payment = config.payment || DEFAULT_AUDIT_PAYMENT;
+        if (!config.razorpayKeyId) {
+            throw new Error("Razorpay key is missing from backend configuration.");
+        }
+
+        const orderResponse = await fetch(getApiUrl("/api/create-order"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: payment.amount,
+                currency: payment.currency,
+                receipt: currentAuditTrackId || `audit_${Date.now()}`,
+            }),
+        });
+        const order = await orderResponse.json().catch(() => ({}));
+        if (!orderResponse.ok) {
+            throw new Error(order?.error || "Could not create payment order.");
+        }
+
+        await new Promise((resolve, reject) => {
+            const checkout = new window.Razorpay({
+                key: config.razorpayKeyId,
+                amount: order.amount,
+                currency: order.currency,
+                name: "AsliProperty",
+                description: "Full Digital Property Audit",
+                order_id: order.order_id,
+                prefill: {
+                    name: userData.name || "",
+                    email: userData.email || "",
+                    contact: String(userData.phone || "").replace(/\D/g, ""),
+                },
+                notes: {
+                    trackId: currentAuditTrackId || "",
+                    locality: userData.locality || "",
+                    budget: userData.budget || "",
+                },
+                theme: { color: "#141E3A" },
+                modal: {
+                    ondismiss: () => reject(new Error("Payment cancelled. You can try again when ready.")),
+                },
+                handler: async (response) => {
+                    try {
+                        const verifyResponse = await fetch(getApiUrl("/api/verify-payment"), {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                            }),
+                        });
+                        const verify = await verifyResponse.json().catch(() => ({}));
+                        if (!verifyResponse.ok) {
+                            throw new Error(verify?.error || "Payment verification failed.");
+                        }
+                        resolve(verify);
+                    } catch (error) {
+                        reject(error);
+                    }
+                },
+            });
+
+            checkout.on("payment.failed", (response) => {
+                const description = response?.error?.description || "Payment failed. Please try another method.";
+                reject(new Error(description));
+            });
+            checkout.open();
+        });
+
+        showModalStage("details");
+    } catch (error) {
+        console.error(error);
+        showPaymentError(error?.message || "Payment could not be completed. Please try again.");
+    } finally {
+        buttons.forEach((btn) => {
+            btn.disabled = false;
+            btn.classList.remove("is-loading");
+            btn.innerHTML = originalLabels.get(btn) || btn.innerHTML;
+        });
+    }
+}
+
 function processPayment() {
-    showModalStage("coming-soon");
+    startRazorpayCheckout();
 }
 
 function getFirestore() {
