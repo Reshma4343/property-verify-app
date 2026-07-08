@@ -753,7 +753,7 @@ async function startRazorpayCheckout(button) {
 
         const config = await getAppRuntimeConfig();
         const payment = config.payment || DEFAULT_AUDIT_PAYMENT;
-        const razorpayKeyId = config.razorpayKeyId || window.APP_CONFIG?.razorpayKeyId;
+        let razorpayKeyId = config.razorpayKeyId || window.APP_CONFIG?.razorpayKeyId;
         if (!razorpayKeyId) {
             throw new Error("Razorpay key is missing from QA/frontend configuration.");
         }
@@ -771,6 +771,7 @@ async function startRazorpayCheckout(button) {
         if (!orderResponse.ok) {
             throw new Error(order?.error || "Could not create payment order.");
         }
+        razorpayKeyId = order.key_id || order.keyId || razorpayKeyId;
 
         const verifiedPayment = await new Promise((resolve, reject) => {
             const checkout = new window.Razorpay({

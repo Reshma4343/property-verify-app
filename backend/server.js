@@ -315,6 +315,7 @@ app.post("/api/create-order", async (req, res) => {
 
     return res.json({
       order_id: order.id,
+      key_id: RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: order.currency,
       receipt: order.receipt,

@@ -13,6 +13,7 @@
     const productionConfig = {
         envName: "production",
         apiBaseUrl: "https://property-verify-app-1.onrender.com",
+        razorpayKeyId: "rzp_live_TAvYZpr6xdIgMU",
         useFakeOtp: false,
         firebase: {
             apiKey: "AIzaSyAV2whuhVhfME4oKuTXAlt4v4iOLg_2rIY",

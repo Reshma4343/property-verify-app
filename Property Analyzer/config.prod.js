@@ -5,6 +5,7 @@
         ...(window.APP_CONFIG || {}),
         envName: "production",
         apiBaseUrl: "https://property-verify-app-1.onrender.com", // ✅ Production backend
+        razorpayKeyId: "rzp_live_TAvYZpr6xdIgMU",
         useFakeOtp: false,
 
         firebase: {

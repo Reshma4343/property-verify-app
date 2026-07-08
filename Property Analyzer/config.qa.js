@@ -5,7 +5,7 @@
         ...(window.APP_CONFIG || {}),
         envName: "qa",
         apiBaseUrl: "https://property-verify-app-2.onrender.com",
-        razorpayKeyId: "rzp_live_TAvYZpr6xdIgMU",
+        razorpayKeyId: "rzp_test_TAfrGs7p1TXpxa",
         useFakeOtp: true,
 
         firebase: {
