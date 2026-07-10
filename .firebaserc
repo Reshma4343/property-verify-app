@@ -1,6 +1,8 @@
 {
   "projects": {
-    "default": "property-1b194"
-  }
+    "qa": "property-verify-qa",
+    "production": "property-1b194"
+  },
+  "targets": {},
+  "etags": {}
 }
-
