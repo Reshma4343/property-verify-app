@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "deploy:qa": "firebase deploy --project qa --only hosting:qa",
+    "deploy:prod": "firebase deploy --project production --only hosting:production",
+    "deploy:qa:all": "firebase deploy --project qa --only hosting:qa,functions,firestore",
+    "deploy:prod:all": "firebase deploy --project production --only hosting:production,functions,firestore"
+  },
   "dependencies": {
     "dotenv": "^17.4.2"
   }

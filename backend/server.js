@@ -26,7 +26,7 @@ const PAYMENT_BASE_AMOUNT_PAISE = Math.max(100, Number(process.env.PAYMENT_BASE_
 const PAYMENT_GST_PERCENT = Math.max(0, Number(process.env.PAYMENT_GST_PERCENT || 18));
 const FRONTEND_ORIGINS = parseCsv(
   process.env.FRONTEND_ORIGINS,
-  "https://asliproperty.in,https://www.asliproperty.in,https://property-1b194.web.app,https://property-1b194.firebaseapp.com,http://localhost:4242,http://localhost:4243,http://127.0.0.1:4242,http://127.0.0.1:4243"
+  "https://asliproperty.in,https://www.asliproperty.in,https://property-1b194.web.app,https://property-1b194.firebaseapp.com,https://property-verify-qa.web.app,https://property-verify-qa.firebaseapp.com,http://localhost:4242,http://localhost:4243,http://127.0.0.1:4242,http://127.0.0.1:4243"
 );
 const contactRateLimits = new Map();
 const razorpay = RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET
@@ -359,6 +359,42 @@ app.post("/api/verify-payment", (req, res) => {
   } catch (err) {
     console.error("Razorpay signature verification failed:", err);
     return res.status(500).json({ error: "Failed to verify Razorpay payment." });
+  }
+});
+
+app.post("/api/order-status", async (req, res) => {
+  try {
+    if (isMissingRazorpayConfig()) {
+      return res.status(500).json({ error: "Razorpay is not configured on the backend." });
+    }
+
+    const orderId = String(req.body?.razorpay_order_id || req.body?.order_id || "").trim();
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required." });
+    }
+
+    const [order, paymentsResult] = await Promise.all([
+      razorpay.orders.fetch(orderId),
+      razorpay.orders.fetchPayments(orderId),
+    ]);
+    const payments = Array.isArray(paymentsResult?.items) ? paymentsResult.items : [];
+    const capturedPayment = payments.find((payment) => payment?.status === "captured");
+
+    return res.json({
+      ok: true,
+      paid: Boolean(capturedPayment || order?.status === "paid"),
+      order_id: orderId,
+      payment_id: capturedPayment?.id || "",
+      amount: capturedPayment?.amount || order?.amount || null,
+      currency: capturedPayment?.currency || order?.currency || null,
+      receipt: order?.receipt || "",
+      order_status: order?.status || "",
+      payment_status: capturedPayment?.status || "",
+      method: capturedPayment?.method || "",
+    });
+  } catch (err) {
+    console.error("Razorpay order status lookup failed:", err);
+    return res.status(500).json({ error: "Failed to check Razorpay order status." });
   }
 });
 

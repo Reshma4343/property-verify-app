@@ -9,8 +9,9 @@ Install Firebase CLI:
 Login:
 - `firebase login`
 
-Set your Firebase project id:
-- Edit `.firebaserc` and replace `YOUR_FIREBASE_PROJECT_ID`
+Confirm your Firebase aliases in `.firebaserc`:
+- `qa` -> `property-verify-qa`
+- `production` -> `property-1b194`
 
 ## 2. Configure Gemini Keys
 Use a comma-separated list so the backend can rotate through keys:
@@ -28,12 +29,16 @@ For local testing, put these values in `functions/.env`:
 
 For production Firebase Functions, configure the same values as environment variables or secrets before deploying. `CONTACT_FROM_EMAIL` must be verified in Brevo.
 
-## 4. Install Dependencies And Deploy
+## 4. Deploy QA Or Production
 From repo root:
-- `cd functions`
-- `npm install`
-- `cd ..`
-- `firebase deploy`
+- QA hosting only: `npm run deploy:qa`
+- Production hosting only: `npm run deploy:prod`
+- QA hosting/functions/rules: `npm run deploy:qa:all`
+- Production hosting/functions/rules: `npm run deploy:prod:all`
+
+Do not use bare `firebase deploy` for normal releases. Always choose the explicit QA or production script above.
+
+`Property Analyzer/config.js` selects QA config on localhost and `property-verify-qa.*` hosts. Other deployed hosts use production config.
 
 ## Local Testing
 Put `GEMINI_API_KEYS` in `functions/.env`, then run:
