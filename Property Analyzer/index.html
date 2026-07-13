@@ -1072,20 +1072,19 @@
 
                 <!-- ══ INVESTMENT RETURN SNAPSHOT (dynamic) ══ -->
                 <div class="irs-wrap">
+                  <div class="irs-header">
+                    <span class="irs-label">INVESTMENT INSIGHTS</span>
+                    <h2 class="irs-title">Investment Return<br>Snapshot</h2>
+                    <p class="irs-subtitle">Know whether this locality has real growth potential before you invest.</p>
+                    <div class="irs-location-pill">
+                      <i class="fa-solid fa-location-dot"></i>
+                      <span id="irsLocalityName">—</span>, Hyderabad
+                    </div>
+                  </div>
                   <div class="irs-layout">
 
                     <!-- LEFT -->
                     <div class="irs-left">
-                      <div class="irs-header">
-                        <span class="irs-label">INVESTMENT INSIGHTS</span>
-                        <h2 class="irs-title">Investment Return<br>Snapshot</h2>
-                        <p class="irs-subtitle">Know whether this locality has real growth potential before you invest.</p>
-                        <div class="irs-location-pill">
-                          <i class="fa-solid fa-location-dot"></i>
-                          <span id="irsLocalityName">—</span>, Hyderabad
-                        </div>
-                      </div>
-
                       <div class="irs-cards">
                         <!-- Card 1: Appreciation -->
                         <div class="irs-card">
@@ -1114,6 +1113,15 @@
                           <h4 class="irs-card-title">Investment Confidence</h4>
                           <p class="irs-card-desc" id="irsDescConfidence">Scoring locality potential for your budget...</p>
                         </div>
+                        <!-- Card 4: Legal Safety -->
+                        <div class="irs-card">
+                          <div class="irs-card-top">
+                            <span class="irs-card-icon irs-icon-navy"><i class="fa-solid fa-scale-balanced"></i></span>
+                            <span class="irs-badge irs-badge-navy" id="irsBadgeLegal">Low Risk</span>
+                          </div>
+                          <h4 class="irs-card-title">Legal Safety</h4>
+                          <p class="irs-card-desc" id="irsDescLegal">Checking title clarity and land records...</p>
+                        </div>
                       </div>
                     </div>
 
@@ -1128,28 +1136,7 @@
                           </div>
                         </div>
 
-                        <div class="irs-score-wrap">
-                          <div class="irs-score-ring">
-                            <svg class="irs-ring-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
-                              <circle cx="60" cy="60" r="50" fill="none" stroke="url(#irsGrad2)" stroke-width="10"
-                                stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
-                                transform="rotate(-90 60 60)" id="irsRingProgress" class="irs-ring-progress"/>
-                              <defs>
-                                <linearGradient id="irsGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                  <stop offset="0%" stop-color="#5B4FCF"/>
-                                  <stop offset="100%" stop-color="#10B981"/>
-                                </linearGradient>
-                              </defs>
-                            </svg>
-                            <div class="irs-score-center">
-                              <span class="irs-score-num" id="irsScoreNum">—</span>
-                              <span class="irs-score-denom">/100</span>
-                            </div>
-                          </div>
-                          <p class="irs-score-caption">Overall locality potential for property investment</p>
-                        </div>
-
+                        
                         <div class="irs-analysis">
                           <div class="irs-analysis-row">
                             <span class="irs-analysis-icon" style="color:#5B4FCF;"><i class="fa-solid fa-arrow-trend-up"></i></span>

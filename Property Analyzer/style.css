@@ -947,7 +947,7 @@ label[for="userBudget"], label[for="userLocality"] {
 
 .step2-wrapper {
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
     width: 100%;
     min-height: 100%;
 }
@@ -1819,7 +1819,7 @@ label[for="userBudget"], label[for="userLocality"] {
 ═══════════════════════════════════════════════════════ */
 
 .site-footer {
-    margin-top: 80px;
+    margin-top: 0;
     background: #0B1E3A;
     position: relative;
     overflow: hidden;
@@ -3842,7 +3842,8 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── LEFT ── */
 .irs-header {
-    margin-bottom: 28px;
+    margin-bottom: 36px;
+    text-align: center;
 }
 .irs-label {
     display: inline-block;
@@ -3896,7 +3897,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 .irs-cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 50px;
 }
 .irs-card {
     background: var(--surface, #fff);
@@ -3933,6 +3934,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 .irs-icon-teal   { background: linear-gradient(135deg, #0CA8A8, #0dd5d5); }
 .irs-icon-amber  { background: linear-gradient(135deg, #F59E0B, #fbbf24); }
 .irs-icon-green  { background: linear-gradient(135deg, #10B981, #34d399); }
+.irs-icon-navy   { background: linear-gradient(135deg, #1A2744, #33456e); }
 
 /* Badges */
 .irs-badge {
@@ -3947,6 +3949,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 .irs-badge-modhigh { background: rgba(12,168,168,0.1); color: #0CA8A8; }
 .irs-badge-lowmed  { background: rgba(245,158,11,0.1); color: #d97706; }
 .irs-badge-good    { background: rgba(16,185,129,0.1); color: #10B981; }
+.irs-badge-navy    { background: rgba(26,39,68,0.1);   color: #1A2744; }
 
 .irs-card-title {
     font-size: 13.5px;
@@ -3965,6 +3968,7 @@ a.footer-contact-text:hover { color: #C9A84C; }
 
 /* ── RIGHT — Dashboard ── */
 .irs-dashboard {
+    margin-top: 0;
     background: var(--primary, #141E3A);
     border-radius: 20px;
     padding: 32px 28px;
