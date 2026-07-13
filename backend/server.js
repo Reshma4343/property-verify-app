@@ -519,7 +519,8 @@ Return ONLY a valid JSON with these keys:
 "appreciation" (3-year growth %),
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
-"metro" (nearest metro station and distance),
+"metro" (nearest operational Hyderabad Metro station and road distance from the exact locality; do not return railway/MMTS stations here),
+"metro_stations" (array of exactly 3 nearest operational Hyderabad Metro stations, sorted nearest first; each item must include "name", "distance_km", and "line"),
 "hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
@@ -535,6 +536,44 @@ Return ONLY a valid JSON with these keys:
 function parseGeminiJson(text) {
   const cleanText = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
   return JSON.parse(cleanText);
+}
+
+function formatMetroStation(station) {
+  if (!station) return "";
+  if (typeof station === "string") return station.trim();
+  if (typeof station !== "object") return "";
+
+  const name = String(station.name || station.station || station.metro_station || "").trim();
+  const distanceValue = station.distance_km ?? station.distance ?? station.km;
+  const distanceText = distanceValue !== undefined && distanceValue !== null && String(distanceValue).trim() !== ""
+    ? String(distanceValue).toLowerCase().includes("km")
+      ? String(distanceValue).trim()
+      : `${distanceValue} km`
+    : "";
+  const line = String(station.line || station.route || "").trim();
+
+  return [name, distanceText, line].filter(Boolean).join(" - ");
+}
+
+function normalizeMetroConnectivity(data) {
+  if (!data || typeof data !== "object") return data;
+
+  const metroStations = Array.isArray(data.metro_stations)
+    ? data.metro_stations
+    : Array.isArray(data.nearest_metro_stations)
+      ? data.nearest_metro_stations
+      : [];
+  const nearestMetro = formatMetroStation(metroStations[0]);
+
+  if (nearestMetro) {
+    data.metro = nearestMetro;
+    return data;
+  }
+
+  const metroText = formatMetroStation(data.metro || data.metro_connectivity || data.nearest_metro);
+  if (metroText) data.metro = metroText;
+
+  return data;
 }
 
 function getGeminiModelCandidates() {
@@ -704,6 +743,7 @@ app.post("/api/analyze", async (req, res) => {
     let data;
     try {
       data = await callAI(locality, budget);
+      normalizeMetroConnectivity(data);
     } catch (err) {
       return res.status(500).json({
         error: err?.message || "All AI providers failed",

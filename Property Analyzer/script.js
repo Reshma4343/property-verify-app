@@ -484,11 +484,11 @@ function updateUI(data) {
     const infra = data.infrastructure || data.social_infrastructure || data.amenities || {};
 
     setText("resZone", firstValue(data.zoning, data.zone, data.master_plan_zone) || "Loading...");
-    const metroRaw = firstValue(data.metro, data.metro_connectivity, data.nearest_metro);
+    const metroRaw = firstValue(data.metro, data.metro_stations, data.nearest_metro_stations, data.metro_connectivity, data.nearest_metro);
     const metroText = Array.isArray(metroRaw)
-        ? metroRaw.join(" • ")
+        ? metroRaw.map(textFromPlaceItem).filter(Boolean).slice(0, 1).join(" • ")
         : (metroRaw && typeof metroRaw === "object")
-            ? [metroRaw.name || metroRaw.station, metroRaw.distance].filter(Boolean).join(" – ")
+            ? textFromPlaceItem(metroRaw)
             : metroRaw;
     setText("resMetro", metroText || "Checking Connectivity...");
 
