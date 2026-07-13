@@ -1509,14 +1509,24 @@
     goToStep(0, true);
     if (autoplayEnabled) startAutoplay();
 
-    /* On mobile: measure tallest panel and lock container height to prevent layout shift */
+    /* On mobile/tablet (stacked single-column layout, <=960px): measure tallest panel
+       and lock container height to prevent the panel from overflowing into the CTA strip */
     function lockMobilePanelHeight() {
       const panelsWrap = document.getElementById('hpwPanels');
-      if (!panelsWrap || window.innerWidth > 640) return;
+      if (!panelsWrap) return;
+      if (window.innerWidth > 960) {
+        // Desktop: let CSS min-height handle it, clear any stale locked height
+        panelsWrap.style.height = '';
+        return;
+      }
       panels.forEach(p => {
         p.style.position = 'relative';
         p.style.opacity = '0';
         p.style.pointerEvents = 'none';
+        // Force the same stacked single-column grid used by .hpw-panel-active
+        // at this breakpoint, even for panels that aren't active right now,
+        // so their measured height matches what it will be once they ARE active.
+        p.style.gridTemplateColumns = '1fr';
       });
       let maxH = 0;
       panels.forEach(p => { maxH = Math.max(maxH, p.offsetHeight); });
@@ -1524,6 +1534,7 @@
         p.style.position = '';
         p.style.opacity = '';
         p.style.pointerEvents = '';
+        p.style.gridTemplateColumns = '';
       });
       panelsWrap.style.height = maxH + 'px';
       // Reset CTA strip margin — let CSS handle spacing naturally
