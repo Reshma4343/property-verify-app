@@ -2,15 +2,16 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
 
 import "dotenv/config";
 import express from "express";
 import Razorpay from "razorpay";
 import { findGo111Village } from "./data/go111Villages.js";
+import {
+  applyGoogleVerifiedInsights,
+  buildGoogleVerifiedInsights,
+} from "./services/googleMaps.js";
 
-const require = createRequire(import.meta.url);
-const metroData = require("./data/hyderabadMetroStations.json");
 const app = express();
 
 const PORT = Number(process.env.PORT || 4242);
@@ -23,10 +24,7 @@ const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 3
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
 const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 0));
 const AI_PROVIDER_TIMEOUT_MS = Math.max(5000, Number(process.env.AI_PROVIDER_TIMEOUT_MS || 15000));
-const GOOGLE_DISTANCE_API_KEY = String(process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_API_KEY || "").trim();
-const GOOGLE_DISTANCE_TIMEOUT_MS = Math.max(3000, Number(process.env.GOOGLE_DISTANCE_TIMEOUT_MS || 8000));
-const MAX_ROAD_DISTANCE_DESTINATIONS = Math.max(0, Number(process.env.MAX_ROAD_DISTANCE_DESTINATIONS || 75));
-const INSIGHT_CACHE_VERSION = Number(process.env.INSIGHT_CACHE_VERSION || 3);
+const INSIGHT_CACHE_VERSION = Number(process.env.INSIGHT_CACHE_VERSION || 4);
 const RAZORPAY_KEY_ID = String(process.env.RAZORPAY_KEY_ID || "").trim();
 const RAZORPAY_KEY_SECRET = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
 const PAYMENT_CURRENCY = String(process.env.PAYMENT_CURRENCY || "INR").trim().toUpperCase();
@@ -542,32 +540,74 @@ app.post("/api/contact", async (req, res) => {
 });
 
 function getPromptLocality(locality) {
-  const normalized = normalizeMetroLookupName(locality);
+  const normalized = normalizeInsightCachePart(locality).replace(/\s+/g, "");
   if (normalized === "suncity" || normalized === "suncityhyderabad") {
     return "Suncity, Bandlaguda Jagir, Hyderabad";
   }
   return `${locality}, Hyderabad`;
 }
 
+// function buildPrompt(locality, budget) {
+//   return `Analyze market intelligence for the locality: ${getPromptLocality(locality)}. User Budget: ${budget}.
+// Return ONLY a valid JSON with these keys:
+// "price" (approx price range per sqft/sqyd),
+// "appreciation" (3-year growth %),
+// "go111" (SAFE or AFFECTED),
+// "zoning" (Master plan zone),
+// "metro" (nearest operational Hyderabad Metro station and road distance from the exact locality; do not return railway/MMTS stations here),
+// "metro_stations" (array of exactly 3 nearest operational Hyderabad Metro stations, sorted nearest first; each item must include "name", "distance_km", and "line"),
+// "hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
+// "schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
+// "malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
+// "gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
+// "tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
+// "restaurants_list" (array of exactly 10 nearby restaurants, cafes, or popular food places, sorted nearest first; each item must include "name" and "distance_km"),
+// "highway" (array of at least 3 nearest main highways/NH/SH roads, sorted nearest first; each item must include "name" and "distance_km"),
+// "orr_access" (array of at least 2 nearest ORR exits/gates/interchanges, sorted nearest first; each item must include "name" and "distance_km"),
+// "rail_access" (array that must include Secunderabad Railway Station with "distance_km", plus nearby main MMTS stations and railway stations with "name" and "distance_km"),
+// "local_transport" (array of nearby proper bus stands, TSRTC stops, bus depots, and public transport hubs, sorted nearest first; each item must include "name" and "distance_km")`;
+// }
+
 function buildPrompt(locality, budget) {
   return `Analyze market intelligence for the locality: ${getPromptLocality(locality)}. User Budget: ${budget}.
+
 Return ONLY a valid JSON with these keys:
+
 "price" (approx price range per sqft/sqyd),
 "appreciation" (3-year growth %),
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
-"metro" (nearest operational Hyderabad Metro station and road distance from the exact locality; do not return railway/MMTS stations here),
-"metro_stations" (array of exactly 3 nearest operational Hyderabad Metro stations, sorted nearest first; each item must include "name", "distance_km", and "line"),
-"hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
-"schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
-"malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
-"gardens_list" (array of exactly 10 nearby public gardens, parks, or lake parks, sorted nearest first; each item must include "name" and "distance_km"),
-"tourism_list" (array of exactly 10 nearby tourist spots, landmarks, or attractions, sorted nearest first; each item must include "name" and "distance_km"),
-"restaurants_list" (array of exactly 10 nearby restaurants, cafes, or popular food places, sorted nearest first; each item must include "name" and "distance_km"),
-"highway" (array of at least 3 nearest main highways/NH/SH roads, sorted nearest first; each item must include "name" and "distance_km"),
-"orr_access" (array of at least 2 nearest ORR exits/gates/interchanges, sorted nearest first; each item must include "name" and "distance_km"),
-"rail_access" (array that must include Secunderabad Railway Station with "distance_km", plus nearby main MMTS stations and railway stations with "name" and "distance_km"),
-"local_transport" (array of nearby proper bus stands, TSRTC stops, bus depots, and public transport hubs, sorted nearest first; each item must include "name" and "distance_km")`;
+"summary" (short 2-3 sentence investment/locality summary),
+
+"metro" (fallback only; backend will verify and overwrite this),
+"metro_stations" (fallback only; backend will verify and overwrite this),
+
+"hospitals_list" (fallback only; backend will replace with Google Places when available),
+
+"schools_list" (fallback only; backend will replace with Google Places when available),
+
+"malls_list" (fallback only; backend will replace with Google Places when available),
+
+"gardens_list" (fallback only; backend will replace with Google Places when available),
+
+"tourism_list" (fallback only; backend will replace with Google Places when available),
+
+"restaurants_list" (fallback only; backend will replace with Google Places when available),
+
+"highway" (array of at least 3 nearest highways/NH/SH roads; include "name" and "distance_km"),
+
+"orr_access" (array of at least 2 nearest ORR exits; include "name" and "distance_km"),
+
+"rail_access" (array including Secunderabad Railway Station and nearby MMTS stations; include "name" and "distance_km"),
+
+"local_transport" (array of nearby TSRTC bus stands/stops; include "name" and "distance_km").
+
+IMPORTANT:
+- Do not guess metro stations or metro distances.
+- Backend will verify metro and nearby amenities using Google APIs.
+- If unsure, return "Not Available" instead of inventing data.
+- Never return fictional metro stations, hospitals, schools, malls or distances.
+`;
 }
 
 function parseGeminiJson(text) {
@@ -575,40 +615,25 @@ function parseGeminiJson(text) {
   return JSON.parse(cleanText);
 }
 
-function formatMetroStation(station) {
-  if (!station) return "";
-  if (typeof station === "string") return station.trim();
-  if (typeof station !== "object") return "";
-
-  const name = String(station.name || station.station || station.metro_station || "").trim();
-  const distanceValue = station.distance_km ?? station.distance ?? station.km;
-  const distanceText = distanceValue !== undefined && distanceValue !== null && String(distanceValue).trim() !== ""
-    ? String(distanceValue).toLowerCase().includes("km")
-      ? String(distanceValue).trim()
-      : `${distanceValue} km`
-    : "";
-  const line = String(station.line || station.route || "").trim();
-
-  return [name, distanceText, line].filter(Boolean).join(" - ");
-}
-
-function normalizeMetroConnectivity(data) {
+async function applyInsightValidations(data, locality) {
   if (!data || typeof data !== "object") return data;
 
-  const metroStations = Array.isArray(data.metro_stations)
-    ? data.metro_stations
-    : Array.isArray(data.nearest_metro_stations)
-      ? data.nearest_metro_stations
-      : [];
-  const nearestMetro = formatMetroStation(metroStations[0]);
-
-  if (nearestMetro) {
-    data.metro = nearestMetro;
-    return data;
+  try {
+    const verifiedInsights = await buildGoogleVerifiedInsights(locality);
+    applyGoogleVerifiedInsights(data, verifiedInsights);
+  } catch (err) {
+    console.warn("Google insight verification failed:", err.message);
   }
 
-  const metroText = formatMetroStation(data.metro || data.metro_connectivity || data.nearest_metro);
-  if (metroText) data.metro = metroText;
+  const go111Match = findGo111Village(locality);
+  data.go111 = go111Match ? "AFFECTED" : "SAFE";
+  data.go111_details = go111Match
+    ? {
+        ...go111Match,
+        status: "AFFECTED",
+        note: "This locality matches the GO111 village list. Verify land-use and permissions carefully before purchase.",
+      }
+    : null;
 
   return data;
 }
@@ -790,7 +815,7 @@ app.post("/api/analyze", async (req, res) => {
 
     try {
       data = await callAI(locality, budget);
-      normalizeMetroConnectivity(data);
+      await applyInsightValidations(data, locality);
     } catch (err) {
       return res.status(500).json({
         error: err?.message || "All AI providers failed",
