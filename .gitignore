@@ -6,3 +6,8 @@
 
 # Logs
 *.log
+# Firebase
+.firebase/
+
+# Firebase cache
+.firebase/*

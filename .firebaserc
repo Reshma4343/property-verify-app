@@ -1,6 +1,23 @@
 {
   "projects": {
-    "default": "property-1b194"
-  }
+    "qa": "property-verify-qa",
+    "production": "property-1b194"
+  },
+  "targets": {
+    "property-verify-qa": {
+      "hosting": {
+        "qa": [
+          "property-verify-qa"
+        ]
+      }
+    },
+    "property-1b194": {
+      "hosting": {
+        "production": [
+          "property-1b194"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
-
