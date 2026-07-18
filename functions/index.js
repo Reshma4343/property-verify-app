@@ -199,8 +199,7 @@ Return ONLY a valid JSON with these keys:
 "appreciation" (3-year growth %),
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
-"locality_coordinates" (object with exact approximate center point of the searched locality; include numeric "lat" and "lng"),
-"metro" (nearest existing Hyderabad Metro Rail station name with distance in kilometers; format exactly like "Station Name Metro Station (X km)"; never invent a metro station for the locality),
+"metro" (nearest metro station and distance),
 "hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
@@ -216,129 +215,6 @@ Return ONLY a valid JSON with these keys:
 function parseGeminiJson(text) {
   const cleanText = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
   return JSON.parse(cleanText);
-}
-
-const METRO_ROAD_DISTANCE_FACTOR = 1.25;
-const metroStations = Array.isArray(metroData?.stations) ? metroData.stations : [];
-const metroStationByKey = new Map(
-  metroStations.flatMap((station) => {
-    const keys = new Set([
-      normalizeMetroLookupName(station.name),
-      normalizeMetroLookupName(`${station.name} metro station`),
-    ]);
-    return [...keys].filter(Boolean).map((key) => [key, station]);
-  })
-);
-
-function normalizeMetroLookupName(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/\bhyderabad\b/g, "")
-    .replace(/\bmetro\b/g, "")
-    .replace(/\bstation\b/g, "")
-    .replace(/\brail\b/g, "")
-    .replace(/\bhitech\b/g, "hitec")
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]/g, "");
-}
-
-function getRawMetroName(station) {
-  if (!station) return "";
-  if (typeof station === "string") {
-    return station
-      .replace(/\([^)]*\)/g, " ")
-      .replace(/\b\d+(\.\d+)?\s*km\b/gi, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-  if (typeof station !== "object") return "";
-  return String(station.name || station.station || station.nearest_station || station.metro_station || "").trim();
-}
-
-function getRawMetroDistance(station) {
-  const raw = typeof station === "object" && station
-    ? station.distance_km ?? station.distance ?? station.km
-    : String(station || "").match(/(\d+(?:\.\d+)?)\s*km/i)?.[1];
-  const distance = Number.parseFloat(String(raw || "").replace(/[^\d.]/g, ""));
-  return Number.isFinite(distance) ? distance : null;
-}
-
-function findMetroStationByName(name) {
-  const key = normalizeMetroLookupName(name);
-  if (!key) return null;
-  return metroStationByKey.get(key) || null;
-}
-
-function getCoordinatesFromValue(value) {
-  if (!value || typeof value !== "object") return null;
-  const lat = Number.parseFloat(value.lat ?? value.latitude);
-  const lng = Number.parseFloat(value.lng ?? value.lon ?? value.long ?? value.longitude);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  if (lat < 16.8 || lat > 17.9 || lng < 77.8 || lng > 79.2) return null;
-  return { lat, lng };
-}
-
-function getLocalityCoordinates(locality, data) {
-  const station = findMetroStationByName(locality);
-  if (station) return station;
-
-  return getCoordinatesFromValue(data?.locality_coordinates)
-    || getCoordinatesFromValue(data?.coordinates)
-    || getCoordinatesFromValue(data?.location)
-    || null;
-}
-
-function distanceKm(from, to) {
-  const earthRadiusKm = 6371;
-  const toRadians = (degrees) => (degrees * Math.PI) / 180;
-  const dLat = toRadians(Number(to.lat) - Number(from.lat));
-  const dLng = toRadians(Number(to.lng) - Number(from.lng));
-  const lat1 = toRadians(Number(from.lat));
-  const lat2 = toRadians(Number(to.lat));
-  const a = Math.sin(dLat / 2) ** 2
-    + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function findNearestMetroStation(locality, data) {
-  const coordinates = getLocalityCoordinates(locality, data);
-  if (!coordinates) return null;
-
-  return metroStations
-    .map((station) => ({
-      station,
-      distance: Math.round(distanceKm(coordinates, station) * METRO_ROAD_DISTANCE_FACTOR * 10) / 10,
-    }))
-    .sort((a, b) => a.distance - b.distance)[0] || null;
-}
-
-function formatVerifiedMetro(station, distance) {
-  const distanceText = Number.isFinite(distance) ? distance.toFixed(1).replace(/\.0$/, "") : "";
-  const stationName = String(station.name || "").replace(/\s+metro\s+station$/i, "").trim();
-  return distanceText
-    ? `${stationName} Metro Station (${distanceText} km)`
-    : `${stationName} Metro Station`;
-}
-
-function normalizeMetroConnectivity(data, locality = "") {
-  if (!data || typeof data !== "object") return data;
-
-  const nearest = findNearestMetroStation(locality, data);
-  if (nearest) {
-    data.metro = formatVerifiedMetro(nearest.station, nearest.distance);
-    return data;
-  }
-
-  const rawMetro = data.metro || data.metro_connectivity || data.nearest_metro;
-  const verifiedStation = findMetroStationByName(getRawMetroName(rawMetro));
-  if (verifiedStation) {
-    data.metro = formatVerifiedMetro(verifiedStation, getRawMetroDistance(rawMetro));
-    return data;
-  }
-
-  data.metro = "Nearest metro unavailable";
-
-  return data;
 }
 
 const go111Villages = [
@@ -549,7 +425,6 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     const go111Match = findGo111Village(locality);
-    normalizeMetroConnectivity(data, locality);
     data.go111 = go111Match ? "AFFECTED" : "SAFE";
     data.go111_details = go111Match
       ? {
