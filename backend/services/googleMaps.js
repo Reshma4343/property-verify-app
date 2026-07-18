@@ -501,24 +501,60 @@ export async function searchNearbyPlaces(latitude, longitude, includedTypes, opt
   }
 }
 
-
-// 👇 ADD THIS NEW FUNCTION HERE
 export async function searchNearbyMetroStations(
   latitude,
   longitude,
   options = {}
 ) {
-  const places = await searchNearbyPlaces(
+  // First search within the default radius (10 km)
+  let places = await searchNearbyPlaces(
     latitude,
     longitude,
     ["subway_station"],
     options
   );
 
+  // If nothing is found, expand the search to 50 km
+  if (!places.length) {
+    console.log("No metro found within 10 km. Expanding search to 50 km...");
+
+    places = await searchNearbyPlaces(
+      latitude,
+      longitude,
+      ["subway_station"],
+      {
+        ...options,
+        searchRadiusMeters: 50000,
+      }
+    );
+  }
+
   console.log("Metro Places:", JSON.stringify(places, null, 2));
 
   return places;
 }
+
+
+
+// 👇 ADD THIS NEW FUNCTION HERE
+// export async function searchNearbyMetroStations(
+//   latitude,
+//   longitude,
+//   options = {}
+// ) {
+//   const places = await searchNearbyPlaces(
+//     latitude,
+//     longitude,
+//     ["subway_station"],
+//     options
+//   );
+
+//   console.log("Metro Places:", JSON.stringify(places, null, 2));
+
+//   return places;
+// }
+
+
 
 
 // export async function searchNearbyMetroStations(
