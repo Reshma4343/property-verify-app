@@ -883,5 +883,5 @@ console.log("Groq Keys:", GROQ_API_KEYS.length);
 console.log("OpenRouter Keys:", OPENROUTER_API_KEYS.length);
 console.log(
   "Google Maps Key:",
-  GOOGLE_DISTANCE_API_KEY ? "Loaded" : "Missing"
+  GOOGLE_DISTANCE_API_KEY = process.env.GOOGLE_DISTANCE_API_KEY
 );
