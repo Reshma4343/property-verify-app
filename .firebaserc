@@ -8,6 +8,9 @@
       "hosting": {
         "qa": [
           "property-verify-qa"
+        ],
+        "production": [
+          "property-verify-qa"
         ]
       }
     },
