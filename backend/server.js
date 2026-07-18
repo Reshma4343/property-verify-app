@@ -881,9 +881,9 @@ app.listen(PORT, () => {
 console.log("Gemini Keys:", GEMINI_API_KEYS.length);
 console.log("Groq Keys:", GROQ_API_KEYS.length);
 console.log("OpenRouter Keys:", OPENROUTER_API_KEYS.length);
-const GOOGLE_DISTANCE_API_KEY = process.env.GOOGLE_DISTANCE_API_KEY;
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 console.log(
   "Google Maps Key:",
-  GOOGLE_DISTANCE_API_KEY ? "Loaded" : "Missing"
+  GOOGLE_MAPS_API_KEY ? "Loaded" : "Missing"
 );
