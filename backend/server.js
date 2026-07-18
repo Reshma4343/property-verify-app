@@ -2,12 +2,15 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 import "dotenv/config";
 import express from "express";
 import Razorpay from "razorpay";
 import { findGo111Village } from "./data/go111Villages.js";
 
+const require = createRequire(import.meta.url);
+const metroData = require("./data/hyderabadMetroStations.json");
 const app = express();
 
 const PORT = Number(process.env.PORT || 4242);
@@ -18,7 +21,12 @@ const CONTACT_FROM_EMAIL = String(process.env.CONTACT_FROM_EMAIL || CONTACT_TO_E
 const CONTACT_FROM_NAME = String(process.env.CONTACT_FROM_NAME || "AsliProperty Website").trim();
 const BREVO_TIMEOUT_MS = Math.max(1000, Number(process.env.BREVO_TIMEOUT_MS || 30000));
 const BREVO_MAX_RETRIES = Math.max(0, Number(process.env.BREVO_MAX_RETRIES || 2));
-const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 1));
+const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 0));
+const AI_PROVIDER_TIMEOUT_MS = Math.max(5000, Number(process.env.AI_PROVIDER_TIMEOUT_MS || 15000));
+const GOOGLE_DISTANCE_API_KEY = String(process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_API_KEY || "").trim();
+const GOOGLE_DISTANCE_TIMEOUT_MS = Math.max(3000, Number(process.env.GOOGLE_DISTANCE_TIMEOUT_MS || 8000));
+const MAX_ROAD_DISTANCE_DESTINATIONS = Math.max(0, Number(process.env.MAX_ROAD_DISTANCE_DESTINATIONS || 75));
+const INSIGHT_CACHE_VERSION = Number(process.env.INSIGHT_CACHE_VERSION || 3);
 const RAZORPAY_KEY_ID = String(process.env.RAZORPAY_KEY_ID || "").trim();
 const RAZORPAY_KEY_SECRET = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
 const PAYMENT_CURRENCY = String(process.env.PAYMENT_CURRENCY || "INR").trim().toUpperCase();
@@ -69,6 +77,59 @@ function parseCsv(value, fallback = "") {
     .filter(Boolean);
 }
 
+function normalizeInsightCachePart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\bhyderabad\b/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function getInsightCacheKey(locality) {
+  return normalizeInsightCachePart(locality);
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+async function readInsightCache() {
+  try {
+    const raw = await fs.readFile(insightCachePath, "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch (err) {
+    if (err?.code === "ENOENT") return {};
+    console.warn("Insight cache read failed:", err.message);
+    return {};
+  }
+}
+
+async function getCachedInsight(locality) {
+  const key = getInsightCacheKey(locality);
+  const cache = await readInsightCache();
+  const entry = cache[key];
+  if (!entry?.data) return null;
+  if (Number(entry.cacheVersion || 0) !== INSIGHT_CACHE_VERSION) return null;
+  return cloneJson(entry.data);
+}
+
+async function saveCachedInsight(locality, data) {
+  const key = getInsightCacheKey(locality);
+  if (!key || !data || typeof data !== "object") return;
+
+  const cache = await readInsightCache();
+  cache[key] = {
+    locality: String(locality || "").trim(),
+    updatedAt: new Date().toISOString(),
+    cacheVersion: INSIGHT_CACHE_VERSION,
+    data: cloneJson(data),
+  };
+  await fs.mkdir(path.dirname(insightCachePath), { recursive: true });
+  await fs.writeFile(insightCachePath, `${JSON.stringify(cache, null, 2)}\n`);
+}
+
 function getNumberedGeminiKeys(env) {
   const keys = [];
   for (let index = 1; index <= 100; index += 1) {
@@ -79,9 +140,13 @@ function getNumberedGeminiKeys(env) {
 }
 
 function getGeminiApiKeys() {
+  const paidKeys = parseCsv(
+    process.env.GOOGLE_PAID_API_KEY
+      || process.env.GEMINI_PAID_API_KEY
+  );
   const numberedKeys = getNumberedGeminiKeys(process.env);
-  const csvKeys = parseCsv(process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY);
-  return [...new Set([...numberedKeys, ...csvKeys])];
+  const csvKeys = parseCsv(process.env.GEMINI_API_KEYS);
+  return [...new Set([...paidKeys, ...numberedKeys, ...csvKeys])];
 }
 
 const GEMINI_API_KEYS = getGeminiApiKeys();
@@ -107,8 +172,7 @@ const OPENROUTER_API_KEYS = getNumberedKeys(
 );
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const GEMINI_FALLBACK_MODELS = parseCsv(
-  process.env.GEMINI_FALLBACK_MODELS,
-  "gemini-2.5-flash-lite,gemini-3.5-flash"
+  process.env.GEMINI_FALLBACK_MODELS
 );
 
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
@@ -244,6 +308,7 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 const frontendDir = path.join(repoRoot, "Property Analyzer");
 const uploadsDir = path.join(repoRoot, "uploads");
+const insightCachePath = path.join(__dirname, "data", "freeInsightCache.json");
 const maxUploadBytes = 10 * 1024 * 1024;
 
 app.use(applyCors);
@@ -476,14 +541,23 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
+function getPromptLocality(locality) {
+  const normalized = normalizeMetroLookupName(locality);
+  if (normalized === "suncity" || normalized === "suncityhyderabad") {
+    return "Suncity, Bandlaguda Jagir, Hyderabad";
+  }
+  return `${locality}, Hyderabad`;
+}
+
 function buildPrompt(locality, budget) {
-  return `Analyze market intelligence for the locality: ${locality}, Hyderabad. User Budget: ${budget}.
+  return `Analyze market intelligence for the locality: ${getPromptLocality(locality)}. User Budget: ${budget}.
 Return ONLY a valid JSON with these keys:
 "price" (approx price range per sqft/sqyd),
 "appreciation" (3-year growth %),
 "go111" (SAFE or AFFECTED),
 "zoning" (Master plan zone),
-"metro" (nearest metro station and distance),
+"metro" (nearest operational Hyderabad Metro station and road distance from the exact locality; do not return railway/MMTS stations here),
+"metro_stations" (array of exactly 3 nearest operational Hyderabad Metro stations, sorted nearest first; each item must include "name", "distance_km", and "line"),
 "hospitals_list" (array of exactly 10 nearby hospitals, sorted nearest first; include at least 2-3 government hospitals where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "schools_list" (array of exactly 10 nearby schools, sorted nearest first; include at least 2-3 government schools where available; each item must include "name", "distance_km", and "type" as Government or Private),
 "malls_list" (array of exactly 10 nearby malls, shopping centres, supermarkets, or major markets, sorted nearest first; each item must include "name" and "distance_km"),
@@ -501,6 +575,44 @@ function parseGeminiJson(text) {
   return JSON.parse(cleanText);
 }
 
+function formatMetroStation(station) {
+  if (!station) return "";
+  if (typeof station === "string") return station.trim();
+  if (typeof station !== "object") return "";
+
+  const name = String(station.name || station.station || station.metro_station || "").trim();
+  const distanceValue = station.distance_km ?? station.distance ?? station.km;
+  const distanceText = distanceValue !== undefined && distanceValue !== null && String(distanceValue).trim() !== ""
+    ? String(distanceValue).toLowerCase().includes("km")
+      ? String(distanceValue).trim()
+      : `${distanceValue} km`
+    : "";
+  const line = String(station.line || station.route || "").trim();
+
+  return [name, distanceText, line].filter(Boolean).join(" - ");
+}
+
+function normalizeMetroConnectivity(data) {
+  if (!data || typeof data !== "object") return data;
+
+  const metroStations = Array.isArray(data.metro_stations)
+    ? data.metro_stations
+    : Array.isArray(data.nearest_metro_stations)
+      ? data.nearest_metro_stations
+      : [];
+  const nearestMetro = formatMetroStation(metroStations[0]);
+
+  if (nearestMetro) {
+    data.metro = nearestMetro;
+    return data;
+  }
+
+  const metroText = formatMetroStation(data.metro || data.metro_connectivity || data.nearest_metro);
+  if (metroText) data.metro = metroText;
+
+  return data;
+}
+
 function getGeminiModelCandidates() {
   return [...new Set([GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS])];
 }
@@ -510,6 +622,7 @@ async function callGroqModel(apiKey, locality, budget) {
     "https://api.groq.com/openai/v1/chat/completions",
     {
       method: "POST",
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -543,6 +656,7 @@ async function callOpenRouterModel(apiKey, locality, budget) {
     "https://openrouter.ai/api/v1/chat/completions",
     {
       method: "POST",
+      signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -615,6 +729,7 @@ async function callGeminiModel(model, apiKey, locality, budget) {
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: "POST",
+          signal: AbortSignal.timeout(AI_PROVIDER_TIMEOUT_MS),
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: buildPrompt(locality, budget) }] }],
@@ -655,10 +770,6 @@ async function callGeminiModel(model, apiKey, locality, budget) {
 
 app.post("/api/analyze", async (req, res) => {
   try {
-    if (!GEMINI_API_KEYS.length && !GROQ_API_KEYS.length && !OPENROUTER_API_KEYS.length) {
-      return res.status(500).json({ error: "Missing AI provider API keys on backend." });
-    }
-
     const locality = String(req.body?.locality || "").trim();
     const budget = String(req.body?.budget || "").trim();
     if (!locality) {
@@ -666,25 +777,29 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     let data;
+    const cachedData = await getCachedInsight(locality);
+    if (cachedData) {
+      await applyInsightValidations(cachedData, locality);
+      await saveCachedInsight(locality, cachedData);
+      return res.json({ data: cachedData, cached: true });
+    }
+
+    if (!GEMINI_API_KEYS.length && !GROQ_API_KEYS.length && !OPENROUTER_API_KEYS.length) {
+      return res.status(500).json({ error: "Missing AI provider API keys on backend." });
+    }
+
     try {
       data = await callAI(locality, budget);
+      normalizeMetroConnectivity(data);
     } catch (err) {
       return res.status(500).json({
         error: err?.message || "All AI providers failed",
       });
     }
 
-    const go111Match = findGo111Village(locality);
-    data.go111 = go111Match ? "AFFECTED" : "SAFE";
-    data.go111_details = go111Match
-      ? {
-          ...go111Match,
-          status: "AFFECTED",
-          note: "This locality matches the GO111 village list. Verify land-use and permissions carefully before purchase.",
-        }
-      : null;
+    await saveCachedInsight(locality, data);
 
-    res.json({ data });
+    res.json({ data, cached: false });
   } catch (err) {
     console.error("Analyze failed:", err);
     res.status(500).json({ error: "Failed to analyze locality." });

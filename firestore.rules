@@ -10,6 +10,7 @@ service cloud.firestore {
         'locality',
         'budget',
         'aiInsights',
+        'metroCacheVersion',
         'paymentStatus',
         'convertedToPaid',
         'createdAt',
@@ -22,7 +23,8 @@ service cloud.firestore {
       && request.resource.data.email is string
       && request.resource.data.locality is string
       && request.resource.data.budget is string
-      && request.resource.data.aiInsights is map;
+      && request.resource.data.aiInsights is map
+      && request.resource.data.metroCacheVersion is int;
     }
 
     function isAuditOrderPayload() {
@@ -48,8 +50,12 @@ service cloud.firestore {
     }
 
     match /freeInsights/{docId} {
-      allow create, update: if docId.matches('^FREE-[a-z0-9-]+$') && isFreeInsightPayload();
-      allow read, delete: if false;
+      allow create, update: if docId.matches('^FREE(-v[0-9]+)?-[a-z0-9-]+$') && isFreeInsightPayload();
+      allow read: if docId.matches('^FREE(-v[0-9]+)?-[a-z0-9-]+$')
+        && resource.data.name == ''
+        && resource.data.phone == ''
+        && resource.data.email == '';
+      allow delete: if false;
     }
 
     match /auditOrders/{docId} {
