@@ -501,18 +501,38 @@ export async function searchNearbyPlaces(latitude, longitude, includedTypes, opt
   }
 }
 
+
+// 👇 ADD THIS NEW FUNCTION HERE
 export async function searchNearbyMetroStations(
   latitude,
   longitude,
   options = {}
 ) {
-  return searchNearbyPlaces(
+  const places = await searchNearbyPlaces(
     latitude,
     longitude,
     ["subway_station"],
     options
   );
+
+  console.log("Metro Places:", JSON.stringify(places, null, 2));
+
+  return places;
 }
+
+
+// export async function searchNearbyMetroStations(
+//   latitude,
+//   longitude,
+//   options = {}
+// ) {
+//   return searchNearbyPlaces(
+//     latitude,
+//     longitude,
+//     ["subway_station"],
+//     options
+//   );
+// }
 
 export async function getVerifiedPlaces(latitude, longitude, config, options = {}) {
   const places = await searchNearbyPlaces(latitude, longitude, config.includedTypes, options);
