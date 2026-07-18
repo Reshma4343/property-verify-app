@@ -1,8 +1,3 @@
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const metroData = require("../data/hyderabadMetroStations.json");
-
 const DEFAULT_TIMEOUT_MS = 8000;
 const DEFAULT_SEARCH_RADIUS_METERS = 10000;
 const DEFAULT_PLACE_LIMIT = 10;
@@ -13,7 +8,7 @@ const HYDERABAD_BOUNDS = {
   maxLng: 79.2,
 };
 
-const metroStations = Array.isArray(metroData?.stations) ? metroData.stations : [];
+const metroStations = [];
 
 const railStations = [
   { name: "Malakpet MMTS Station", latitude: 17.3772, longitude: 78.4998 },

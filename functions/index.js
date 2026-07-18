@@ -1,10 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import functions from "firebase-functions";
-import { createRequire } from "node:module";
 
-const require = createRequire(import.meta.url);
-const metroData = require("./data/hyderabadMetroStations.json");
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 

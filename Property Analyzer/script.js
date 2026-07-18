@@ -11,66 +11,6 @@ let lastFreeInsightDocId = null;
 let appRuntimeConfig = null;
 const METRO_CACHE_VERSION = 3;
 const FREE_INSIGHT_CACHE_PREFIX = "FREE-v4";
-const HYDERABAD_METRO_STATION_NAMES = [
-    "Miyapur Metro Station",
-    "JNTU College Metro Station",
-    "KPHB Colony Metro Station",
-    "Kukatpally Metro Station",
-    "Balanagar Metro Station",
-    "Moosapet Metro Station",
-    "Bharat Nagar Metro Station",
-    "Erragadda Metro Station",
-    "ESI Hospital Metro Station",
-    "S.R. Nagar Metro Station",
-    "Ameerpet Metro Station",
-    "Punjagutta Metro Station",
-    "Irrum Manzil Metro Station",
-    "Khairatabad Metro Station",
-    "Lakdikapul Metro Station",
-    "Assembly Metro Station",
-    "Nampally Metro Station",
-    "Gandhi Bhavan Metro Station",
-    "Medical College Metro Station",
-    "MG Bus Station Metro Station",
-    "Malakpet Metro Station",
-    "New Market Metro Station",
-    "Musarambagh Metro Station",
-    "Dilsukhnagar Metro Station",
-    "Chaitanyapuri Metro Station",
-    "Victoria Memorial Metro Station",
-    "L.B. Nagar Metro Station",
-    "Raidurg Metro Station",
-    "Hitech City Metro Station",
-    "Durgam Cheruvu Metro Station",
-    "Madhapur Metro Station",
-    "Peddamma Temple Metro Station",
-    "Jubilee Hills Check Post Metro Station",
-    "Road No 5 Jubilee Hills Metro Station",
-    "Yousufguda Metro Station",
-    "Madhura Nagar Metro Station",
-    "Begumpet Metro Station",
-    "Prakash Nagar Metro Station",
-    "Rasoolpura Metro Station",
-    "Paradise Metro Station",
-    "Parade Ground Metro Station",
-    "Secunderabad East Metro Station",
-    "Mettuguda Metro Station",
-    "Tarnaka Metro Station",
-    "Habsiguda Metro Station",
-    "NGRI Metro Station",
-    "Stadium Metro Station",
-    "Uppal Metro Station",
-    "Nagole Metro Station",
-    "JBS Parade Ground Metro Station",
-    "Secunderabad West Metro Station",
-    "Gandhi Hospital Metro Station",
-    "Musheerabad Metro Station",
-    "RTC X Roads Metro Station",
-    "Chikkadpally Metro Station",
-    "Narayanaguda Metro Station",
-    "Sultan Bazaar Metro Station",
-];
-const HYDERABAD_METRO_STATION_KEYS = new Set(HYDERABAD_METRO_STATION_NAMES.map(normalizeMetroStationKey));
 const DEFAULT_AUDIT_PAYMENT = {
     baseAmount: 29900,
     gstAmount: 5382,
@@ -758,7 +698,6 @@ function getMetroDisplayText(data) {
 function hasMetroStationNameWithKm(data) {
     const metroText = getMetroDisplayText(data);
     if (!/\bkm\b/i.test(metroText)) return false;
-    return HYDERABAD_METRO_STATION_KEYS.has(normalizeMetroStationKey(getMetroStationNameOnly(metroText)));
     const namePart = metroText
         .replace(/\bkm\b/gi, "")
         .replace(/\bapprox(?:imately)?\b/gi, "")
