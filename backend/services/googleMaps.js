@@ -156,12 +156,27 @@ function getPlaceCoordinates(place) {
   return { latitude, longitude };
 }
 
+// function getGovernmentOrPrivateType(place, fallbackType = "") {
+//   const name = getPlaceName(place);
+//   if (!fallbackType) return undefined;
+//   if (/\b(govt|government|osmania|gandhi|niloufer|esi|district|primary health|phc)\b/i.test(name)) {
+//     return 2 Government
+
+//   }
+//   return "nearest Private";
+// }
+
 function getGovernmentOrPrivateType(place, fallbackType = "") {
   const name = getPlaceName(place);
+
   if (!fallbackType) return undefined;
-  if (/\b(govt|government|osmania|gandhi|niloufer|esi|district|primary health|phc)\b/i.test(name)) {
+
+  if (
+    /\b(govt|government|government hospital|government school|osmania|gandhi|niloufer|esi|district|primary health|phc|zp high school|zilla parishad|model school|mpps)\b/i.test(name)
+  ) {
     return "Government";
   }
+
   return "Private";
 }
 
@@ -378,6 +393,12 @@ export async function getVerifiedRailAccess(latitude, longitude, locality, optio
     }
   };
 
+const secunderabad = railStations.find((station) =>
+  /Secunderabad Railway Station/i.test(station.name)
+);
+
+addStation(secunderabad);
+
   if (normalizedLocality.includes("malakpet")) {
     addStation(nearestStations.find((station) => /malakpet/i.test(station.name)));
   }
@@ -510,7 +531,8 @@ export async function searchNearbyMetroStations(
   let places = await searchNearbyPlaces(
     latitude,
     longitude,
-    ["subway_station"],
+    ["subway_station",
+    "transit_station"],
     options
   );
 
@@ -521,7 +543,8 @@ export async function searchNearbyMetroStations(
     places = await searchNearbyPlaces(
       latitude,
       longitude,
-      ["subway_station"],
+      ["subway_station",
+      "transit_station"],
       {
         ...options,
         searchRadiusMeters: 50000,
@@ -592,20 +615,60 @@ export async function getVerifiedPlaces(latitude, longitude, config, options = {
     roadDistances.map((item) => [item.index, item.distance_km])
   );
 
-  return placeItems
-    .map((item, index) => {
-      const type = getGovernmentOrPrivateType(item.place, config.fallbackType);
-      return {
-        name: item.name,
-        distance_km: roadDistanceByIndex.get(index)
-          ?? Math.round(
-            haversineKm(latitude, longitude, item.coordinates.latitude, item.coordinates.longitude) * 10
-          ) / 10,
-        ...(type ? { type } : {}),
-      };
-    })
-    .sort((first, second) => first.distance_km - second.distance_km)
-    .slice(0, getGoogleMapsConfig(options).placeLimit);
+//   return placeItems
+//     .map((item, index) => {
+//       const type = getGovernmentOrPrivateType(item.place, config.fallbackType);
+//       return {
+//         name: item.name,
+//         distance_km: roadDistanceByIndex.get(index)
+//           ?? Math.round(
+//             haversineKm(latitude, longitude, item.coordinates.latitude, item.coordinates.longitude) * 10
+//           ) / 10,
+//         ...(type ? { type } : {}),
+//       };
+//     })
+//     .sort((first, second) => first.distance_km - second.distance_km)
+//     .slice(0, getGoogleMapsConfig(options).placeLimit);
+// }
+
+const results = placeItems
+  .map((item, index) => {
+    const type = getGovernmentOrPrivateType(item.place, config.fallbackType);
+
+    return {
+      name: item.name,
+      distance_km:
+        roadDistanceByIndex.get(index) ??
+        Math.round(
+          haversineKm(
+            latitude,
+            longitude,
+            item.coordinates.latitude,
+            item.coordinates.longitude
+          ) * 10
+        ) / 10,
+      ...(type ? { type } : {}),
+    };
+  })
+  .sort((a, b) => a.distance_km - b.distance_km);
+
+// Only apply special handling for hospitals and schools
+if (
+  config.field === "hospitals_list" ||
+  config.field === "schools_list"
+) {
+  const government = results.filter((p) => p.type === "Government");
+  const privatePlaces = results.filter((p) => p.type === "Private");
+
+  const finalResults = [
+    ...government.slice(0, 2),
+    ...privatePlaces,
+  ];
+
+  return finalResults.slice(0, getGoogleMapsConfig(options).placeLimit);
+}
+
+return results.slice(0, getGoogleMapsConfig(options).placeLimit);
 }
 
 export async function buildGoogleVerifiedInsights(locality, options = {}) {
