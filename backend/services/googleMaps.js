@@ -531,8 +531,7 @@ export async function searchNearbyMetroStations(
   let places = await searchNearbyPlaces(
     latitude,
     longitude,
-    ["subway_station",
-    "transit_station"],
+    ["subway_station"],
     options
   );
 
@@ -543,8 +542,7 @@ export async function searchNearbyMetroStations(
     places = await searchNearbyPlaces(
       latitude,
       longitude,
-      ["subway_station",
-      "transit_station"],
+      ["subway_station"],
       {
         ...options,
         searchRadiusMeters: 50000,
