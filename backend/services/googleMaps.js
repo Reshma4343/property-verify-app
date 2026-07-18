@@ -15,6 +15,23 @@ const HYDERABAD_BOUNDS = {
 
 const metroStations = Array.isArray(metroData?.stations) ? metroData.stations : [];
 
+const railStations = [
+  { name: "Malakpet MMTS Station", latitude: 17.3772, longitude: 78.4998 },
+  { name: "Dabirpura MMTS Station", latitude: 17.3664, longitude: 78.4888 },
+  { name: "Yakutpura MMTS Station", latitude: 17.3616, longitude: 78.4845 },
+  { name: "Huppuguda MMTS Station", latitude: 17.3435, longitude: 78.4824 },
+  { name: "Dilsukhnagar MMTS Station", latitude: 17.3688, longitude: 78.5262 },
+  { name: "Kacheguda Railway Station", latitude: 17.3892, longitude: 78.4984 },
+  { name: "Hyderabad Deccan Nampally Railway Station", latitude: 17.3924, longitude: 78.4675 },
+  { name: "Secunderabad Railway Station", latitude: 17.4344, longitude: 78.5010 },
+  { name: "Malkajgiri MMTS Station", latitude: 17.4474, longitude: 78.5350 },
+  { name: "Begumpet Railway Station", latitude: 17.4377, longitude: 78.4576 },
+  { name: "Bharat Nagar MMTS Station", latitude: 17.4555, longitude: 78.4486 },
+  { name: "Borabanda MMTS Station", latitude: 17.4573, longitude: 78.4138 },
+  { name: "HITEC City MMTS Station", latitude: 17.4502, longitude: 78.3830 },
+  { name: "Lingampalli Railway Station", latitude: 17.4849, longitude: 78.3170 },
+];
+
 const amenityConfigs = [
   {
     field: "hospitals_list",
@@ -99,6 +116,13 @@ function normalizeStation(station) {
     longitude,
     line: String(station.line || "").trim(),
   };
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function haversineKm(originLatitude, originLongitude, destinationLatitude, destinationLongitude) {
@@ -271,6 +295,46 @@ export async function getVerifiedMetroStations(latitude, longitude, options = {}
     .sort((first, second) => first.distance_km - second.distance_km);
 }
 
+export async function getVerifiedRailAccess(latitude, longitude, locality, options = {}) {
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
+
+  const normalizedLocality = normalizeText(locality);
+  const nearestStations = railStations
+    .map((station) => ({
+      ...station,
+      straight_line_distance_km: Math.round(
+        haversineKm(latitude, longitude, station.latitude, station.longitude) * 10
+      ) / 10,
+    }))
+    .sort((first, second) => first.straight_line_distance_km - second.straight_line_distance_km);
+
+  const selectedStations = [];
+  const addStation = (station) => {
+    if (station && !selectedStations.some((item) => item.name === station.name)) {
+      selectedStations.push(station);
+    }
+  };
+
+  if (normalizedLocality.includes("malakpet")) {
+    addStation(nearestStations.find((station) => /malakpet/i.test(station.name)));
+  }
+  nearestStations.slice(0, 5).forEach(addStation);
+
+  const finalStations = selectedStations.slice(0, 5);
+  const roadDistances = await getRoadDistances(latitude, longitude, finalStations, options);
+  const roadDistanceByIndex = new Map(
+    roadDistances.map((item) => [item.index, item.distance_km])
+  );
+
+  return finalStations
+    .map((station, index) => ({
+      name: station.name,
+      distance_km: roadDistanceByIndex.get(index) ?? station.straight_line_distance_km,
+    }))
+    .sort((first, second) => first.distance_km - second.distance_km)
+    .slice(0, 3);
+}
+
 export async function searchNearbyPlaces(latitude, longitude, includedTypes, options = {}) {
   const { apiKey, timeoutMs, searchRadiusMeters, placeLimit } = getGoogleMapsConfig(options);
   if (!apiKey || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
@@ -352,8 +416,9 @@ export async function buildGoogleVerifiedInsights(locality, options = {}) {
   const geocoded = await geocodeLocality(locality, options);
   if (!geocoded) return null;
 
-  const [metroStationsVerified, ...amenityResults] = await Promise.all([
+  const [metroStationsVerified, railAccess, ...amenityResults] = await Promise.all([
     getVerifiedMetroStations(geocoded.latitude, geocoded.longitude, options),
+    getVerifiedRailAccess(geocoded.latitude, geocoded.longitude, locality, options),
     ...amenityConfigs.map((config) => getVerifiedPlaces(
       geocoded.latitude,
       geocoded.longitude,
@@ -371,6 +436,7 @@ export async function buildGoogleVerifiedInsights(locality, options = {}) {
   return {
     geocoded,
     metro_stations: metroStationsVerified,
+    rail_access: railAccess,
     amenities,
   };
 }
@@ -397,6 +463,10 @@ export function applyGoogleVerifiedInsights(data, verifiedInsights) {
     )
       ? "google_routes"
       : "haversine_fallback";
+  }
+
+  if (Array.isArray(verifiedInsights.rail_access) && verifiedInsights.rail_access.length) {
+    data.rail_access = verifiedInsights.rail_access;
   }
 
   for (const [field, places] of Object.entries(verifiedInsights.amenities)) {

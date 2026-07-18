@@ -94,7 +94,8 @@ function cloneJson(value) {
 
 async function readInsightCache() {
   try {
-    const raw = await fs.readFile(insightCachePath, "utf8");
+    const raw = (await fs.readFile(insightCachePath, "utf8")).replace(/^\uFEFF/, "").trim();
+    if (!raw) return {};
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   } catch (err) {
