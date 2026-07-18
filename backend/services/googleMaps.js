@@ -269,25 +269,93 @@ export async function getRoadDistances(originLat, originLng, destinations, optio
   }
 }
 
-export async function getVerifiedMetroStations(latitude, longitude, options = {}) {
-  const nearestStations = findNearestMetro(latitude, longitude, 3);
-  if (!nearestStations.length) return [];
+// export async function getVerifiedMetroStations(latitude, longitude, options = {}) {
+//   const nearestStations = findNearestMetro(latitude, longitude, 3);
+//   if (!nearestStations.length) return [];
 
-  const roadDistances = await getRoadDistances(latitude, longitude, nearestStations, options);
+//   const roadDistances = await getRoadDistances(latitude, longitude, nearestStations, options);
+//   const roadDistanceByIndex = new Map(
+//     roadDistances.map((item) => [item.index, item.distance_km])
+//   );
+
+//   return nearestStations
+//     .map((station, index) => ({
+//       name: station.name,
+//       distance_km: roadDistanceByIndex.get(index) ?? station.straight_line_distance_km,
+//       line: station.line,
+//       latitude: station.latitude,
+//       longitude: station.longitude,
+//       distance_source: roadDistanceByIndex.has(index) ? "google_routes" : "haversine_fallback",
+//     }))
+//     .sort((first, second) => first.distance_km - second.distance_km);
+// }
+
+export async function getVerifiedMetroStations(
+  latitude,
+  longitude,
+  options = {}
+) {
+  const places = await searchNearbyMetroStations(
+    latitude,
+    longitude,
+    options
+  );
+
+  if (!places.length) {
+    return [];
+  }
+
+  const stations = places
+    .map((place) => {
+      const coords = getPlaceCoordinates(place);
+
+      if (!coords) return null;
+
+      return {
+        name: getPlaceName(place),
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        line: "",
+      };
+    })
+    .filter(Boolean);
+
+  if (!stations.length) {
+    return [];
+  }
+
+  const roadDistances = await getRoadDistances(
+    latitude,
+    longitude,
+    stations,
+    options
+  );
+
   const roadDistanceByIndex = new Map(
     roadDistances.map((item) => [item.index, item.distance_km])
   );
 
-  return nearestStations
+  return stations
     .map((station, index) => ({
       name: station.name,
-      distance_km: roadDistanceByIndex.get(index) ?? station.straight_line_distance_km,
+      distance_km:
+        roadDistanceByIndex.get(index) ??
+        Math.round(
+          haversineKm(
+            latitude,
+            longitude,
+            station.latitude,
+            station.longitude
+          ) * 10
+        ) / 10,
       line: station.line,
       latitude: station.latitude,
       longitude: station.longitude,
-      distance_source: roadDistanceByIndex.has(index) ? "google_routes" : "haversine_fallback",
+      distance_source: roadDistanceByIndex.has(index)
+        ? "google_routes"
+        : "haversine_fallback",
     }))
-    .sort((first, second) => first.distance_km - second.distance_km);
+    .sort((a, b) => a.distance_km - b.distance_km);
 }
 
 export async function getVerifiedRailAccess(latitude, longitude, locality, options = {}) {
@@ -330,43 +398,120 @@ export async function getVerifiedRailAccess(latitude, longitude, locality, optio
     .slice(0, 3);
 }
 
+// export async function searchNearbyPlaces(latitude, longitude, includedTypes, options = {}) {
+// export async function searchNearbyMetroStations(latitude, longitude, options = {}) {
+//   const { apiKey, timeoutMs, searchRadiusMeters, placeLimit } =
+//     getGoogleMapsConfig(options);
+
+//   if (!apiKey || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+//     return [];
+//   }
+
+//   try {
+//     const response = await fetch(
+//       "https://places.googleapis
+
+//   const { apiKey, timeoutMs, searchRadiusMeters, placeLimit } = getGoogleMapsConfig(options);
+//   if (!apiKey || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
+
+//   try {
+//     const response = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+//       method: "POST",
+//       signal: AbortSignal.timeout(timeoutMs),
+//       headers: {
+//         "Content-Type": "application/json",
+//         "X-Goog-Api-Key": apiKey,
+//         "X-Goog-FieldMask": "places.displayName,places.location,places.types",
+//       },
+//       body: JSON.stringify({
+//         includedTypes,
+//         maxResultCount: placeLimit,
+//         locationRestriction: {
+//           circle: {
+//             center: {
+//               latitude,
+//               longitude,
+//             },
+//             radius: searchRadiusMeters,
+//           },
+//         },
+//       }),
+//     });
+//     const result = await response.json().catch(() => ({}));
+//     if (!response.ok || !Array.isArray(result?.places)) {
+//       console.warn("Google Places lookup failed:", result?.error?.message || response.status);
+//       return [];
+//     }
+//     return result.places;
+//   } catch (err) {
+//     console.warn("Google Places lookup failed:", err.message);
+//     return [];
+//   }
+// }
+
 export async function searchNearbyPlaces(latitude, longitude, includedTypes, options = {}) {
-  const { apiKey, timeoutMs, searchRadiusMeters, placeLimit } = getGoogleMapsConfig(options);
-  if (!apiKey || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
+  const { apiKey, timeoutMs, searchRadiusMeters, placeLimit } =
+    getGoogleMapsConfig(options);
+
+  if (!apiKey || !Number.isFinite(latitude) || !Number.isFinite(longitude))
+    return [];
 
   try {
-    const response = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
-      method: "POST",
-      signal: AbortSignal.timeout(timeoutMs),
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.displayName,places.location,places.types",
-      },
-      body: JSON.stringify({
-        includedTypes,
-        maxResultCount: placeLimit,
-        locationRestriction: {
-          circle: {
-            center: {
-              latitude,
-              longitude,
-            },
-            radius: searchRadiusMeters,
-          },
+    const response = await fetch(
+      "https://places.googleapis.com/v1/places:searchNearby",
+      {
+        method: "POST",
+        signal: AbortSignal.timeout(timeoutMs),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask":
+            "places.displayName,places.location,places.types",
         },
-      }),
-    });
+        body: JSON.stringify({
+          includedTypes,
+          maxResultCount: placeLimit,
+          locationRestriction: {
+            circle: {
+              center: {
+                latitude,
+                longitude,
+              },
+              radius: searchRadiusMeters,
+            },
+          },
+        }),
+      }
+    );
+
     const result = await response.json().catch(() => ({}));
+
     if (!response.ok || !Array.isArray(result?.places)) {
-      console.warn("Google Places lookup failed:", result?.error?.message || response.status);
+      console.warn(
+        "Google Places lookup failed:",
+        result?.error?.message || response.status
+      );
       return [];
     }
+
     return result.places;
   } catch (err) {
     console.warn("Google Places lookup failed:", err.message);
     return [];
   }
+}
+
+export async function searchNearbyMetroStations(
+  latitude,
+  longitude,
+  options = {}
+) {
+  return searchNearbyPlaces(
+    latitude,
+    longitude,
+    ["subway_station"],
+    options
+  );
 }
 
 export async function getVerifiedPlaces(latitude, longitude, config, options = {}) {
